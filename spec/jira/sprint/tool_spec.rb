@@ -2,6 +2,6 @@
 
 RSpec.describe Jira::Sprint::Tool do
   it "has a version number" do
-    expect(Jira::Sprint::Tool::VERSION).not_to be nil
+    expect(Jira::Sprint::Tool::VERSION).not_to be_nil
   end
 end
