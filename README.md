@@ -1,4 +1,5 @@
 # Jira::Sprint::Tool
+![Main Workflow](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
 
 TODO: Delete this and the text below, and describe your gem
 
