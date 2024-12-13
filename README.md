@@ -24,8 +24,25 @@ gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
 ## Usage
 
 TODO: Write usage instructions here
+```bash
+jira-sprint-tool --help
+```
 
 ## Development
+
+### Install dependencies
+
+```bash
+bundle install
+```
+
+### Continuous Testing While Making Changes
+
+```bash
+bundle exec guard
+```
+
+
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 

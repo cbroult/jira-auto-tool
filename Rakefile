@@ -9,7 +9,10 @@ RSpec::Core::RakeTask.new(:spec)
 
 require "rubocop/rake_task"
 
-RuboCop::RakeTask.new
+RuboCop::RakeTask.new(:rubocop) do |task|
+  task.options = ["--autocorrect"]
+end
+
 Cucumber::Rake::Task.new
 
 task default: %i[rubocop spec cucumber]

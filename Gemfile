@@ -16,4 +16,10 @@ group :development do
   gem "cucumber"
   gem "rubocop-rake", require: false
   gem "rubocop-rspec", require: false
+
+  gem "guard"
+  gem "guard-bundler"
+  gem "guard-cucumber"
+  gem "guard-rspec"
+  gem "guard-rubocop"
 end
