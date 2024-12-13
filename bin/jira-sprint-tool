@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/setup"
+require "jira/sprint/tool"
+
+require 'optionparser'
+
+DISPLAY_HELP_OPTION = '--help'
+
+if ARGV.empty?
+  ARGV << DISPLAY_HELP_OPTION
+end
+
+parser = OptionParser.new do |parser|
+  parser.banner = <<-EOBANNER
+Usage: #{File.basename(__FILE__)} [options]*
+
+EOBANNER
+  parser.on('-h', DISPLAY_HELP_OPTION, "Print this help") do
+    puts parser
+    exit
+  end
+end
+
+parser.parse!
