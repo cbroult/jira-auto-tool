@@ -3,21 +3,33 @@
 
 require "bundler/setup"
 require "jira/sprint/tool"
+require "jira/sprint/tool/sprint_generator/options"
 
-require "optionparser"
+require "optparse"
+require "optparse/date"
 
 DISPLAY_HELP_OPTION = "--help"
 
 ARGV << DISPLAY_HELP_OPTION if ARGV.empty?
+
+tool = Jira::Sprint::Tool.new
 
 OptionParser.new do |parser|
   parser.banner = <<~EOBANNER
     Usage: #{File.basename(__FILE__)} [options]*
 
   EOBANNER
+
   parser.on("-h", DISPLAY_HELP_OPTION, "Print this help") do
     puts parser
     exit
   end
+
+  parser.on("--board-name=STRING", String) do |board_name|
+    tool.board_name = board_name
+  end
+
+  Jira::Sprint::Tool::SprintGenerator::Options
+    .add(tool.sprint_generator, parser)
 end
   .parse!

@@ -1,2 +1,4 @@
 default: --format pretty
 guard: --format progress
+rake: --format progress --tags 'not @wip'
+

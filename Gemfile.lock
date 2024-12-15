@@ -45,7 +45,6 @@ GEM
     cucumber-tag-expressions (6.1.1)
     diff-lcs (1.5.1)
     ffi (1.17.0)
-    ffi (1.17.0-x86_64-linux-gnu)
     formatador (1.1.0)
     guard (2.19.0)
       formatador (>= 0.2.4)
