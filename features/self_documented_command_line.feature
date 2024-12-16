@@ -8,8 +8,8 @@ Usage: jira-sprint-tool [options]*
 
        """
     Examples:
-      | explaination					| arguments |
+      | explanation					                | arguments |
       | no argument should print the help message 	|           |
-      | help flag long version 	     	  		| --help    | 
-      | help flag short version 			| -h        |
+      | help flag long version 	     	  		    | --help    |
+      | help flag short version 			        | -h        |
      

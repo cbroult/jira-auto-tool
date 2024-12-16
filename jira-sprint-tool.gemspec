@@ -36,7 +36,10 @@ Gem::Specification.new do |spec|
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
 
-  spec.add_dependency "logger"
+  spec.add_dependency "jira-ruby"
+  spec.add_dependency "logging"
+  spec.add_dependency "ostruct"
+  spec.add_dependency "syslog"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

@@ -1,4 +1,7 @@
-default: --format pretty
-guard: --format progress
+<%
+  default_tags = 'not @in-specification'
+%>
+default: --format pretty --tags ' <%= default_tags %>'
+guard: --format progress --tags ' <%= default_tags %>'
 rake: --format progress --tags 'not @wip'
 
