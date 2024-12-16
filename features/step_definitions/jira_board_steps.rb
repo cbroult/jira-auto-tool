@@ -5,5 +5,8 @@ Given(/^a Jira Scrum board$/) do
 end
 
 Given(/^the board has no sprint$/) do
-  remove_existing_sprints(@board)
+  expect(@board.sprints).to be_empty
+end
+
+Given(/^the board has only closed sprints$/) do
 end

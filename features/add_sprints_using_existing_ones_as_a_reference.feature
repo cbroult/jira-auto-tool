@@ -17,7 +17,7 @@ Feature: Add sprints to existing ones as a reference
 
   Scenario: Board with only closed sprints
     Given the board has only closed sprints
-    When I run `jira-sprint-tool --sprint-add-one`
+    When I successfully run `jira-sprint-tool --sprint-add-one`
     Then its stdout output should contain:
        """
        No sprint added since no unclosed reference sprint was found!
@@ -26,7 +26,7 @@ Feature: Add sprints to existing ones as a reference
   @in-specification
   Scenario Outline: The new sprint length is the same as the reference sprint
     Given an unclosed <sprint-length> sprint named "ART_Team_24.4.5" starting on <start-date-time>
-    When I run `jira-sprint-tool --sprint-add-one`
+    When I successfully run `jira-sprint-tool --sprint-add-one`
     Then a sprint named <expected-name> should exist
     And it starts on <expected-start>
     And it ends on <expected-end>
