@@ -18,7 +18,7 @@ Feature: Add sprints to existing ones as a reference
   Scenario: Board with only closed sprints
     Given the board has only closed sprints
     When I successfully run `jira-sprint-tool --sprint-add-one`
-    Then its stdout output should contain:
+    Then the output should contain:
        """
        No sprint added since no unclosed reference sprint was found!
        """
