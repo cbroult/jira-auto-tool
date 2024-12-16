@@ -40,6 +40,7 @@ module Jira
         CLOSED = "closed"
       end
 
+      # TODO: - write unit tests
       def transition_sprint_state(name:, desired_state:)
         sprint_to_update = fetch_sprint(name)
 
