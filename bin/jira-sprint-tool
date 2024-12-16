@@ -3,7 +3,7 @@
 
 require "bundler/setup"
 require "jira/sprint/tool"
-require "jira/sprint/tool/sprint_generator/options"
+require "jira/sprint/tool/sprint_controller/options"
 
 require "optparse"
 require "optparse/date"
@@ -29,7 +29,6 @@ OptionParser.new do |parser|
     tool.board_name = board_name
   end
 
-  Jira::Sprint::Tool::SprintGenerator::Options
-    .add(tool.sprint_generator, parser)
+  Jira::Sprint::Tool::SprintController::Options.add(tool.sprint_controller, parser)
 end
   .parse!

@@ -13,3 +13,6 @@
 
 # rspec failure tracking
 .rspec_status
+
+# RubyMine configuration
+/.idea/

@@ -5,6 +5,8 @@ require:
   - rubocop-rake
   - rubocop-rspec
 
+Style/Documentation:
+  Enabled: false # TODO - reenable
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes

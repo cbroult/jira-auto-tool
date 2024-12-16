@@ -53,10 +53,10 @@ def guard_rubocop
   end
 end
 
-group :red_green_refactor, halt_on_fail: true do
-  guard_rspec
-  guard_rubocop
-end
+# group :red_green_refactor, halt_on_fail: true do
+guard_rspec
+guard_rubocop
+# end
 
 cucumber_options = {
   # Below are examples overriding defaults

@@ -9,20 +9,21 @@ Feature: Add sprints to existing ones as a reference
 
   Scenario: Board with no sprints
     Given the board has no sprint
-    When I run `jira-sprint-tool --sprint-add-one`
-    Then its output should contain:
+    When I successfully run `jira-sprint-tool --sprint-add-one`
+    Then the output should match:
        """
-       WARN - jira-sprint-tool: no sprint added since the Jira board has no sprint!
+       WARN.*No sprint added since no reference sprint was found!
        """
 
   Scenario: Board with only closed sprints
     Given the board has only closed sprints
     When I run `jira-sprint-tool --sprint-add-one`
-    Then its output should contain:
+    Then its stdout output should contain:
        """
-       WARN - jira-sprint-tool: no sprint added since the Jira board has no open sprint!
+       No sprint added since no unclosed reference sprint was found!
        """
 
+  @in-specification
   Scenario Outline: The new sprint length is the same as the reference sprint
     Given an unclosed <sprint-length> sprint named "ART_Team_24.4.5" starting on <start-date-time>
     When I run `jira-sprint-tool --sprint-add-one`
@@ -37,6 +38,7 @@ Feature: Add sprints to existing ones as a reference
       | 3-week        | 2024-12-14 00:00 | ART_Team_25.1.1 | 2024-01-04 00:00 | 2025-01-25 00:00 |
       | 4-week        | 2024-12-14 08:00 | ART_Team_25.1.1 | 2024-01-04 08:00 | 2025-01-25 08:00 |
 
+  @in-specification
   Scenario: Sprint is created for each sprint prefix
     Given the board only has the following sprints:
       | expecting-added-sprint    | name                 | length | start-date-time  | state  |
