@@ -33,11 +33,83 @@ module Jira
         end
       end
 
-      it "has a sprint controller" do
+      describe "#create_sprints" do
+        it "creates sprints" do
+          allow(@tool).to receive_messages(create_future_sprint: nil, update_sprint: nil)
+
+          @tool.create_sprint(name: "sprint_name", start: "2024-12-16 11:00 UTC", length_in_days: 14, goal: "a goal",
+                              state: "a state")
+
+          expect(@tool).to have_received(:create_future_sprint).with("a goal", 14, "sprint_name",
+                                                                     "2024-12-16 11:00 UTC")
+          expect(@tool).to have_received(:update_sprint).with(name: "sprint_name", state: "a state")
+        end
+      end
+
+      describe "#create_future_sprint" do
+        let(:jira_client) { instance_spy(JIRA::Client) }
+        let(:board) { instance_spy(JIRA::Resource::Board, id: 16) }
+
+        it do
+          allow(@tool).to receive_messages(jira_client: jira_client, board: board)
+          allow(jira_client).to receive_messages(post: nil)
+
+          @tool.send(:create_future_sprint, "a goal", 14, "sprint_name", "2024-12-16 11:00 UTC")
+
+          expect(jira_client).to have_received(:post)
+            .with(
+              "/rest/agile/1.0/sprint",
+              {
+                originBoardId: 16,
+                name: "sprint_name",
+                startDate: "2024-12-16T11:00:00Z",
+                endDate: "2024-12-30T11:00:00Z",
+                goal: "a goal"
+              }.to_json,
+              { "Content-Type" => "application/json" }
+            )
+        end
+      end
+
+      describe "#fetch_sprint" do
+        def build_sprint(name)
+          double(JIRA::Resource::Sprint, name: name) # rubocop:disable RSpec/VerifiedDoubles
+        end
+
+        let(:expected_sprint) { build_sprint("expected_sprint_name") }
+
+        let(:board_sprints) do
+          other_boards = 4.times.to_a.collect { |i| build_sprint("sprint_#{i}") }
+          other_boards << expected_sprint
+          other_boards.shuffle
+        end
+
+        let(:board) { double(JIRA::Resource::Board, sprints: board_sprints) }
+
+        it do
+          allow(@tool).to receive_messages(board: board)
+
+          expect(@tool.fetch_sprint("expected_sprint_name")).to be(expected_sprint)
+        end
+      end
+
+      describe "#update_sprint" do
+        let(:sprint_to_update) { instance_spy(JIRA::Resource::Sprint) }
+
+        it "updates a sprint" do
+          allow(@tool).to receive_messages(fetch_sprint: sprint_to_update)
+
+          @tool.update_sprint(name: "sprint_name", state: "closed")
+
+          expect(sprint_to_update).to have_received(:save).with({ state: "closed" })
+        end
+      end
+
+      it "#sprint_controller" do
         expect(@tool.sprint_controller).not_to be_nil
       end
 
-      it "has a sprint generator" do
+      it "#sprint_generator" do
         expect(@tool.sprint_generator).not_to be_nil
       end
 

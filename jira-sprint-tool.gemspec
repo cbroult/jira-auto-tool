@@ -37,6 +37,7 @@ Gem::Specification.new do |spec|
   # spec.add_dependency "example-gem", "~> 1.0"
 
   spec.add_dependency "jira-ruby"
+  spec.add_dependency "http_logger"
   spec.add_dependency "logging"
   spec.add_dependency "ostruct"
   spec.add_dependency "syslog"
