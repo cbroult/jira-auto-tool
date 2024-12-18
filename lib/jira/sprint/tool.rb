@@ -104,7 +104,54 @@ module Jira
 
       private
 
+      class RequestBuilder
+        attr_reader :jira_client
+
+        def initialize(jira_client)
+          @jira_client = jira_client
+        end
+
+        def run
+          # jira_client.send(http_verb, request_args)
+        end
+
+        def build_request_args(request_url, payload)
+          [
+            request_url,
+            payload.to_json,
+            { "Content-Type" => "application/json" }
+          ]
+        end
+
+        protected
+
+        def http_verb
+          raise NotImplementedError, "Subclasses must implement this method"
+        end
+
+        def expected_response
+          raise NotImplementedError, "Subclasses must implement this method"
+        end
+      end
+
+      class SprintCreator < RequestBuilder
+        def initialize(jira_client)
+          super
+        end
+
+        def http_verb
+          post
+        end
+
+        def expected_response
+          201
+        end
+      end
+
       def create_future_sprint(name, start, length_in_days, goal)
+        sprint_creator = SprintCreator.new(jira_client)
+        sprint_creator.run
+
         start_date = Time.parse(start)
         end_date = start_date + length_in_days.days
 
@@ -115,7 +162,7 @@ module Jira
           )
         )
 
-        if response.code.to_i == 201
+        if response.code.to_i == sprint_creator.expected_response
           log.info { "Sprint created successfully: #{response.body}" }
         else
           error_message = "Error creating sprint: #{response.code} - #{response.body}"
@@ -134,43 +181,55 @@ module Jira
         }
       end
 
-      def update_sprint_state(sprint:, new_state:)
-        response = jira_client.put(*build_request_args("/rest/agile/1.0/sprint/#{sprint.id}",
-                                                       build_update_sprint_state_payload(new_state, sprint)))
+      class SprintStateUpdater < RequestBuilder
+        def initialize(jira_client, sprint:, new_state:)
+          super(jira_client)
 
-        if response.code.to_i == 200
-          log.debug { "Sprint state updated successfully: #{response.body}" }
-        else
-          error_message = "Error updating sprint state: #{response.code} - #{response.body}"
-          log.error { error_message }
-          raise error_message
+          response = jira_client.put(*build_request_args("/rest/agile/1.0/sprint/#{sprint.id}",
+                                                         build_update_sprint_state_payload(new_state, sprint)))
+
+          if response.code.to_i == expected_response
+            log.debug { "Sprint state updated successfully: #{response.body}" }
+          else
+            error_message = "Error updating sprint state: #{response.code} - #{response.body}"
+            log.error { error_message }
+            raise error_message
+          end
+        end
+
+        ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE = %i[
+          id
+          self
+          name
+          startDate
+          endDate
+          originBoardId
+        ].freeze
+
+        def build_update_sprint_state_payload(new_state, sprint)
+          attributes = sprint.attrs.symbolize_keys
+
+          ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE.each_with_object({}) do |key, result|
+            result[key] = attributes[key]
+          end
+            .merge({ state: new_state })
+        end
+
+        def http_verb
+          :put
+        end
+
+        def expected_response
+          200
         end
       end
 
-      ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE = %i[
-        id
-        self
-        name
-        startDate
-        endDate
-        originBoardId
-      ].freeze
-
-      def build_update_sprint_state_payload(new_state, sprint)
-        attributes = sprint.attrs.symbolize_keys
-
-        ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE.each_with_object({}) do |key, result|
-          result[key] = attributes[key]
-        end
-          .merge({ state: new_state })
+      def update_sprint_state(sprint:, new_state:)
+        SprintStateUpdater.new(jira_client, sprint: sprint, new_state: new_state)
       end
 
       def build_request_args(request_url, payload)
-        [
-          request_url,
-          payload.to_json,
-          { "Content-Type" => "application/json" }
-        ]
+        RequestBuilder.new(jira_client).build_request_args(request_url, payload)
       end
 
       def fetch_corresponding_environment_variable
