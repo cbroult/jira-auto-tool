@@ -40,21 +40,26 @@ module Jira
           @tool.create_sprint(name: "sprint_name", start: "2024-12-16 11:00 UTC", length_in_days: 14, goal: "a goal",
                               state: "a state")
 
-          expect(@tool).to have_received(:create_future_sprint).with("a goal", 14, "sprint_name",
-                                                                     "2024-12-16 11:00 UTC")
+          expect(@tool).to have_received(:create_future_sprint).with("sprint_name",
+                                                                     "2024-12-16 11:00 UTC", 14, "a goal")
           expect(@tool).to have_received(:transition_sprint_state).with(name: "sprint_name", desired_state: "a state")
         end
       end
 
       describe "#create_future_sprint" do
         let(:jira_client) { instance_spy(JIRA::Client) }
+
+        let(:expected_response) do
+          instance_double(Net::HTTPResponse, code: 201, body: "sprint created successfully")
+        end
+
         let(:board) { instance_spy(JIRA::Resource::Board, id: 16) }
 
         it do
           allow(@tool).to receive_messages(jira_client: jira_client, board: board)
-          allow(jira_client).to receive_messages(post: nil)
+          allow(jira_client).to receive_messages(post: expected_response)
 
-          @tool.send(:create_future_sprint, "a goal", 14, "sprint_name", "2024-12-16 11:00 UTC")
+          @tool.send(:create_future_sprint, "sprint_name", "2024-12-16 11:00 UTC", 14, "a goal")
 
           expect(jira_client).to have_received(:post)
             .with(
@@ -84,7 +89,7 @@ module Jira
           other_boards.shuffle
         end
 
-        let(:board) { double(JIRA::Resource::Board, sprints: board_sprints) }
+        let(:board) { instance_double(JIRA::Resource::Board, sprints: board_sprints) }
 
         it do
           allow(@tool).to receive_messages(board: board)
@@ -105,7 +110,7 @@ module Jira
         end
 
         let(:expected_response) do
-          instance_double(Net::HTTPResponse, code: 200, body: '{"state":"closed"}')
+          instance_double(Net::HTTPResponse, code: 200, body: "sprint updated successfully")
         end
 
         let(:expected_payload) do
