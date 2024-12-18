@@ -1,4 +1,3 @@
-@wip
 Feature: Add sprints to existing ones as a reference
   In order to prepare for sprints in the future
   As an RTE
