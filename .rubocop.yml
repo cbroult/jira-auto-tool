@@ -5,6 +5,10 @@ require:
   - rubocop-rake
   - rubocop-rspec
 
+RSpec/ExampleLength:
+  Enabled: true
+  Max: 10
+
 Style/Documentation:
   Enabled: false # TODO - reenable
 

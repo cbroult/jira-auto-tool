@@ -134,24 +134,22 @@ module Jira
         puts "An error occurred: #{e.message}"
       end
 
-      ATTRIBUTES_TO_INCLUDE = %i[
+      ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE = %i[
         id
         self
-        state
         name
         startDate
         endDate
         originBoardId
-        goal
-      ]
+      ].freeze
 
       def update_sprint_state(sprint:, new_state:)
         attributes = sprint.attrs.symbolize_keys
 
-        payload = ATTRIBUTES_TO_INCLUDE.each_with_object({}) do |key, result|
+        payload = ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE.each_with_object({}) do |key, result|
           result[key] = attributes[key]
         end
-                    .merge({ state: new_state, goal: "unspecified goal" })
+                    .merge({ state: new_state })
 
         put_args = [
           "/rest/agile/1.0/sprint/#{sprint.id}",
@@ -159,16 +157,10 @@ module Jira
           { "Content-Type" => "application/json" }
         ]
 
-        log.debug do
-          pp_out = PP.pp(put_args, +"")
-          "sprint = #{sprint}, new_state = #{new_state},\npayload = #{payload}\n#payload_json = #{payload.to_json}" \
-            "pp put_args = #{pp_out}"
-        end
-
         response = jira_client.put(*put_args)
 
         if response.code.to_i == 200
-          log.info { "Sprint state updated successfully: #{response.body}" }
+          log.debug { "Sprint state updated successfully: #{response.body}" }
         else
           error_message = "Error updating sprint state: #{response.code} - #{response.body}"
           log.error { error_message }
