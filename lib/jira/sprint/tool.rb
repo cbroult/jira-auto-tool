@@ -105,22 +105,22 @@ module Jira
       private
 
       class RequestBuilder
+        def run
+          response = send_request
+
+          if response.code.to_i == expected_response
+            log.info { "#{success_message_prefix}: #{response.body}" }
+          else
+            error_message = "#{error_message_prefix}: #{response.code} - #{response.body}"
+            log.error { error_message }
+            raise error_message
+          end
+        end
+
         attr_reader :jira_client
 
         def initialize(jira_client)
           @jira_client = jira_client
-        end
-
-        def run
-          # jira_client.send(http_verb, request_args)
-        end
-
-        def build_request_args(request_url, payload)
-          [
-            request_url,
-            payload.to_json,
-            { "Content-Type" => "application/json" }
-          ]
         end
 
         protected
@@ -132,69 +132,95 @@ module Jira
         def expected_response
           raise NotImplementedError, "Subclasses must implement this method"
         end
+
+        private
+
+        def send_request
+          jira_client.send(http_verb, *build_request_args(request_url, request_payload))
+        end
+
+        def build_request_args(request_url, payload)
+          [
+            request_url,
+            payload.to_json,
+            { "Content-Type" => "application/json" }
+          ]
+        end
       end
 
       class SprintCreator < RequestBuilder
-        def initialize(jira_client)
-          super
+        attr_reader :board, :name, :start, :length_in_days, :goal
+
+        def initialize(jira_client, board, name, start, length_in_days, goal)
+          super(jira_client)
+
+          @board = board
+          @name = name
+          @start = start
+          @length_in_days = length_in_days
+          @goal = goal
+        end
+
+        def request_payload
+          {
+            originBoardId: board.id,
+            name: name,
+            startDate: start_date.utc.iso8601,
+            endDate: end_date.utc.iso8601,
+            goal: goal
+          }
         end
 
         def http_verb
-          post
+          :post
         end
 
         def expected_response
           201
         end
-      end
 
-      def create_future_sprint(name, start, length_in_days, goal)
-        sprint_creator = SprintCreator.new(jira_client)
-        sprint_creator.run
+        private
 
-        start_date = Time.parse(start)
-        end_date = start_date + length_in_days.days
+        def end_date
+          start_date + length_in_days.days
+        end
 
-        response = jira_client.post(
-          *build_request_args(
-            "/rest/agile/1.0/sprint",
-            build_create_future_sprint_payload(name, end_date, start_date, goal)
-          )
-        )
+        def start_date
+          Time.parse(start)
+        end
 
-        if response.code.to_i == sprint_creator.expected_response
-          log.info { "Sprint created successfully: #{response.body}" }
-        else
-          error_message = "Error creating sprint: #{response.code} - #{response.body}"
-          log.error { error_message }
-          raise error_message
+        def request_url
+          "/rest/agile/1.0/sprint"
+        end
+
+        def success_message_prefix
+          "Sprint created successfully"
+        end
+
+        def error_message_prefix
+          "Error creating sprint"
         end
       end
 
-      def build_create_future_sprint_payload(name, end_date, start_date, goal)
-        {
-          originBoardId: board.id,
-          name: name,
-          startDate: start_date.utc.iso8601,
-          endDate: end_date.utc.iso8601,
-          goal: goal
-        }
+      def create_future_sprint(name, start, length_in_days, goal)
+        sprint_creator = SprintCreator.new(jira_client, board, name, start, length_in_days, goal)
+        sprint_creator.run
       end
 
       class SprintStateUpdater < RequestBuilder
+        attr_reader :sprint, :new_state
+
         def initialize(jira_client, sprint:, new_state:)
           super(jira_client)
 
-          response = jira_client.put(*build_request_args("/rest/agile/1.0/sprint/#{sprint.id}",
-                                                         build_update_sprint_state_payload(new_state, sprint)))
+          @sprint = sprint
+          @new_state = new_state
+        end
 
-          if response.code.to_i == expected_response
-            log.debug { "Sprint state updated successfully: #{response.body}" }
-          else
-            error_message = "Error updating sprint state: #{response.code} - #{response.body}"
-            log.error { error_message }
-            raise error_message
-          end
+        private
+
+        def request_url
+          "/rest/agile/1.0/sprint/#{sprint.id}"
         end
 
         ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE = %i[
@@ -206,7 +232,7 @@ module Jira
           originBoardId
         ].freeze
 
-        def build_update_sprint_state_payload(new_state, sprint)
+        def request_payload
           attributes = sprint.attrs.symbolize_keys
 
           ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE.each_with_object({}) do |key, result|
@@ -222,10 +248,19 @@ module Jira
         def expected_response
           200
         end
+
+        def error_message_prefix
+          "Error updating sprint state"
+        end
+
+        def success_message_prefix
+          "Sprint state updated successfully"
+        end
       end
 
       def update_sprint_state(sprint:, new_state:)
-        SprintStateUpdater.new(jira_client, sprint: sprint, new_state: new_state)
+        sprint_state_updater = SprintStateUpdater.new(jira_client, sprint: sprint, new_state: new_state)
+        sprint_state_updater.run
       end
 
       def build_request_args(request_url, payload)
