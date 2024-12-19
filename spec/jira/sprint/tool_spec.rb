@@ -35,7 +35,7 @@ module Jira
 
       describe "#create_sprint" do
         # rubocop:disable RSpec/MultipleExpectations
-        it "creates a future sprint and transition it to the desired state" do
+        it "creates a future sprint and transitions it to the desired state" do
           allow(@tool).to receive_messages(create_future_sprint: nil, transition_sprint_state: nil)
 
           @tool.create_sprint(name: "sprint_name", start: "2024-12-16 11:00 UTC", length_in_days: 14,
