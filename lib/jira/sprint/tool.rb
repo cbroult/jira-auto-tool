@@ -5,10 +5,11 @@ require "date"
 require "active_support/core_ext/numeric/time"
 require "active_support/core_ext/date/calculations"
 require "jira-ruby"
-require_relative "tool/version"
+require_relative "tool/request_builder"
 require_relative "tool/sprint_controller"
 require_relative "tool/sprint_generator"
 require_relative "tool/setup_logging"
+require_relative "tool/version"
 
 module Jira
   module Sprint
@@ -104,163 +105,16 @@ module Jira
 
       private
 
-      class RequestBuilder
-        def run
-          response = send_request
-
-          if response.code.to_i == expected_response
-            log.info { "#{success_message_prefix}: #{response.body}" }
-          else
-            error_message = "#{error_message_prefix}: #{response.code} - #{response.body}"
-            log.error { error_message }
-            raise error_message
-          end
-        end
-
-        attr_reader :jira_client
-
-        def initialize(jira_client)
-          @jira_client = jira_client
-        end
-
-        protected
-
-        def http_verb
-          raise NotImplementedError, "Subclasses must implement this method"
-        end
-
-        def expected_response
-          raise NotImplementedError, "Subclasses must implement this method"
-        end
-
-        private
-
-        def send_request
-          jira_client.send(http_verb, *build_request_args(request_url, request_payload))
-        end
-
-        def build_request_args(request_url, payload)
-          [
-            request_url,
-            payload.to_json,
-            { "Content-Type" => "application/json" }
-          ]
-        end
-      end
-
-      class SprintCreator < RequestBuilder
-        attr_reader :board, :name, :start, :length_in_days, :goal
-
-        def initialize(jira_client, board, name, start, length_in_days, goal)
-          super(jira_client)
-
-          @board = board
-          @name = name
-          @start = start
-          @length_in_days = length_in_days
-          @goal = goal
-        end
-
-        def request_payload
-          {
-            originBoardId: board.id,
-            name: name,
-            startDate: start_date.utc.iso8601,
-            endDate: end_date.utc.iso8601,
-            goal: goal
-          }
-        end
-
-        def http_verb
-          :post
-        end
-
-        def expected_response
-          201
-        end
-
-        private
-
-        def end_date
-          start_date + length_in_days.days
-        end
-
-        def start_date
-          Time.parse(start)
-        end
-
-        def request_url
-          "/rest/agile/1.0/sprint"
-        end
-
-        def success_message_prefix
-          "Sprint created successfully"
-        end
-
-        def error_message_prefix
-          "Error creating sprint"
-        end
-      end
-
       def create_future_sprint(name, start, length_in_days, goal)
-        sprint_creator = SprintCreator.new(jira_client, board, name, start, length_in_days, goal)
-        sprint_creator.run
-      end
-
-      class SprintStateUpdater < RequestBuilder
-        attr_reader :sprint, :new_state
-
-        def initialize(jira_client, sprint:, new_state:)
-          super(jira_client)
-
-          @sprint = sprint
-          @new_state = new_state
-        end
-
-        private
-
-        def request_url
-          "/rest/agile/1.0/sprint/#{sprint.id}"
-        end
-
-        ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE = %i[
-          id
-          self
-          name
-          startDate
-          endDate
-          originBoardId
-        ].freeze
-
-        def request_payload
-          attributes = sprint.attrs.symbolize_keys
-
-          ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE.each_with_object({}) do |key, result|
-            result[key] = attributes[key]
-          end
-            .merge({ state: new_state })
-        end
-
-        def http_verb
-          :put
-        end
-
-        def expected_response
-          200
-        end
-
-        def error_message_prefix
-          "Error updating sprint state"
-        end
-
-        def success_message_prefix
-          "Sprint state updated successfully"
-        end
+        RequestBuilder::SprintCreator
+          .new(jira_client, board, name, start, length_in_days, goal)
+          .run
       end
 
       def update_sprint_state(sprint:, new_state:)
-        sprint_state_updater = SprintStateUpdater.new(jira_client, sprint: sprint, new_state: new_state)
-        sprint_state_updater.run
+        RequestBuilder::SprintStateUpdater
+          .new(jira_client, sprint: sprint, new_state: new_state)
+          .run
       end
 
       def build_request_args(request_url, payload)
