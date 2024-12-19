@@ -1,7 +1,7 @@
 <%
   default_tags = 'not @in-specification'
+  shared_args = "--publish-quiet"
 %>
-default: --format pretty --tags ' <%= default_tags %>'
-guard: --format progress --tags ' <%= default_tags %>'
-rake: --format progress --tags 'not @wip'
-
+default: <%= shared_args %> --format pretty --tags ' <%= default_tags %>'
+guard: <%= shared_args %> --format progress --tags ' <%= default_tags %>'
+rake: <%= shared_args %> --format progress --tags 'not @wip'
