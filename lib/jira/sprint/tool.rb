@@ -8,6 +8,7 @@ require "jira-ruby"
 require_relative "tool/request_builder"
 require_relative "tool/sprint_controller"
 require_relative "tool/sprint_generator"
+require_relative "tool/sprint_state_controller"
 require_relative "tool/setup_logging"
 require_relative "tool/version"
 
@@ -39,10 +40,14 @@ module Jira
           raise KeyError, "Sprint '#{sprint_name}' not found for #{board.name}!" # TODO: - test this condition
       end
 
-      def create_sprint(name:, start: Time.now.utc.iso8601, length_in_days: 14, goal: nil, state: "future")
-        create_future_sprint(name, start, length_in_days, goal)
+      def create_sprint(name:, start: Time.now.utc.iso8601, length_in_days: 14, state: "future")
+        create_future_sprint(name, start, length_in_days)
 
         transition_sprint_state(name: name, desired_state: state)
+      end
+
+      def transition_sprint_state(name:, desired_state:)
+        SprintStateController.new(jira_client, fetch_sprint(name)).transition_to(desired_state)
       end
 
       def jira_client
@@ -75,45 +80,11 @@ module Jira
         @sprint_generator ||= SprintGenerator.new
       end
 
-      module SprintState
-        ACTIVE = "active"
-        FUTURE = "future"
-        CLOSED = "closed"
-      end
-
-      STATE_TRANSITIONS =
-        {
-          SprintState::FUTURE => SprintState::ACTIVE,
-          SprintState::ACTIVE => SprintState::CLOSED
-        }.freeze
-
-      # TODO: - write unit tests
-      # TODO - fix infinite loop in case of invalid/in-existing state
-      def transition_sprint_state(name:, desired_state:)
-        sprint_to_update = fetch_sprint(name)
-
-        log.debug { "sprint_to_update = #{sprint_to_update}, desired_state = #{desired_state}" }
-
-        current_state = sprint_to_update.state
-
-        return if current_state == desired_state
-
-        update_sprint_state(sprint: sprint_to_update, new_state: STATE_TRANSITIONS.fetch(current_state))
-
-        transition_sprint_state(name: name, desired_state: desired_state)
-      end
-
       private
 
-      def create_future_sprint(name, start, length_in_days, goal)
+      def create_future_sprint(name, start, length_in_days)
         RequestBuilder::SprintCreator
-          .new(jira_client, board, name, start, length_in_days, goal)
-          .run
-      end
-
-      def update_sprint_state(sprint:, new_state:)
-        RequestBuilder::SprintStateUpdater
-          .new(jira_client, sprint: sprint, new_state: new_state)
+          .new(jira_client, board, name, start, length_in_days)
           .run
       end
 
