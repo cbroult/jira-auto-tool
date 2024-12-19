@@ -117,10 +117,6 @@ module Jira
           .run
       end
 
-      def build_request_args(request_url, payload)
-        RequestBuilder.new(jira_client).build_request_args(request_url, payload)
-      end
-
       def fetch_corresponding_environment_variable
         caller_method_name = caller_locations(1, 1).first.label
 
