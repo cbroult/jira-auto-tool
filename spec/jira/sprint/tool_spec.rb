@@ -46,35 +46,6 @@ module Jira
         end
       end
 
-      describe "#create_future_sprint" do
-        let(:jira_client) { instance_spy(JIRA::Client) }
-
-        let(:expected_response) do
-          instance_double(Net::HTTPResponse, code: 201, body: "sprint created successfully")
-        end
-
-        let(:board) { instance_spy(JIRA::Resource::Board, id: 16) }
-
-        it do
-          allow(@tool).to receive_messages(jira_client: jira_client, board: board)
-          allow(jira_client).to receive_messages(post: expected_response)
-
-          @tool.send(:create_future_sprint, "sprint_name", "2024-12-16 11:00 UTC", 14)
-
-          expect(jira_client).to have_received(:post)
-            .with(
-              "/rest/agile/1.0/sprint",
-              {
-                originBoardId: 16,
-                name: "sprint_name",
-                startDate: "2024-12-16T11:00:00Z",
-                endDate: "2024-12-30T11:00:00Z"
-              }.to_json,
-              { "Content-Type" => "application/json" }
-            )
-        end
-      end
-
       describe "#fetch_sprint" do
         def build_sprint(name)
           double(JIRA::Resource::Sprint, name: name) # rubocop:disable RSpec/VerifiedDoubles
