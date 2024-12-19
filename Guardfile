@@ -32,7 +32,7 @@ end
 require "guard/rspec/dsl"
 
 def guard_rspec
-  guard :rspec, cmd: "bundle exec rspec" do
+  guard :rspec, cmd: "bundle exec rspec --format progress" do
     dsl = Guard::RSpec::Dsl.new(self)
 
     rspec = dsl.rspec
@@ -78,6 +78,7 @@ guard "cucumber", cucumber_options do
   watch(%r{^features/.+\.feature$})
   watch(%r{^features/support/.+$}) { "features" }
   watch(%r{^(bin|lib)/.+$}) { "features" }
+  watch("cucumber.yml")
 
   watch(%r{^features/step_definitions/(.+)_steps\.rb$}) do |m|
     Dir[File.join("**/#{m[1]}.feature")][0] || "features"

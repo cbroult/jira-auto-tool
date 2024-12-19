@@ -7,22 +7,22 @@ module Jira
   module Sprint
     class Tool
       class RequestBuilder
+        attr_reader :jira_client
+
+        def initialize(jira_client)
+          @jira_client = jira_client
+        end
+
         def run
           response = send_request
 
           if response.code.to_i == expected_response
-            log.info { "#{success_message_prefix}: #{response.body}" }
+            log.debug { "#{success_message_prefix}: #{response.body}" }
           else
             error_message = "#{error_message_prefix}: #{response.code} - #{response.body}"
             log.error { error_message }
             raise error_message
           end
-        end
-
-        attr_reader :jira_client
-
-        def initialize(jira_client)
-          @jira_client = jira_client
         end
 
         protected
