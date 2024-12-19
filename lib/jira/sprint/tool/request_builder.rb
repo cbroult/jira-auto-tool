@@ -27,11 +27,19 @@ module Jira
 
         protected
 
+        def expected_response
+          raise NotImplementedError, "Subclasses must implement this method"
+        end
+
         def http_verb
           raise NotImplementedError, "Subclasses must implement this method"
         end
 
-        def expected_response
+        def request_payload
+          raise NotImplementedError, "Subclasses must implement this method"
+        end
+
+        def request_url
           raise NotImplementedError, "Subclasses must implement this method"
         end
 

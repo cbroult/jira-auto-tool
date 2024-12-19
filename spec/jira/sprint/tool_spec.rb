@@ -37,11 +37,11 @@ module Jira
         it "creates sprints" do
           allow(@tool).to receive_messages(create_future_sprint: nil, transition_sprint_state: nil)
 
-          @tool.create_sprint(name: "sprint_name", start: "2024-12-16 11:00 UTC", length_in_days: 14, goal: "a goal",
+          @tool.create_sprint(name: "sprint_name", start: "2024-12-16 11:00 UTC", length_in_days: 14,
                               state: "a state")
 
           expect(@tool).to have_received(:create_future_sprint).with("sprint_name",
-                                                                     "2024-12-16 11:00 UTC", 14, "a goal")
+                                                                     "2024-12-16 11:00 UTC", 14)
           expect(@tool).to have_received(:transition_sprint_state).with(name: "sprint_name", desired_state: "a state")
         end
       end
@@ -59,7 +59,7 @@ module Jira
           allow(@tool).to receive_messages(jira_client: jira_client, board: board)
           allow(jira_client).to receive_messages(post: expected_response)
 
-          @tool.send(:create_future_sprint, "sprint_name", "2024-12-16 11:00 UTC", 14, "a goal")
+          @tool.send(:create_future_sprint, "sprint_name", "2024-12-16 11:00 UTC", 14)
 
           expect(jira_client).to have_received(:post)
             .with(
@@ -68,8 +68,7 @@ module Jira
                 originBoardId: 16,
                 name: "sprint_name",
                 startDate: "2024-12-16T11:00:00Z",
-                endDate: "2024-12-30T11:00:00Z",
-                goal: "a goal"
+                endDate: "2024-12-30T11:00:00Z"
               }.to_json,
               { "Content-Type" => "application/json" }
             )
@@ -95,51 +94,6 @@ module Jira
           allow(@tool).to receive_messages(board: board)
 
           expect(@tool.fetch_sprint("expected_sprint_name")).to be(expected_sprint)
-        end
-      end
-
-      describe "#update_sprint_state" do
-        let(:sprint_to_update) do
-          instance_spy(JIRA::Resource::Sprint, id: 12_345, attrs: { id: 12_345, state: "open" })
-        end
-
-        let(:jira_client) do
-          jira_client = instance_spy(JIRA::Client).as_null_object
-          allow(JIRA::Client).to receive_messages(new: jira_client)
-          jira_client
-        end
-
-        let(:expected_response) do
-          instance_double(Net::HTTPResponse, code: 200, body: "sprint updated successfully")
-        end
-
-        let(:expected_payload) do
-          {
-            "id" => 12_345,
-            "self" => nil,
-            "name" => nil,
-            "startDate" => nil,
-            "endDate" => nil,
-            "originBoardId" => nil,
-            "state" => "closed"
-          }
-        end
-
-        let(:expected_put_args) do
-          [
-            "/rest/agile/1.0/sprint/12345",
-            expected_payload.to_json,
-            { "Content-Type" => "application/json" }
-          ]
-        end
-
-        it "updates a sprint" do
-          allow(@tool).to receive_messages(fetch_sprint: sprint_to_update)
-          allow(jira_client).to receive_messages(put: expected_response)
-
-          @tool.send(:update_sprint_state, sprint: sprint_to_update, new_state: "closed")
-
-          expect(jira_client).to have_received(:put).with(*expected_put_args)
         end
       end
 
