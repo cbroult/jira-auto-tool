@@ -1,10 +1,10 @@
 Feature: Self Documented Command Line
 
   Scenario Outline: The tool provides a help summary
-    When I run `jira-sprint-tool <arguments>`
+    When I run `jira-auto-tool <arguments>`
     Then the output should contain:
        """
-Usage: jira-sprint-tool [options]*
+Usage: jira-auto-tool [options]*
 
        """
     Examples:
