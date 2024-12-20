@@ -89,7 +89,7 @@ module Jira
       end
 
       def fetch_corresponding_environment_variable
-        caller_method_name = caller_locations(1, 1).first.label
+        caller_method_name = caller_locations(1, 1).first.base_label
 
         ENV.fetch(caller_method_name.upcase) { |name| raise KeyError, "Missing #{name} environment variable!" }
       end
