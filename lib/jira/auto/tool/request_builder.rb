@@ -4,7 +4,7 @@ require_relative "request_builder/sprint_creator"
 require_relative "request_builder/sprint_state_updater"
 
 module Jira
-  module Sprint
+  module Auto
     class Tool
       class RequestBuilder
         attr_reader :jira_client
@@ -27,6 +27,10 @@ module Jira
 
         protected
 
+        def error_message_prefix
+          raise NotImplementedError, "Subclasses must implement this method"
+        end
+
         def expected_response
           raise NotImplementedError, "Subclasses must implement this method"
         end
@@ -43,10 +47,16 @@ module Jira
           raise NotImplementedError, "Subclasses must implement this method"
         end
 
+        def success_message_prefix
+          raise NotImplementedError, "Subclasses must implement this method"
+        end
+
         private
 
         def send_request
-          jira_client.send(http_verb, *build_request_args(request_url, request_payload))
+          send_args = [http_verb, *build_request_args(request_url, request_payload)]
+          log.debug { "Sending #{send_args.join(" ")}" }
+          jira_client.send(*send_args)
         end
 
         def build_request_args(request_url, payload)

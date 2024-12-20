@@ -2,8 +2,8 @@
 # frozen_string_literal: true
 
 require "bundler/setup"
-require "jira/sprint/tool"
-require "jira/sprint/tool/sprint_controller/options"
+require "jira/auto/tool"
+require "jira/auto/tool/sprint_controller/options"
 
 require "optparse"
 require "optparse/date"
@@ -12,7 +12,7 @@ DISPLAY_HELP_OPTION = "--help"
 
 ARGV << DISPLAY_HELP_OPTION if ARGV.empty?
 
-tool = Jira::Sprint::Tool.new
+tool = Jira::Auto::Tool.new
 
 OptionParser.new do |parser|
   parser.banner = <<~EOBANNER
@@ -29,6 +29,6 @@ OptionParser.new do |parser|
     tool.board_name = board_name
   end
 
-  Jira::Sprint::Tool::SprintController::Options.add(tool.sprint_controller, parser)
+  Jira::Auto::Tool::SprintController::Options.add(tool.sprint_controller, parser)
 end
   .parse!

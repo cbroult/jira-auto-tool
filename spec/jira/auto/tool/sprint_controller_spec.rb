@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "jira/sprint/tool/sprint_controller"
+require "jira/auto/tool/sprint_controller"
 
 module Jira
-  module Sprint
+  module Auto
     class Tool
       RSpec.describe SprintController do
         let(:board) { double(JIRA::Resource::Board, name: "board name") } # rubocop:disable RSpec/VerifiedDoubles

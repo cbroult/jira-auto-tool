@@ -2,7 +2,7 @@
 
 require "rspec"
 
-RSpec.describe Jira::Sprint::Tool::RequestBuilder do
+RSpec.describe Jira::Auto::Tool::RequestBuilder do
   describe "#run" do
     let(:request_builder) { described_class.new(jira_client) }
 
@@ -20,10 +20,10 @@ RSpec.describe Jira::Sprint::Tool::RequestBuilder do
       allow(jira_client).to receive_messages(put: expected_response)
 
       allow(request_builder).to receive_messages(
-        http_verb: :put,
-        request_url: :a_request_url,
-        request_payload: { some_payload: "value" },
-        expected_response: 200
+        http_verb: :put, request_url: :a_request_url, request_payload: { some_payload: "value" },
+        expected_response: 200,
+        error_message_prefix: "Error updating auto state",
+        success_message_prefix: "Sprint state updated successfully"
       )
 
       request_builder.run
