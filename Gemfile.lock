@@ -18,7 +18,7 @@ GIT
 PATH
   remote: .
   specs:
-    jira-sprint-tool (0.1.0)
+    jira-auto-tool (0.1.0)
       http_logger
       jira-ruby
       logging
@@ -214,7 +214,7 @@ DEPENDENCIES
   guard-cucumber
   guard-rspec
   guard-rubocop
-  jira-sprint-tool!
+  jira-auto-tool!
   rake (~> 13.0)
   rspec (~> 3.0)
   rubocop (~> 1.21)

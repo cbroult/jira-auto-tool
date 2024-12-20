@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in jira-sprint-tool.gemspec
+# Specify your gem's dependencies in jira-auto-tool.gemspec
 gemspec
 
 group :development do

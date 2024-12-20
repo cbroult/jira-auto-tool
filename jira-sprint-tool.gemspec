@@ -3,7 +3,7 @@
 require_relative "lib/jira/sprint/tool/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "jira-sprint-tool"
+  spec.name = "jira-auto-tool"
   spec.version = Jira::Sprint::Tool::VERSION
   spec.authors = ["TODO: Write your name"]
   spec.email = ["TODO: Write your email address"]

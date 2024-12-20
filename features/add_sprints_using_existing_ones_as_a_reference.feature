@@ -8,7 +8,7 @@ Feature: Add sprints to existing ones as a reference
 
   Scenario: Board with no sprints
     Given the board has no sprint
-    When I successfully run `jira-sprint-tool --sprint-add-one`
+    When I successfully run `jira-auto-tool --sprint-add-one`
     Then the output should match:
        """
        WARN.*No sprint added since no reference sprint was found!
@@ -16,7 +16,7 @@ Feature: Add sprints to existing ones as a reference
 
   Scenario: Board with only closed sprints
     Given the board has only closed sprints
-    When I successfully run `jira-sprint-tool --sprint-add-one`
+    When I successfully run `jira-auto-tool --sprint-add-one`
     Then the output should match:
        """
        WARN.*No sprint added since no unclosed reference sprint was found!
@@ -25,7 +25,7 @@ Feature: Add sprints to existing ones as a reference
   @in-specification
   Scenario Outline: The new sprint length is the same as the reference sprint
     Given an unclosed <sprint-length> sprint named "ART_Team_24.4.5" starting on <start-date-time>
-    When I successfully run `jira-sprint-tool --sprint-add-one`
+    When I successfully run `jira-auto-tool --sprint-add-one`
     Then a sprint named <expected-name> should exist
     And it starts on <expected-start>
     And it ends on <expected-end>
@@ -45,7 +45,7 @@ Feature: Add sprints to existing ones as a reference
       | yes                       | art_people_24.4.6    | 2-week | 2024-12-14 11:00 | active |
       | yes                       | art_sys-team_24.4.12 | 1-week | 2024-12-21 11:00 | future |
       | yes                       | art_e2e-test_24.4.12 | 3-week | 2024-12-14 11:00 | future |
-    When I run `jira-sprint-tool --sprint-add-one`
+    When I run `jira-auto-tool --sprint-add-one`
     Then afterwards the board only has the following sprints:
       | name                 | expected-start   | expected-end   | state  |
       | art_crm_24.4.6       | 2024-12-14 11:00 | 2024-12-28 11:00 | closed |
