@@ -10,7 +10,7 @@ on:
 env:
   JIRA_SITE_URL: "http://cbroult.atlassian.net:443/"
   JIRA_USERNAME: "cbroult@yahoo.com"
-  JIRA_API_TOKEN: ""${{secrets.JIRA_API_TOKEN}}"
+  JIRA_API_TOKEN: "${{secrets.JIRA_API_TOKEN}}"
   JIRA_BOARD_NAME: "JAT Self Tests in GHActions"
 
 jobs:
