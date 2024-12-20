@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Jira
-  module Sprint
+  module Auto
     class Tool
       class RequestBuilder
         class SprintStateUpdater < RequestBuilder
@@ -47,7 +47,7 @@ module Jira
           end
 
           def error_message_prefix
-            "Error updating sprint state"
+            "Error updating auto state"
           end
 
           def success_message_prefix

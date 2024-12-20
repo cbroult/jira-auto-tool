@@ -10,6 +10,6 @@ end
 
 Given(/^the board has only closed sprints$/) do
   4.times do |sprint_index|
-    @jira_sprint_tool.create_sprint(name: "sprint_24.1.#{sprint_index}", state: "closed")
+    @jira_auto_tool.create_sprint(name: "sprint_24.1.#{sprint_index}", state: "closed")
   end
 end

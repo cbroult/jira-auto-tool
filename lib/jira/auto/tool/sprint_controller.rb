@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Jira
-  module Sprint
+  module Auto
     class Tool
       class SprintController
         class SprintNameError < StandardError; end

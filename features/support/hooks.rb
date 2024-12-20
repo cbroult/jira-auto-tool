@@ -2,12 +2,12 @@
 
 require "jira-ruby"
 
-require "jira/sprint/tool"
+require "jira/auto/tool"
 
 Before do
-  @jira_sprint_tool = Jira::Sprint::Tool.new
-  @jira_client = @jira_sprint_tool.jira_client
-  @board = @jira_sprint_tool.board
+  @jira_auto_tool = Jira::Auto::Tool.new
+  @jira_client = @jira_auto_tool.jira_client
+  @board = @jira_auto_tool.board
 
   remove_existing_sprints(@board)
 end

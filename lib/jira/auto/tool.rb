@@ -13,7 +13,7 @@ require_relative "tool/setup_logging"
 require_relative "tool/version"
 
 module Jira
-  module Sprint
+  module Auto
     class Tool
       class Error < StandardError; end
 

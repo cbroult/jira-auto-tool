@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require "jira/sprint/tool"
+require "jira/auto/tool"
 module Jira
-  module Sprint
-    RSpec.describe Jira::Sprint::Tool do
+  module Auto
+    RSpec.describe Jira::Auto::Tool do
       before do
         @tool = described_class.new
       end
 
       it "has a version number" do
-        expect(Jira::Sprint::Tool::VERSION).not_to be_nil
+        expect(Jira::Auto::Tool::VERSION).not_to be_nil
       end
 
       describe "#board" do
@@ -35,7 +35,7 @@ module Jira
 
       describe "#create_sprint" do
         # rubocop:disable RSpec/MultipleExpectations
-        it "creates a future sprint and transitions it to the desired state" do
+        it "creates a future auto and transitions it to the desired state" do
           allow(@tool).to receive_messages(create_future_sprint: nil, transition_sprint_state: nil)
 
           @tool.create_sprint(name: "sprint_name", start: "2024-12-16 11:00 UTC", length_in_days: 14,

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/jira/sprint/tool/version"
+require_relative "lib/jira/auto/tool/version"
 
 Gem::Specification.new do |spec|
   spec.name = "jira-auto-tool"
-  spec.version = Jira::Sprint::Tool::VERSION
+  spec.version = Jira::Auto::Tool::VERSION
   spec.authors = ["TODO: Write your name"]
   spec.email = ["TODO: Write your email address"]
 

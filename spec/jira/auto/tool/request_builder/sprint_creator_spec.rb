@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "rspec"
-require "jira/sprint/tool/request_builder/sprint_state_updater"
+require "jira/auto/tool/request_builder/sprint_state_updater"
 
-RSpec.describe Jira::Sprint::Tool::RequestBuilder::SprintCreator do
+RSpec.describe Jira::Auto::Tool::RequestBuilder::SprintCreator do
   let(:sprint_creator) do
     described_class.new(jira_client, board, "a_name", "2024-12-19 13:16 UTC", 14)
   end

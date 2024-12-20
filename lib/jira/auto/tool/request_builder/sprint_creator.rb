@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Jira
-  module Sprint
+  module Auto
     class Tool
       class RequestBuilder
         class SprintCreator < RequestBuilder
@@ -52,7 +52,7 @@ module Jira
           end
 
           def error_message_prefix
-            "Error creating sprint"
+            "Error creating auto"
           end
         end
       end
