@@ -1,16 +1,18 @@
 GIT
   remote: https://github.com/cucumber/cucumber-ruby.git
-  revision: ab989192ce58478959c861c0aaf7da9aa907f638
+  revision: 5cec9226789ab1742d5bc36ec3bc194906c58dbc
   specs:
     cucumber (9.2.0)
+      base64 (~> 0.2)
       builder (~> 3.2)
       cucumber-ci-environment (> 9, < 11)
       cucumber-core (> 13, < 14)
       cucumber-cucumber-expressions (~> 17.0)
       cucumber-gherkin (> 24, < 28)
       cucumber-html-formatter (> 20.3, < 22)
-      cucumber-messages (> 19, < 25)
+      cucumber-messages (> 19, < 26)
       diff-lcs (~> 1.5)
+      logger (~> 1.6)
       mini_mime (~> 1.1)
       multi_test (~> 1.1)
       sys-uname (~> 1.2)
@@ -23,6 +25,7 @@ PATH
       jira-ruby
       logging
       ostruct
+      reline
       syslog
 
 GEM
@@ -51,7 +54,7 @@ GEM
     atlassian-jwt (0.2.1)
       jwt (~> 2.1)
     base64 (0.2.0)
-    benchmark (0.3.0)
+    benchmark (0.4.0)
     bigdecimal (3.1.8)
     builder (3.3.0)
     coderay (1.1.3)
@@ -72,11 +75,8 @@ GEM
     cucumber-messages (22.0.0)
     cucumber-tag-expressions (6.1.1)
     diff-lcs (1.5.1)
-    drb (2.2.0)
-      ruby2_keywords
+    drb (2.2.1)
     ffi (1.17.0)
-    ffi (1.17.0-x64-mingw-ucrt)
-    ffi (1.17.0-x86_64-linux-gnu)
     formatador (1.1.0)
     guard (2.19.0)
       formatador (>= 0.2.4)
@@ -106,12 +106,13 @@ GEM
     http_logger (0.7.0)
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
+    io-console (0.8.0)
     jira-ruby (2.3.0)
       activesupport
       atlassian-jwt
       multipart-post
       oauth (~> 0.5, >= 0.5.0)
-    json (2.9.0)
+    json (2.9.1)
     jwt (2.9.3)
       base64
     language_server-protocol (3.17.0.3)
@@ -119,14 +120,14 @@ GEM
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
     little-plugger (1.1.4)
-    logger (1.6.3)
+    logger (1.6.4)
     logging (2.4.0)
       little-plugger (~> 1.1)
       multi_json (~> 1.14)
     lumberjack (1.2.10)
     method_source (1.1.0)
     mini_mime (1.1.5)
-    minitest (5.20.0)
+    minitest (5.25.4)
     multi_json (1.15.0)
     multi_test (1.1.0)
     multipart-post (2.4.1)
@@ -137,7 +138,7 @@ GEM
     oauth (0.6.2)
       snaky_hash (~> 2.0)
       version_gem (~> 1.1)
-    ostruct (0.6.0)
+    ostruct (0.6.1)
     parallel (1.26.3)
     parser (3.3.6.0)
       ast (~> 2.4.1)
@@ -152,6 +153,8 @@ GEM
     rb-inotify (0.11.1)
       ffi (~> 1.0)
     regexp_parser (2.9.3)
+    reline (0.6.0)
+      io-console (~> 0.5)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
@@ -182,22 +185,21 @@ GEM
     rubocop-rspec (3.3.0)
       rubocop (~> 1.61)
     ruby-progressbar (1.13.0)
-    ruby2_keywords (0.0.5)
-    securerandom (0.3.1)
+    securerandom (0.4.1)
     shellany (0.0.1)
     snaky_hash (2.0.1)
       hashie
       version_gem (~> 1.1, >= 1.1.1)
     sys-uname (1.3.1)
       ffi (~> 1.1)
-    syslog (0.1.2)
+    syslog (0.2.0)
     thor (1.3.2)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.1.2)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
-    uri (0.13.1)
+    uri (1.0.2)
     version_gem (1.1.4)
 
 PLATFORMS

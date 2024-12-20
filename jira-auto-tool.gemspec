@@ -40,6 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "jira-ruby"
   spec.add_dependency "logging"
   spec.add_dependency "ostruct"
+  spec.add_dependency "reline"
   spec.add_dependency "syslog"
 
   # For more information and examples about making a new gem, check out our
