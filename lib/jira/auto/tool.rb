@@ -84,7 +84,7 @@ module Jira
 
       def create_future_sprint(name, start, length_in_days)
         RequestBuilder::SprintCreator
-          .new(jira_client, board, name, start, length_in_days)
+          .new(jira_client, board.id, name, start, length_in_days)
           .run
       end
 

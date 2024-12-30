@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require_relative "next_sprint_creator"
+require_relative "sprint"
+require_relative "sprint_state_controller"
+
 module Jira
   module Auto
     class Tool
       class SprintController
-        class SprintNameError < StandardError; end
         attr_accessor :board
 
         def initialize(board)
@@ -17,7 +20,9 @@ module Jira
             exit_with_board_warning "No sprint added since no unclosed reference sprint was found!"
           end
 
-          unclosed_sprint_prefixes.each(&:add_one_sprint)
+          unclosed_sprint_prefixes.each do |unclosed_sprint_prefix|
+            NextSprintCreator.create_sprint_following(unclosed_sprint_prefix)
+          end
         end
 
         SUCCESSFUL_EXECUTION_EXIT_CODE = 0
@@ -25,18 +30,6 @@ module Jira
         def exit_with_board_warning(message, exit_code = SUCCESSFUL_EXECUTION_EXIT_CODE)
           log.warn { "Jira board '#{board.name}': #{message}" }
           exit(exit_code)
-        end
-
-        SPRINT_PREFIX_SEPARATOR = "_"
-        SPRINT_PREFIX_REGEX = /(.+)#{SPRINT_PREFIX_SEPARATOR}[^#{SPRINT_PREFIX_SEPARATOR}]+$/
-
-        def calculate_sprint_prefix_name(sprint_name)
-          sprint_name =~ SPRINT_PREFIX_REGEX ||
-            raise(SprintNameError,
-                  "'#{sprint_name}': " \
-                  "sprint name expected to include at least one '#{SPRINT_PREFIX_SEPARATOR}' character!")
-
-          ::Regexp.last_match(1)
         end
 
         def unclosed_sprint_prefixes
@@ -51,14 +44,12 @@ module Jira
           !sprints.empty?
         end
 
-        private
-
         def sprints
-          board.sprints
+          board.sprints.collect { |sprint| Sprint.new(sprint, board.id) }
         end
 
         def unclosed_sprints
-          sprints.find_all { |sprint| sprint.state != "closed" }
+          sprints.find_all { |sprint| sprint.state != SprintStateController::SprintState::CLOSED }
         end
       end
     end

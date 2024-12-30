@@ -22,9 +22,8 @@ Feature: Add sprints to existing ones as a reference
        WARN.*No sprint added since no unclosed reference sprint was found!
        """
 
-  @in-specification
   Scenario Outline: The new sprint length is the same as the reference sprint
-    Given an unclosed <sprint-length> sprint named "ART_Team_24.4.5" starting on <start-date-time>
+    Given an unclosed <sprint-length> sprint named ART_Team_24.4.5 starting on <start-date-time>
     When I successfully run `jira-auto-tool --sprint-add-one`
     Then a sprint named <expected-name> should exist
     And it starts on <expected-start>
@@ -32,10 +31,10 @@ Feature: Add sprints to existing ones as a reference
 
     Examples:
       | sprint-length | start-date-time  | expected-name   | expected-start   | expected-end     |
-      | 1-week        | 2024-12-14 11:00 | ART_Team_24.4.6 | 2024-12-21 11:00 | 2024-12-21 11:00 |
-      | 2-week        | 2024-12-14 14:00 | ART_Team_24.4.6 | 2024-12-28 14:00 | 2025-01-04 14:00 |
-      | 3-week        | 2024-12-14 00:00 | ART_Team_25.1.1 | 2024-01-04 00:00 | 2025-01-25 00:00 |
-      | 4-week        | 2024-12-14 08:00 | ART_Team_25.1.1 | 2024-01-04 08:00 | 2025-01-25 08:00 |
+      | 1-week        | 2024-12-14 11:00 | ART_Team_24.4.6 | 2024-12-21 11:00 | 2024-12-28 11:00 |
+      | 2-week        | 2024-12-14 14:00 | ART_Team_24.4.6 | 2024-12-28 14:00 | 2025-01-11 14:00 |
+      | 3-week        | 2024-12-14 00:00 | ART_Team_25.1.1 | 2025-01-04 00:00 | 2025-01-25 00:00 |
+      | 4-week        | 2024-12-14 08:00 | ART_Team_25.1.1 | 2025-01-11 08:00 | 2025-02-08 08:00 |
 
   @in-specification
   Scenario: Sprint is created for each sprint prefix

@@ -5,12 +5,19 @@ module Jira
     class Tool
       class RequestBuilder
         class SprintCreator < RequestBuilder
-          attr_reader :board, :name, :start, :length_in_days
+          def self.create_sprint(jira_client, board_id, name, start, length_in_days)
+            new(jira_client, board_id, name, start, length_in_days)
+              .run
+          end
 
-          def initialize(jira_client, board, name, start, length_in_days)
+          protected
+
+          attr_reader :board_id, :name, :start, :length_in_days
+
+          def initialize(jira_client, board_id, name, start, length_in_days)
             super(jira_client)
 
-            @board = board
+            @board_id = board_id
             @name = name
             @start = start
             @length_in_days = length_in_days
@@ -18,7 +25,7 @@ module Jira
 
           def request_payload
             {
-              originBoardId: board.id,
+              originBoardId: board_id,
               name: name,
               startDate: start_date.utc.iso8601,
               endDate: end_date.utc.iso8601
@@ -40,7 +47,7 @@ module Jira
           end
 
           def start_date
-            Time.parse(start)
+            start.is_a?(Time) ? start : Time.parse(start)
           end
 
           def request_url
