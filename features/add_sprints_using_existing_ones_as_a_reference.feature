@@ -54,18 +54,17 @@ Feature: Add sprints to existing ones as a reference
       | art_sys-team_24.4.12 | 2024-12-21 11:00:00 UTC | future |
       | art_sys-team_24.4.13 | 2024-12-28 11:00:00 UTC | future |
 
-  @in-specification
   Scenario: Sprint is created using the last sprint of a sprint prefix
     Given the board only has the following sprints:
       | expecting_added_sprint                  | name                 | length | start                   | state  |
-      | ignored since not last existing sprint  | art_sys-team_24.4.10 | 1-week | 2024-12-07 11:00:00 UTC | future |
-      | ignored since not last existing sprint  | art_sys-team_24.4.11 | 1-week | 2024-12-14 11:00:00 UTC | future |
-      | yes                                     | art_sys-team_24.4.12 | 1-week | 2024-12-21 11:00:00 UTC | future |
+      | ignored since not last existing sprint  | art_sys-team_24.4.10 | 1-week | 2024-12-01 11:00:00 UTC | future |
+      | ignored since not last existing sprint  | art_sys-team_24.4.11 | 1-week | 2024-12-05 11:00:00 UTC | future |
+      | yes                                     | art_sys-team_24.4.12 | 2-week | 2024-12-14 11:00:00 UTC | future |
 
     When I run `jira-auto-tool --sprint-add-one`
     Then afterwards the board only has the following sprints:
       | name                 | expected_start          | state  |
-      | art_sys-team_24.4.10 | 2024-12-07 11:00:00 UTC | future |
-      | art_sys-team_24.4.11 | 2024-12-14 11:00:00 UTC | future |
-      | art_sys-team_24.4.12 | 2024-12-21 11:00:00 UTC | future |
+      | art_sys-team_24.4.10 | 2024-12-01 11:00:00 UTC | future |
+      | art_sys-team_24.4.11 | 2024-12-05 11:00:00 UTC | future |
+      | art_sys-team_24.4.12 | 2024-12-14 11:00:00 UTC | future |
       | art_sys-team_24.4.13 | 2024-12-28 11:00:00 UTC | future |

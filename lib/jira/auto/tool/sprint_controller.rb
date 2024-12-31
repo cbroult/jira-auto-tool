@@ -2,6 +2,7 @@
 
 require_relative "next_sprint_creator"
 require_relative "sprint"
+require_relative "sprint/prefix"
 require_relative "sprint_state_controller"
 
 module Jira
@@ -21,7 +22,7 @@ module Jira
           end
 
           unclosed_sprint_prefixes.each do |unclosed_sprint_prefix|
-            NextSprintCreator.create_sprint_following(unclosed_sprint_prefix)
+            NextSprintCreator.create_sprint_following(unclosed_sprint_prefix.last_sprint)
           end
         end
 
@@ -33,7 +34,10 @@ module Jira
         end
 
         def unclosed_sprint_prefixes
-          @unclosed_sprint_prefixes ||= unclosed_sprints
+          @unclosed_sprint_prefixes ||= unclosed_sprints.each_with_object({}) do |sprint, prefixes|
+            prefix = prefixes[sprint.name_prefix] ||= Sprint::Prefix.new(sprint.name_prefix)
+            prefix << sprint
+          end.values
         end
 
         def unclosed_sprint_exist?

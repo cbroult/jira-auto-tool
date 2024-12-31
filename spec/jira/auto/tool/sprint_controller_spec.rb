@@ -43,25 +43,67 @@ module Jira
           end
 
           context "when unclosed sprint are found" do
-            let(:expected_sprint_prefixes) do
+            let(:actual_sprint_prefixes) do
               [
                 "1st sprint_prefix",
                 "2nd sprint_prefix",
                 "3rd sprint_prefix"
-              ].collect { |prefix_name| instance_double(prefix_name, add_one_sprint: nil) }
+              ].collect { |prefix_name| instance_double(prefix_name, last_sprint: "last sprint for #{prefix_name}") }
             end
 
             it "add a sprint for the sprint prefixes having at least one unclosed sprint" do
               allow(sprint_controller).to receive_messages(sprint_exist?: true, unclosed_sprint_exist?: true)
-              allow(sprint_controller).to receive_messages(unclosed_sprint_prefixes: expected_sprint_prefixes)
+              allow(sprint_controller).to receive_messages(unclosed_sprint_prefixes: actual_sprint_prefixes)
               allow(NextSprintCreator).to receive_messages(create_sprint_following: nil)
 
               sprint_controller.add_one_sprint_for_each_unclosed_sprint_prefix
 
-              expected_sprint_prefixes.each do |sprint_prefix|
-                expect(NextSprintCreator).to have_received(:create_sprint_following).with(sprint_prefix)
+              actual_sprint_prefixes.each do |sprint_prefix|
+                expect(NextSprintCreator).to have_received(:create_sprint_following).with(sprint_prefix.last_sprint)
               end
             end
+          end
+        end
+
+        describe "#unclosed_sprint_prefixes" do
+          def new_jira_sprints(name_start_pairs)
+            name_start_pairs.collect do |name, start|
+              double(JIRA::Resource::Sprint, name: name, start: start, state: "future") # rubocop:disable RSpec/VerifiedDoubles
+            end
+          end
+
+          def new_sprints(jira_sprints)
+            jira_sprints.collect do |jira_sprint|
+              Sprint.new(jira_sprint, board_id: 512)
+            end
+          end
+
+          let(:e2e_jira_sprints) do
+            new_jira_sprints [
+              ["art_e2e_25.1.1", "2024-12-01"],
+              ["art_e2e_25.1.2", "2024-12-08"]
+            ]
+          end
+
+          let(:sys_jira_sprints) do
+            new_jira_sprints [
+              ["art_sys_24.4.6", "2024-12-01"],
+              ["art_sys_24.4.7", "2024-12-08"],
+              ["art_sys_24.4.8", "2024-12-15"],
+              ["art_sys_24.4.9", "2024-12-22"]
+            ]
+          end
+
+          let(:jira_sprints) { e2e_jira_sprints + sys_jira_sprints }
+
+          it "groups sprints as per their prefix" do
+            allow(board).to receive_messages(sprints: jira_sprints)
+
+            expect(sprint_controller.unclosed_sprint_prefixes)
+              .to contain_exactly(
+                Sprint::Prefix.new("art_e2e", new_sprints(e2e_jira_sprints)),
+                Sprint::Prefix.new("art_sys", new_sprints(sys_jira_sprints))
+              )
           end
         end
 

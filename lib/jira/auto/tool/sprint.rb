@@ -9,6 +9,8 @@ module Jira
   module Auto
     class Tool
       class Sprint < SimpleDelegator
+        include Comparable
+
         attr_reader :board_id
 
         def initialize(jira_sprint, board_id)
@@ -61,10 +63,12 @@ module Jira
           Name.parse(name)
         end
 
-        def ==(other)
-          raise TypeError, "can't compare #{self.class} with #{other.class}" unless other.is_a?(self.class)
+        def <=>(other)
+          name <=> other.name
+        end
 
-          other.name == name
+        def to_s
+          "name = #{name}, start_date = #{start_date}, end_date = #{end_date}, length_in_days = #{length_in_days}"
         end
 
         private

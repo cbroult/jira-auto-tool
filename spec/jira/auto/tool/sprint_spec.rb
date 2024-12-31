@@ -49,29 +49,16 @@ module Jira
           end
         end
 
-        describe "#==" do
+        describe "#<=>" do
           def new_sprint_named(name)
             described_class.new(double(JIRA::Resource::Sprint, name: name), 256) # rubocop:disable RSpec/VerifiedDoubles
           end
 
-          let(:shared_sprint_name) { "a shared sprint name" }
+          let(:abc_sprint) { new_sprint_named("abc name") }
 
-          let(:a_sprint) { new_sprint_named(shared_sprint_name) }
-          let(:another_sprint_with_same_name) { new_sprint_named(shared_sprint_name) }
-          let(:another_sprint_with_different_name) { new_sprint_named("different sprint name") }
-
-          it "raise an error if the sprints are not of the same type" do
-            expect { a_sprint == "not a sprint object" }
-              .to raise_error(TypeError, "can't compare Jira::Auto::Tool::Sprint with String")
-          end
-
-          it do
-            expect(a_sprint).to eq another_sprint_with_same_name
-          end
-
-          it do
-            expect(a_sprint).not_to eq another_sprint_with_different_name
-          end
+          it { expect(abc_sprint).to eq new_sprint_named("abc name") }
+          it { expect(abc_sprint).to be < new_sprint_named("xyz name") }
+          it { expect(new_sprint_named("def name")).to be > abc_sprint }
         end
       end
     end
