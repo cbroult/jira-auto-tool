@@ -24,7 +24,7 @@ module Jira
           described_class.new(sprint)
         end
 
-        describe "#create_sprint_following" do
+        describe ".create_sprint_following" do
           it "requests the sprint creation with the expected attributes" do
             allow(RequestBuilder::SprintCreator).to receive(:create_sprint)
 

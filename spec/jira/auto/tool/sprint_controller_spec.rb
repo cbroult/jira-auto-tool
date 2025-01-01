@@ -4,15 +4,33 @@ require "jira/auto/tool/sprint_controller"
 
 module Jira
   module Auto
+    # rubocop:disable Metrics/ClassLength
+
     class Tool
       RSpec.describe SprintController do
         let(:board) { double(JIRA::Resource::Board, name: "board name", id: 128) } # rubocop:disable RSpec/VerifiedDoubles
         let(:sprint_controller) { described_class.new(board) }
 
+        describe "#add_sprints_until" do
+          let(:actual_sprint_prefixes) do
+            %w[art_team1 art_team2 art_team3].collect do |name_prefix|
+              instance_double(Sprint::Prefix, name: name_prefix, add_sprints_until: nil)
+            end
+          end
+
+          it "creates sprints for all unclosed prefixes until date is included" do
+            allow(sprint_controller).to receive_messages(unclosed_sprint_prefixes: actual_sprint_prefixes)
+
+            sprint_controller.add_sprints_until("2024-05-15")
+
+            expect(actual_sprint_prefixes).to all have_received(:add_sprints_until).with("2024-05-15")
+          end
+        end
+
         describe "#add_one_sprint_for_each_unclosed_sprint_prefix" do
           context "when no sprint are found" do
             it "exits with a warning" do
-              allow(board).to receive_messages(sprints: [])
+              allow(sprint_controller).to receive_messages(sprints: [])
               allow(sprint_controller).to receive_messages(exit_with_board_warning: nil)
 
               sprint_controller.add_one_sprint_for_each_unclosed_sprint_prefix
@@ -24,15 +42,12 @@ module Jira
 
           context "when only closed sprint are found" do
             let(:closed_sprints) do
-              [
-                "1st sprint",
-                "2nd sprint",
-                "3rd sprint"
-              ].collect { |name| double(JIRA::Resource::Sprint, name: name, state: "closed") } # rubocop:disable RSpec/VerifiedDoubles
+              ["1st sprint", "2nd sprint"]
+                .collect { |name| double(JIRA::Resource::Sprint, name: name, state: "closed") } # rubocop:disable RSpec/VerifiedDoubles
             end
 
             it "exits with a warning" do
-              allow(board).to receive_messages(sprints: closed_sprints)
+              allow(sprint_controller).to receive_messages(jira_sprints: closed_sprints)
               allow(sprint_controller).to receive_messages(exit_with_board_warning: nil)
 
               sprint_controller.add_one_sprint_for_each_unclosed_sprint_prefix
@@ -44,23 +59,18 @@ module Jira
 
           context "when unclosed sprint are found" do
             let(:actual_sprint_prefixes) do
-              [
-                "1st sprint_prefix",
-                "2nd sprint_prefix",
-                "3rd sprint_prefix"
-              ].collect { |prefix_name| instance_double(prefix_name, last_sprint: "last sprint for #{prefix_name}") }
+              ["1st sprint_prefix", "3rd sprint_prefix"].collect do |prefix_name|
+                instance_double(Sprint::Prefix, name: prefix_name, add_sprint_following_last_one: nil)
+              end
             end
 
             it "add a sprint for the sprint prefixes having at least one unclosed sprint" do
               allow(sprint_controller).to receive_messages(sprint_exist?: true, unclosed_sprint_exist?: true)
               allow(sprint_controller).to receive_messages(unclosed_sprint_prefixes: actual_sprint_prefixes)
-              allow(NextSprintCreator).to receive_messages(create_sprint_following: nil)
 
               sprint_controller.add_one_sprint_for_each_unclosed_sprint_prefix
 
-              actual_sprint_prefixes.each do |sprint_prefix|
-                expect(NextSprintCreator).to have_received(:create_sprint_following).with(sprint_prefix.last_sprint)
-              end
+              expect(actual_sprint_prefixes).to all have_received(:add_sprint_following_last_one)
             end
           end
         end
@@ -80,15 +90,12 @@ module Jira
 
           let(:e2e_jira_sprints) do
             new_jira_sprints [
-              ["art_e2e_25.1.1", "2024-12-01"],
               ["art_e2e_25.1.2", "2024-12-08"]
             ]
           end
 
           let(:sys_jira_sprints) do
             new_jira_sprints [
-              ["art_sys_24.4.6", "2024-12-01"],
-              ["art_sys_24.4.7", "2024-12-08"],
               ["art_sys_24.4.8", "2024-12-15"],
               ["art_sys_24.4.9", "2024-12-22"]
             ]
@@ -97,7 +104,7 @@ module Jira
           let(:jira_sprints) { e2e_jira_sprints + sys_jira_sprints }
 
           it "groups sprints as per their prefix" do
-            allow(board).to receive_messages(sprints: jira_sprints)
+            allow(sprint_controller).to receive_messages(jira_sprints: jira_sprints)
 
             expect(sprint_controller.unclosed_sprint_prefixes)
               .to contain_exactly(
@@ -123,7 +130,23 @@ module Jira
             end
           end
         end
+
+        describe "#jira_sprints" do
+          it "deals with JIRA::Resource pagination" do
+            allow(board)
+              .to receive(:sprints).with(maxResults: 1000, startAt: 0).and_return(%w[sprint_1 sprint_2])
+
+            allow(board)
+              .to receive(:sprints).with(maxResults: 1000, startAt: 1000).and_return(%w[sprint_3 sprint_4])
+
+            allow(board)
+              .to receive(:sprints).with(maxResults: 1000, startAt: 2000).and_return([])
+
+            expect(sprint_controller.jira_sprints).to eq(%w[sprint_1 sprint_2 sprint_3 sprint_4])
+          end
+        end
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

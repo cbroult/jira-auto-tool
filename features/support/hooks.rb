@@ -9,5 +9,5 @@ Before do
   @jira_client = @jira_auto_tool.jira_client
   @board = @jira_auto_tool.board
 
-  remove_existing_sprints(@board)
+  remove_existing_sprints(@jira_auto_tool)
 end

@@ -1,4 +1,4 @@
-Feature: Add sprints to existing ones as a reference
+Feature: Add sprints using existing ones as a reference
   In order to prepare for sprints in the future
   As an RTE
   I need the ability to add sprints using the existing ones as a reference

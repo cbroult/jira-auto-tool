@@ -53,34 +53,39 @@ def guard_rubocop
   end
 end
 
-# group :red_green_refactor, halt_on_fail: true do
-guard_rspec
-guard_rubocop
-# end
+def cucumber_options
+  {
+    # Below are examples overriding defaults
 
-cucumber_options = {
-  # Below are examples overriding defaults
+    # cmd: 'bin/cucumber',
+    cmd_additional_args: "--profile guard",
 
-  # cmd: 'bin/cucumber',
-  cmd_additional_args: "--profile guard",
+    # all_after_pass: false,
+    # all_on_start: false,
+    # keep_failed: false,
+    # feature_sets: ['features/frontend', 'features/experimental'],
 
-  # all_after_pass: false,
-  # all_on_start: false,
-  # keep_failed: false,
-  # feature_sets: ['features/frontend', 'features/experimental'],
+    # run_all: { cmd_additional_args: '--profile guard_all' },
+    # focus_on: { 'wip' }, # @wip
+    notification: false
+  }
+end
 
-  # run_all: { cmd_additional_args: '--profile guard_all' },
-  # focus_on: { 'wip' }, # @wip
-  notification: false
-}
+def guard_cucumber
+  guard "cucumber", cucumber_options do
+    watch(%r{^features/.+\.feature$})
+    watch(%r{^features/support/.+$}) { "features" }
+    watch(%r{^(bin|lib)/.+$}) { "features" }
+    watch("cucumber.yml")
 
-guard "cucumber", cucumber_options do
-  watch(%r{^features/.+\.feature$})
-  watch(%r{^features/support/.+$}) { "features" }
-  watch(%r{^(bin|lib)/.+$}) { "features" }
-  watch("cucumber.yml")
-
-  watch(%r{^features/step_definitions/(.+)_steps\.rb$}) do |m|
-    Dir[File.join("**/#{m[1]}.feature")][0] || "features"
+    watch(%r{^features/step_definitions/(.+)_steps\.rb$}) do |m|
+      Dir[File.join("**/#{m[1]}.feature")][0] || "features"
+    end
   end
+end
+
+group :red_green_refactor, halt_on_fail: true do
+  guard_rspec
+  guard_rubocop
+  guard_cucumber
 end

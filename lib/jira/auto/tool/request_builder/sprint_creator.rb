@@ -6,8 +6,15 @@ module Jira
       class RequestBuilder
         class SprintCreator < RequestBuilder
           def self.create_sprint(jira_client, board_id, name, start, length_in_days)
-            new(jira_client, board_id, name, start, length_in_days)
-              .run
+            log.info { "create_sprint(name: #{name}, start: #{start}, length: #{length_in_days})" }
+
+            creation_response = new(jira_client, board_id, name, start, length_in_days)
+                                .run
+
+            Sprint.new(
+              jira_client.Sprint.find(JSON.parse(creation_response.body).fetch("id")),
+              board_id
+            )
           end
 
           protected
@@ -59,7 +66,7 @@ module Jira
           end
 
           def error_message_prefix
-            "Error creating auto"
+            "Error creating sprint"
           end
         end
       end

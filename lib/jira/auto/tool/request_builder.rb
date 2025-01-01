@@ -23,6 +23,8 @@ module Jira
             log.error { error_message }
             raise error_message
           end
+
+          response
         end
 
         protected

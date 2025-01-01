@@ -20,6 +20,18 @@ module Jira
             @sprints << sprint
           end
 
+          def add_sprints_until(until_date)
+            add_sprint_following_last_one until covered?(until_date)
+          end
+
+          def covered?(until_date)
+            last_sprint.end_date > until_date.time
+          end
+
+          def add_sprint_following_last_one
+            self << NextSprintCreator.create_sprint_following(last_sprint)
+          end
+
           def to_s
             "name: #{name}, sprints: #{sprints}"
           end

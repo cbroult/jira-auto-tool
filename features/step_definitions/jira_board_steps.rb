@@ -64,3 +64,7 @@ Then(/^afterwards the board only has the following sprints:$/) do |table|
 
   expect(actual_sprints).to contain_exactly(*expected_sprints)
 end
+
+And("the current date time is {string}") do |current_date_time|
+  set_environment_variable("JAT_CURRENT_DATE_TIME", current_date_time)
+end

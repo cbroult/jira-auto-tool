@@ -15,15 +15,17 @@ module Jira
           @board = board
         end
 
+        def add_sprints_until(until_date)
+          unclosed_sprint_prefixes.each { |prefix| prefix.add_sprints_until(until_date) }
+        end
+
         def add_one_sprint_for_each_unclosed_sprint_prefix
           exit_with_board_warning "No sprint added since no reference sprint was found!" unless sprint_exist?
           unless unclosed_sprint_exist?
             exit_with_board_warning "No sprint added since no unclosed reference sprint was found!"
           end
 
-          unclosed_sprint_prefixes.each do |unclosed_sprint_prefix|
-            NextSprintCreator.create_sprint_following(unclosed_sprint_prefix.last_sprint)
-          end
+          unclosed_sprint_prefixes.each(&:add_sprint_following_last_one)
         end
 
         SUCCESSFUL_EXECUTION_EXIT_CODE = 0
@@ -49,8 +51,31 @@ module Jira
         end
 
         def sprints
-          board.sprints.collect { |sprint| Sprint.new(sprint, board.id) }
+          jira_sprints.collect { |sprint| Sprint.new(sprint, board.id) }
         end
+
+        PAGE_SIZE = 1000
+        # rubocop:disable Metrics/MethodLength
+        def jira_sprints
+          all_jira_sprints = []
+          start_at = 0
+
+          loop do
+            log.debug { "Fetching sprints from Jira (start_at: #{start_at})" }
+
+            fetched_sprints = board.sprints(maxResults: PAGE_SIZE, startAt: start_at)
+
+            log.debug { "Fetched #{fetched_sprints.size} sprints from Jira: #{fetched_sprints.map(&:to_s).join(" ")}" }
+
+            all_jira_sprints.concat(fetched_sprints)
+            start_at += PAGE_SIZE
+
+            break if fetched_sprints.empty?
+          end
+
+          all_jira_sprints
+        end
+        # rubocop:enable Metrics/MethodLength
 
         def unclosed_sprints
           sprints.find_all { |sprint| sprint.state != SprintStateController::SprintState::CLOSED }

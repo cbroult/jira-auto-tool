@@ -36,7 +36,7 @@ module Jira
       end
 
       def fetch_sprint(sprint_name)
-        board.sprints.find { |sprint| sprint.name == sprint_name } or
+        sprint_controller.sprints.find { |sprint| sprint.name == sprint_name } or
           raise KeyError, "Sprint '#{sprint_name}' not found for #{board.name}!" # TODO: - test this condition
       end
 

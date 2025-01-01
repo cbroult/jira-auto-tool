@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "jira/auto/tool/sprint/prefix"
+require "jira/auto/tool/until_date"
 
 module Jira
   module Auto
@@ -47,8 +48,87 @@ module Jira
             it { expect(art_team_prefix).to be > new_prefix("AA_Team", []) }
           end
 
+          describe "#add_sprint_following_last_one" do
+            context "when unclosed sprint are found" do
+              let(:actual_sprints) do
+                [
+                  "1st sprint",
+                  "last sprint",
+                  "2nd sprint"
+                ]
+              end
+
+              let(:prefix) { described_class.new("sprint", actual_sprints) }
+              let(:newly_added_sprint) { instance_double(Sprint, name: "sprint following last sprint") }
+
+              it "add a sprint for the sprint prefixes having at least one unclosed sprint" do
+                allow(NextSprintCreator)
+                  .to receive(:create_sprint_following).with("last sprint").and_return(newly_added_sprint)
+                allow(prefix).to receive_messages(:<< => nil)
+
+                prefix.add_sprint_following_last_one
+
+                expect(prefix).to have_received(:<<).with(newly_added_sprint)
+              end
+            end
+          end
+
+          describe "#add_sprints_until" do
+            let(:until_date) { UntilDate.new("204-05-15") }
+            let(:prefix) { described_class.new("name_prefix") }
+
+            it "adds no sprint if date is already covered" do
+              allow(prefix).to receive_messages(covered?: true, add_sprint_following_last_one: nil)
+
+              prefix.add_sprints_until(until_date)
+
+              expect(prefix).not_to have_received(:add_sprint_following_last_one)
+            end
+
+            it "adds sprints until date is covered" do
+              allow(prefix).to receive(:covered?).and_return(false, false, true)
+              allow(prefix).to receive_messages(add_sprint_following_last_one: nil)
+
+              prefix.add_sprints_until(until_date)
+
+              expect(prefix).to have_received(:add_sprint_following_last_one).exactly(:twice)
+            end
+          end
+
+          describe "#covered?" do
+            let(:last_sprint) do
+              instance_double(Sprint,
+                              start_date: Time.parse("2024-05-01 11:00 UTC"),
+                              end_date: Time.parse("2024-05-14 11:00 UTC"))
+            end
+
+            let(:prefix) { described_class.new("name_prefix") }
+
+            before { allow(prefix).to receive_messages(last_sprint: last_sprint) }
+
+            it "handles date anterior to last sprint" do
+              expect(prefix_has_covered?("2024-04-30 11:00 UTC")).to be true
+            end
+
+            it "handles date included in the last sprint" do
+              expect(prefix_has_covered?("2024-05-01 11:00 UTC")).to be true
+            end
+
+            it "handles time past to the last sprint end time on the same day" do
+              expect(prefix_has_covered?("2024-05-14 12:00 UTC")).to be false
+            end
+
+            it "handles date past to the last sprint day" do
+              expect(prefix_has_covered?("2024-05-15 11:00 UTC")).to be false
+            end
+
+            def prefix_has_covered?(date_string)
+              prefix.covered?(UntilDate.new(date_string))
+            end
+          end
+
           describe "#last_sprint" do
-            it "returns the last sprint as per the sprint default sort criteria }" do
+            it "returns the last sprint as per the sprint default sort criteria" do
               prefix = new_prefix("ART_Team", %w[sprint_2 xx_last_sprint sprint_1 another_sprint1])
 
               expect(prefix.last_sprint).to eq("xx_last_sprint")
