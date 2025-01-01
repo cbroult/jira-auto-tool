@@ -56,6 +56,13 @@ module Jira
             expect(described_class.new("coming_quarter")).to be_date_until_midnight_utc(2024, 12, 31)
           end
         end
+
+        context "when unexpected date format" do
+          it "raises an error" do
+            expect { described_class.new("current-quarter-end") }
+              .to raise_error(UntilDate::FormatError, "date string 'current-quarter-end' is not in a supported format")
+          end
+        end
       end
     end
   end

@@ -1,4 +1,3 @@
-@in-specification
 Feature: Add sprints until a specific date
   In order to prepare for sprints in the future
   As an RTE
@@ -29,6 +28,7 @@ Feature: Add sprints until a specific date
       | art_people_24.4.9    | 2024-12-09 11:00:00 UTC | future |
       | art_sys-team_24.4.12 | 2024-12-24 11:00:00 UTC | future |
 
+  @in-specification
   Scenario: Add sprints until current quarter end
     Given the board only has the following sprints:
       | expecting_added_sprints              | name                 | length | start                   | state  |
@@ -55,6 +55,7 @@ Feature: Add sprints until a specific date
       | art_people_24.4.9    | 2024-12-09 11:00:00 UTC | future |
       | art_sys-team_24.4.12 | 2024-12-24 11:00:00 UTC | future |
 
+  @in-specification
   Scenario: Add sprints until the coming quarter end
     Given the board only has the following sprints:
       | expecting_added_sprints               | name                 | length | start                   | state  |

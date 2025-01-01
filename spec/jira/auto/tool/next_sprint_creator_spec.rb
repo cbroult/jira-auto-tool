@@ -7,11 +7,14 @@ module Jira
     class Tool
       RSpec.describe NextSprintCreator do
         let(:jira_client) { instance_double(JIRA::Client) }
+        let(:last_sprint_start) { "2024-12-27 13:00:00 UTC" }
+        let(:last_sprint_end) { "2024-12-31 13:00:00 UTC" }
+
         let(:sprint) do
           instance_double(Sprint,
                           name: "ART_Team_24.4.5",
-                          start_date: Time.parse("2024-12-27 13:00:00 UTC"),
-                          end_date: Time.parse("2024-12-31 13:00:00 UTC"),
+                          start_date: Time.parse(last_sprint_start),
+                          end_date: Time.parse(last_sprint_end),
                           name_prefix: "ART_Team",
                           length_in_days: 4,
                           index_in_quarter: 5,
@@ -25,14 +28,29 @@ module Jira
         end
 
         describe ".create_sprint_following" do
-          it "requests the sprint creation with the expected attributes" do
-            allow(RequestBuilder::SprintCreator).to receive(:create_sprint)
+          RSpec.shared_examples "a next sprint creator" do |expected|
+            it "requests the sprint creation with the expected attributes" do
+              allow(RequestBuilder::SprintCreator).to receive(:create_sprint)
 
-            described_class.create_sprint_following(sprint)
+              described_class.create_sprint_following(sprint)
 
-            expect(RequestBuilder::SprintCreator)
-              .to have_received(:create_sprint)
-              .with(jira_client, 64, "ART_Team_24.4.6", "2024-12-31 13:00:00 UTC", 4)
+              expect(RequestBuilder::SprintCreator)
+                .to have_received(:create_sprint)
+                .with(jira_client, 64, expected[:next_sprint_name], expected[:next_sprint_start], 4)
+            end
+          end
+
+          context "when next sprint is in the same quarter" do
+            it_behaves_like "a next sprint creator", { next_sprint_name: "ART_Team_24.4.6",
+                                                       next_sprint_start: "2024-12-31 13:00:00 UTC" }
+          end
+
+          context "when next sprint is in the coming year" do
+            let(:last_sprint_start) { "2024-12-31 13:00:00 UTC" }
+            let(:last_sprint_end) { "2025-01-03 13:00:00 UTC" }
+
+            it_behaves_like "a next sprint creator",
+                            { next_sprint_name: "ART_Team_25.1.1", next_sprint_start: "2025-01-03 13:00:00 UTC" }
           end
         end
 

@@ -7,6 +7,8 @@ module Jira
   module Auto
     class Tool
       class UntilDate
+        class FormatError < RuntimeError; end
+
         attr_reader :time
 
         NAMED_DATES = %i[
@@ -18,17 +20,16 @@ module Jira
         NAMED_DATE_REGEX = /^(#{NAMED_DATES.join("|")})$/
 
         INCLUDES_TIME_REGEX = /.+\s\d{2}:\d{2}.+/
+        STARTS_WITH_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/ # TODO : use something more reliable like the Chronic gem
         TIME_UNTIL_MIDNIGHT_UTC = " 23:59:59 UTC"
+
         def initialize(date_string)
           @time =
             case date_string
             when NAMED_DATE_REGEX
               send(date_string.intern)
-            when
-              INCLUDES_TIME_REGEX
-              Time.parse(date_string)
             else
-              Time.parse(date_string + TIME_UNTIL_MIDNIGHT_UTC).end_of_day
+              parse_date(date_string)
             end
         end
 
@@ -37,6 +38,17 @@ module Jira
         end
 
         private
+
+        def parse_date(date_string)
+          case date_string
+          when INCLUDES_TIME_REGEX
+            Time.parse(date_string)
+          when STARTS_WITH_DATE_REGEX
+            Time.parse(date_string + TIME_UNTIL_MIDNIGHT_UTC).end_of_day
+          else
+            raise FormatError, "date string '#{date_string}' is not in a supported format"
+          end
+        end
 
         def today
           current_time.end_of_day

@@ -74,7 +74,7 @@ module Jira
           end
 
           describe "#add_sprints_until" do
-            let(:until_date) { UntilDate.new("204-05-15") }
+            let(:until_date) { UntilDate.new("2024-05-15") }
             let(:prefix) { described_class.new("name_prefix") }
 
             it "adds no sprint if date is already covered" do

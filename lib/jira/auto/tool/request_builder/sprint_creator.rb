@@ -11,10 +11,14 @@ module Jira
             creation_response = new(jira_client, board_id, name, start, length_in_days)
                                 .run
 
-            Sprint.new(
+            created_sprint = Sprint.new(
               jira_client.Sprint.find(JSON.parse(creation_response.body).fetch("id")),
               board_id
             )
+
+            log.info { "created_sprint: #{created_sprint.id}" }
+
+            created_sprint
           end
 
           protected
