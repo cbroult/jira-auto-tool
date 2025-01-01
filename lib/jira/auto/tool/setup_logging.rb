@@ -13,8 +13,8 @@ log_dir = File.join("log")
 FileUtils.makedirs(log_dir)
 
 Logging.logger.root.add_appenders(
-  Logging.appenders.stdout,
-  Logging.appenders.file(File.join(log_dir, "#{File.basename($PROGRAM_NAME)}.log"))
+  Logging.appenders.stdout(level: :warn),
+  Logging.appenders.file(File.join(log_dir, "#{File.basename($PROGRAM_NAME)}.log"), level: :info)
 )
 
 Logging.logger.root.level = :info
@@ -22,8 +22,8 @@ Logging.logger.root.level = :info
 logging_logger = Logging.logger["HTTPLogger"]
 logging_logger.level = :info
 logging_logger.add_appenders(
-  Logging.appenders.stdout,
-  Logging.appenders.file(File.join(log_dir, "http_requests.log"))
+  Logging.appenders.stdout(level: :warn),
+  Logging.appenders.file(File.join(log_dir, "http_requests.log"), level: :debug)
 )
 
 # Step 2: Configure HttpLogger to use the Logging logger

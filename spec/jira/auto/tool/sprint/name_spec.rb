@@ -28,6 +28,14 @@ module Jira
               expect(described_class.build("ART_Team", 25, 2, 3)).to eq("ART_Team_25.2.3")
             end
           end
+
+          describe "#<=>" do
+            let(:parsed_name) { described_class.parse("ART_Team_24.4.5") }
+
+            it { expect(parsed_name).to be > described_class.parse("ART_Team_24.4.1") }
+            it { expect(parsed_name).to eq described_class.parse("ART_Team_24.4.05") }
+            it { expect(parsed_name).to be < described_class.parse("ART_Team_24.4.10") }
+          end
         end
       end
     end

@@ -60,7 +60,7 @@ module Jira
         end
 
         def <=>(other)
-          name <=> other.name
+          parsed_name <=> other.parsed_name
         end
 
         def to_s

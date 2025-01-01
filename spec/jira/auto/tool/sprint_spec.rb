@@ -51,14 +51,21 @@ module Jira
 
         describe "#<=>" do
           def new_sprint_named(name)
-            described_class.new(double(JIRA::Resource::Sprint, name: name), 256) # rubocop:disable RSpec/VerifiedDoubles
+            # rubocop:disable RSpec/VerifiedDoubles
+            described_class.new(
+              double(JIRA::Resource::Sprint, name: name, startDate: "2024-12-30", endDate: "2025-01-14"),
+              256
+            )
+            # rubocop:enable RSpec/VerifiedDoubles
           end
 
-          let(:abc_sprint) { new_sprint_named("abc name") }
+          let(:abc_sprint) { new_sprint_named("abc name_24.4.9") }
 
-          it { expect(abc_sprint).to eq new_sprint_named("abc name") }
-          it { expect(abc_sprint).to be < new_sprint_named("xyz name") }
-          it { expect(new_sprint_named("def name")).to be > abc_sprint }
+          it { expect(abc_sprint).to eq new_sprint_named("abc name_24.4.9") }
+          it { expect(abc_sprint).to be < new_sprint_named("xyz name_24.4.9") }
+          it { expect(new_sprint_named("def name_24.3.9")).to be > abc_sprint }
+
+          it { expect(new_sprint_named("foo_bar_24.4.9")).to be < new_sprint_named("foo_bar_24.4.10") }
         end
       end
     end

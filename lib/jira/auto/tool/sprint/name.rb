@@ -7,6 +7,7 @@ module Jira
     class Tool
       class Sprint
         class Name
+          include Comparable
           class NameConventionError < StandardError; end
 
           SPRINT_PREFIX_SEPARATOR = "_"
@@ -36,7 +37,8 @@ module Jira
               .to_s
           end
 
-          attr_accessor :prefix, :year, :quarter, :index_in_quarter
+          FIELDS = [:prefix, :year, :quarter, :index_in_quarter]
+          FIELDS.each { |field| attr_accessor field }
 
           def initialize(prefix, year, quarter, index_in_quarter)
             @prefix = prefix
@@ -57,6 +59,15 @@ module Jira
               NUMBERING_SEPARATOR,
               index_in_quarter
             ].join
+          end
+
+          def <=>(other)
+            comparison_values(self) <=> comparison_values(other)
+          end
+
+          private
+          def comparison_values(object)
+            FIELDS.collect { |field| object.send(field) }
           end
         end
       end
