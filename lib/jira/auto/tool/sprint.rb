@@ -23,10 +23,6 @@ module Jira
           @jira_sprint.name
         end
 
-        def add_one_sprint
-          RequestBuilder::SprintCreator.create_sprint
-        end
-
         def length_in_days
           (end_date - start_date) / 1.day
         end

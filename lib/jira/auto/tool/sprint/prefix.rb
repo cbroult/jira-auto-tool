@@ -37,6 +37,7 @@ module Jira
           end
 
           def last_sprint
+            log.info { "name = #{name}, #sprints = #{sprints.size}" }
             sprints.max
           end
 
