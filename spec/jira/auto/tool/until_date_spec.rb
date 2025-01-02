@@ -71,16 +71,16 @@ module Jira
           it "returns the current date time" do
             allow(Time).to receive_messages(now: time_from_now)
 
-            expect(described_class.new('current_quarter').current_date_time).to eq(time_from_now)
+            expect(described_class.new("current_quarter").current_date_time).to eq(time_from_now)
           end
 
           context "when the current date time is overridden" do
             before do
-              @previous_date_override = ENV['JAT_CURRENT_DATE_TIME']
+              @previous_date_override = ENV.fetch("JAT_CURRENT_DATE_TIME", nil)
             end
 
             after do
-              ENV['JAT_CURRENT_DATE_TIME'] = @previous_date_override
+              ENV["JAT_CURRENT_DATE_TIME"] = @previous_date_override
             end
 
             let(:overridden_date_time_string) { "2024-04-16 16:32 UTC" }
@@ -88,8 +88,8 @@ module Jira
             it "can be overridden using the JAT_CURRENT_DATE_TIME environment variable (e.g., for testing)" do
               ENV["JAT_CURRENT_DATE_TIME"] = overridden_date_time_string
 
-              expect(described_class.new('current_quarter').current_date_time).
-                to eq(Time.parse(overridden_date_time_string))
+              expect(described_class.new("current_quarter").current_date_time)
+                .to eq(Time.parse(overridden_date_time_string))
             end
           end
         end
