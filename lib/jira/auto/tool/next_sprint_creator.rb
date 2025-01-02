@@ -17,7 +17,7 @@ module Jira
         attr_reader :sprint
 
         def initialize(sprint)
-          log.debug { "Creating next sprint for #{sprint}" }
+          log.info { "Creating next sprint for #{sprint}" }
           @sprint = sprint
         end
 

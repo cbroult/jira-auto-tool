@@ -7,24 +7,26 @@ module Jira
     class Tool
       RSpec.describe NextSprintCreator do
         let(:jira_client) { instance_double(JIRA::Client) }
+        let(:last_sprint_name) { "ART_Team_24.4.5" }
+        let(:last_sprint_index_in_quarter) { 5 }
         let(:last_sprint_start) { "2024-12-27 13:00:00 UTC" }
         let(:last_sprint_end) { "2024-12-31 13:00:00 UTC" }
 
-        let(:sprint) do
+        def last_sprint
           instance_double(Sprint,
-                          name: "ART_Team_24.4.5",
+                          name: last_sprint_name,
                           start_date: Time.parse(last_sprint_start),
                           end_date: Time.parse(last_sprint_end),
                           name_prefix: "ART_Team",
                           length_in_days: 4,
-                          index_in_quarter: 5,
+                          index_in_quarter: last_sprint_index_in_quarter,
                           state: "closed",
                           board_id: 64,
                           jira_client: jira_client)
         end
 
-        let(:next_sprint_creator_instance) do
-          described_class.new(sprint)
+        def next_sprint_creator_instance
+          described_class.new(last_sprint)
         end
 
         describe ".create_sprint_following" do
@@ -32,11 +34,14 @@ module Jira
             it "requests the sprint creation with the expected attributes" do
               allow(RequestBuilder::SprintCreator).to receive(:create_sprint)
 
-              described_class.create_sprint_following(sprint)
+              described_class.create_sprint_following(last_sprint)
 
               expect(RequestBuilder::SprintCreator)
                 .to have_received(:create_sprint)
-                .with(jira_client, 64, expected[:next_sprint_name], expected[:next_sprint_start], 4)
+                .with(jira_client, 64,
+                      expected[:next_sprint_name],
+                      Time.parse(expected[:next_sprint_start]).utc.to_s,
+                      4)
             end
           end
 
@@ -51,6 +56,16 @@ module Jira
 
             it_behaves_like "a next sprint creator",
                             { next_sprint_name: "ART_Team_25.1.1", next_sprint_start: "2025-01-03 13:00:00 UTC" }
+          end
+
+          context "when the current sprint starts locally at midnight and UTC is not yet in the new year" do
+            let(:last_sprint_name) { "ART_Team_25.1.1" }
+            let(:last_sprint_start) { "2025-01-01 00:00:00 +01:00" }
+            let(:last_sprint_end) { "2025-01-03 00:00:00 +01:00" }
+            let(:last_sprint_index_in_quarter) { 1 }
+
+            it_behaves_like "a next sprint creator",
+                            { next_sprint_name: "ART_Team_25.1.2", next_sprint_start: "2025-01-03 00:00:00 +01:00" }
           end
         end
 

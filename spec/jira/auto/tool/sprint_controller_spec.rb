@@ -76,9 +76,9 @@ module Jira
         end
 
         describe "#unclosed_sprint_prefixes" do
-          def new_jira_sprints(name_start_pairs)
-            name_start_pairs.collect do |name, start|
-              double(JIRA::Resource::Sprint, name: name, start: start, state: "future") # rubocop:disable RSpec/VerifiedDoubles
+          def new_jira_sprints(name_start_end_trios)
+            name_start_end_trios.collect do |name, start_data, end_date|
+              double(JIRA::Resource::Sprint, name: name, startDate: start_data, endDate: end_date, state: "future") # rubocop:disable RSpec/VerifiedDoubles
             end
           end
 
@@ -90,14 +90,14 @@ module Jira
 
           let(:e2e_jira_sprints) do
             new_jira_sprints [
-              ["art_e2e_25.1.2", "2024-12-08"]
+              ["art_e2e_25.1.2", "2024-12-08", "2024-12-14"]
             ]
           end
 
           let(:sys_jira_sprints) do
             new_jira_sprints [
-              ["art_sys_24.4.8", "2024-12-15"],
-              ["art_sys_24.4.9", "2024-12-22"]
+              ["art_sys_24.4.8", "2024-12-15", "2024-12-22"],
+              ["art_sys_24.4.9", "2024-12-22", "2024-12-29"]
             ]
           end
 

@@ -60,7 +60,7 @@ module Jira
         end
 
         def <=>(other)
-          parsed_name <=> other.parsed_name
+          comparison_values(self) <=> comparison_values(other)
         end
 
         def to_s
@@ -70,6 +70,10 @@ module Jira
         private
 
         attr_reader :jira_sprint
+
+        def comparison_values(object)
+          %i[start_date end_date parsed_name].collect { |field| object.send(field) }
+        end
 
         def parse_date(date)
           Time.parse(date).utc

@@ -50,10 +50,10 @@ module Jira
         end
 
         describe "#<=>" do
-          def new_sprint_named(name)
+          def new_sprint_named(name, start_date: "2024-12-30 13:00 UTC", end_date: "2025-01-14 13:00 UTC")
             # rubocop:disable RSpec/VerifiedDoubles
             described_class.new(
-              double(JIRA::Resource::Sprint, name: name, startDate: "2024-12-30", endDate: "2025-01-14"),
+              double(JIRA::Resource::Sprint, name: name, startDate: start_date, endDate: end_date),
               256
             )
             # rubocop:enable RSpec/VerifiedDoubles
@@ -66,6 +66,11 @@ module Jira
           it { expect(new_sprint_named("def name_24.3.9")).to be > abc_sprint }
 
           it { expect(new_sprint_named("foo_bar_24.4.9")).to be < new_sprint_named("foo_bar_24.4.10") }
+
+          it do
+            expect(new_sprint_named("foo_bar_24.4.9", end_date: "2025-01-14 13:00 UTC"))
+              .to be < new_sprint_named("foo_bar_24.4.9", end_date: "2025-01-15 13:00 UTC")
+          end
         end
       end
     end
