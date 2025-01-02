@@ -29,6 +29,6 @@ OptionParser.new do |parser|
     tool.jira_board_name = board_name
   end
 
-  Jira::Auto::Tool::SprintController::Options.add(tool.sprint_controller, parser)
+  Jira::Auto::Tool::SprintController::Options.add(tool, parser)
 end
   .parse!

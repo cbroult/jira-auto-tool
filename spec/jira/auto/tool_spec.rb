@@ -53,7 +53,7 @@ module Jira
 
         describe "#fetch_sprint" do
           def build_sprint(name)
-            double(JIRA::Resource::Sprint, name: name) # rubocop:disable RSpec/VerifiedDoubles
+            instance_double(Sprint, name: name)
           end
 
           let(:expected_sprint) { build_sprint("expected_sprint_name_24.4.1") }
@@ -64,21 +64,17 @@ module Jira
             other_boards.shuffle
           end
 
-          let(:board) { instance_double(JIRA::Resource::Board, id: 128) }
+          let(:actual_sprint_controller) { instance_double(SprintController, sprints: board_sprints) }
 
           it do
-            allow(@tool.sprint_controller).to receive_messages(jira_sprints: board_sprints)
+            allow(@tool).to receive_messages(sprint_controller: actual_sprint_controller)
 
-            expect(@tool.fetch_sprint("expected_sprint_name_24.4.1")).to eq(Sprint.new(expected_sprint, board.id))
+            expect(@tool.fetch_sprint("expected_sprint_name_24.4.1")).to eq(expected_sprint)
           end
         end
 
         it "#sprint_controller" do
           expect(@tool.sprint_controller).not_to be_nil
-        end
-
-        it "#sprint_generator" do
-          expect(@tool.sprint_generator).not_to be_nil
         end
 
         RSpec.shared_examples "an environment based value" do |method_name|

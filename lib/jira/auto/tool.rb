@@ -7,7 +7,6 @@ require "active_support/core_ext/date/calculations"
 require "jira-ruby"
 require_relative "tool/request_builder"
 require_relative "tool/sprint_controller"
-require_relative "tool/sprint_generator"
 require_relative "tool/sprint_state_controller"
 require_relative "tool/setup_logging"
 require_relative "tool/version"
@@ -28,7 +27,12 @@ module Jira
       end
 
       def board
-        boards.find { |a_board| a_board.name == board_name }
+        found_board = boards.find { |a_board| a_board.name == board_name } or
+          raise KeyError, "Board '#{board_name}' not found!"
+
+        log.info { "Jira board '#{board_name}' found: #{found_board}!" }
+
+        found_board
       end
 
       def boards
@@ -73,11 +77,7 @@ module Jira
       end
 
       def sprint_controller
-        @sprint_controller ||= SprintController.new(board)
-      end
-
-      def sprint_generator
-        @sprint_generator ||= SprintGenerator.new
+        SprintController.new(board)
       end
 
       private
