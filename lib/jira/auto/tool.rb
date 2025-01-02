@@ -5,6 +5,7 @@ require "date"
 require "active_support/core_ext/numeric/time"
 require "active_support/core_ext/date/calculations"
 require "jira-ruby"
+require_relative "tool/project_controller"
 require_relative "tool/request_builder"
 require_relative "tool/sprint_controller"
 require_relative "tool/sprint_state_controller"
@@ -78,6 +79,31 @@ module Jira
 
       def sprint_controller
         SprintController.new(board)
+      end
+
+      def project_ticket_fields
+        # TODO: - should include project reference
+        ProjectController.new(jira_client).ticket_fields
+      end
+
+      def expected_start_date_field(field_name = expected_start_date_field_name)
+        field_controller.expected_start_date_field(field_name)
+      end
+
+      def implementation_team_field(field_name = implementation_team_field_name)
+        field_controller.implementation_team_field(field_name)
+      end
+
+      def field_controller
+        FieldController.new(jira_client)
+      end
+
+      def expected_start_date_field_name
+        fetch_corresponding_environment_variable
+      end
+
+      def implementation_team_field_name
+        fetch_corresponding_environment_variable
       end
 
       private

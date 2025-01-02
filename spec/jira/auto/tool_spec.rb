@@ -4,11 +4,10 @@ require "jira/auto/tool"
 
 module Jira
   module Auto
+    # rubocop:disable  Metrics/ClassLength
     class Tool
       RSpec.describe Tool do
-        before do
-          @tool = described_class.new
-        end
+        let(:tool) { described_class.new }
 
         it "has a version number" do
           expect(Jira::Auto::Tool::VERSION).not_to be_nil
@@ -28,25 +27,25 @@ module Jira
           end
 
           it "has a board" do
-            allow(@tool).to receive_messages(board_name: "a board name")
-            allow(@tool).to receive_messages(boards: boards)
+            allow(tool).to receive_messages(board_name: "a board name")
+            allow(tool).to receive_messages(boards: boards)
 
-            expect(@tool.board).to equal(expected_board)
+            expect(tool.board).to equal(expected_board)
           end
         end
 
         describe "#create_sprint" do
           # rubocop:disable RSpec/MultipleExpectations
           it "creates a future auto and transitions it to the desired state" do
-            allow(@tool).to receive_messages(create_future_sprint: nil, transition_sprint_state: nil)
+            allow(tool).to receive_messages(create_future_sprint: nil, transition_sprint_state: nil)
 
-            @tool.create_sprint(name: "sprint_name_24.4.2", start: "2024-12-16 11:00 UTC", length_in_days: 14,
-                                state: "a state")
+            tool.create_sprint(name: "sprint_name_24.4.2", start: "2024-12-16 11:00 UTC", length_in_days: 14,
+                               state: "a state")
 
-            expect(@tool).to have_received(:create_future_sprint).with("sprint_name_24.4.2",
-                                                                       "2024-12-16 11:00 UTC", 14)
-            expect(@tool).to have_received(:transition_sprint_state).with(name: "sprint_name_24.4.2",
-                                                                          desired_state: "a state")
+            expect(tool).to have_received(:create_future_sprint).with("sprint_name_24.4.2",
+                                                                      "2024-12-16 11:00 UTC", 14)
+            expect(tool).to have_received(:transition_sprint_state).with(name: "sprint_name_24.4.2",
+                                                                         desired_state: "a state")
           end
           # rubocop:enable RSpec/MultipleExpectations
         end
@@ -67,14 +66,14 @@ module Jira
           let(:actual_sprint_controller) { instance_double(SprintController, sprints: board_sprints) }
 
           it do
-            allow(@tool).to receive_messages(sprint_controller: actual_sprint_controller)
+            allow(tool).to receive_messages(sprint_controller: actual_sprint_controller)
 
-            expect(@tool.fetch_sprint("expected_sprint_name_24.4.1")).to eq(expected_sprint)
+            expect(tool.fetch_sprint("expected_sprint_name_24.4.1")).to eq(expected_sprint)
           end
         end
 
         it "#sprint_controller" do
-          expect(@tool.sprint_controller).not_to be_nil
+          expect(tool.sprint_controller).not_to be_nil
         end
 
         RSpec.shared_examples "an environment based value" do |method_name|
@@ -84,14 +83,14 @@ module Jira
             expected_value = "#{env_var_name} env_value"
             allow(ENV).to receive(:fetch).with(env_var_name).and_return(expected_value)
 
-            expect(@tool.send(method_name)).to eq(expected_value)
+            expect(tool.send(method_name)).to eq(expected_value)
           end
 
           it "raises an error if the environment variable is not found" do
             allow(ENV).to receive(:fetch).with(env_var_name)
                                          .and_raise(KeyError.new("Missing #{env_var_name} environment variable!)"))
 
-            expect { @tool.send(method_name) }.to raise_error(KeyError, /Missing #{env_var_name} environment variable!/)
+            expect { tool.send(method_name) }.to raise_error(KeyError, /Missing #{env_var_name} environment variable!/)
           end
         end
 
@@ -99,13 +98,18 @@ module Jira
           it_behaves_like "an environment based value", :jira_board_name
 
           it "can be overridden explicitly" do
-            @tool.jira_board_name = "a board name"
+            tool.jira_board_name = "a board name"
 
-            expect(@tool.jira_board_name).to eq("a board name")
+            expect(tool.jira_board_name).to eq("a board name")
           end
         end
 
-        %i[jira_api_token jira_site_url jira_username].each do |method_name|
+        %i[
+          expected_start_date_field_name
+          implementation_team_field_name
+          jira_api_token
+          jira_site_url jira_username
+        ].each do |method_name|
           describe method_name.to_s do
             it_behaves_like "an environment based value", method_name
           end
@@ -123,17 +127,46 @@ module Jira
           end
 
           it "has a jira client" do
-            allow(@tool).to receive_messages(jira_username: "jira_username_value", jira_site_url: "jira_site_url_value",
-                                             jira_api_token: "jira_api_token_value")
+            allow(tool).to receive_messages(jira_username: "jira_username_value", jira_site_url: "jira_site_url_value",
+                                            jira_api_token: "jira_api_token_value")
 
             expected_jira_client = instance_double(JIRA::Client)
 
             allow(JIRA::Client).to receive(:new).with(client_options).and_return(expected_jira_client)
 
-            expect(@tool.jira_client).to equal(expected_jira_client)
+            expect(tool.jira_client).to equal(expected_jira_client)
+          end
+        end
+
+        context "when dealing with ticket fields" do
+          let(:ticket_field) { instance_double(JIRA::Resource::Field) }
+
+          describe "#project_ticket_fields" do
+            it { expect(tool.project_ticket_fields).not_to be_empty }
+          end
+
+          describe "#expected_start_date_field" do
+            let(:field_controller) { instance_double(FieldController, expected_start_date_field: ticket_field) }
+
+            it do
+              allow(tool).to receive_messages(field_controller: field_controller)
+
+              expect(tool.expected_start_date_field("start_date_field")).not_to be_nil
+            end
+          end
+
+          describe "#implementation_team_field" do
+            let(:field_controller) { instance_double(FieldController, implementation_team_field: ticket_field) }
+
+            it do
+              allow(tool).to receive_messages(field_controller: field_controller)
+
+              expect(tool.implementation_team_field("team_field")).not_to be_nil
+            end
           end
         end
       end
     end
+    # rubocop:enable  Metrics/ClassLength
   end
 end
