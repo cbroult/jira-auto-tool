@@ -43,6 +43,7 @@ module Jira
           let(:third_quarter_time) { Time.new(2024, 9, 16, 12, 0, 0, "+00:00") }
 
           before { travel_to(third_quarter_time) }
+          after { travel_back }
 
           it do
             expect(described_class.new("today")).to be_date_until_midnight_utc(2024, 9, 16)
@@ -61,6 +62,35 @@ module Jira
           it "raises an error" do
             expect { described_class.new("current-quarter-end") }
               .to raise_error(UntilDate::FormatError, "date string 'current-quarter-end' is not in a supported format")
+          end
+        end
+
+        describe "#current_date_time" do
+          let(:time_from_now) { Time.new(2025, 1, 1, 16, 32, 0, "UTC") }
+
+          it "returns the current date time" do
+            allow(Time).to receive_messages(now: time_from_now)
+
+            expect(described_class.new('current_quarter').current_date_time).to eq(time_from_now)
+          end
+
+          context "when the current date time is overridden" do
+            before do
+              @previous_date_override = ENV['JAT_CURRENT_DATE_TIME']
+            end
+
+            after do
+              ENV['JAT_CURRENT_DATE_TIME'] = @previous_date_override
+            end
+
+            let(:overridden_date_time_string) { "2024-04-16 16:32 UTC" }
+
+            it "can be overridden using the JAT_CURRENT_DATE_TIME environment variable (e.g., for testing)" do
+              ENV["JAT_CURRENT_DATE_TIME"] = overridden_date_time_string
+
+              expect(described_class.new('current_quarter').current_date_time).
+                to eq(Time.parse(overridden_date_time_string))
+            end
           end
         end
       end

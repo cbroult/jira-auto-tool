@@ -37,7 +37,8 @@ module Jira
               .to_s
           end
 
-          FIELDS = [:prefix, :year, :quarter, :index_in_quarter]
+          FIELDS = %i[prefix year quarter index_in_quarter].freeze
+
           FIELDS.each { |field| attr_accessor field }
 
           def initialize(prefix, year, quarter, index_in_quarter)
@@ -66,6 +67,7 @@ module Jira
           end
 
           private
+
           def comparison_values(object)
             FIELDS.collect { |field| object.send(field) }
           end

@@ -33,8 +33,11 @@ module Jira
             end
         end
 
-        def current_time
-          Time.now.utc
+        def current_date_time
+          overridden_date_time = ENV.fetch("JAT_CURRENT_DATE_TIME", nil)
+
+          (overridden_date_time ? Time.parse(overridden_date_time) : Time.now)
+            .utc
         end
 
         private
@@ -51,7 +54,7 @@ module Jira
         end
 
         def today
-          current_time.end_of_day
+          current_date_time.end_of_day
         end
 
         def current_quarter

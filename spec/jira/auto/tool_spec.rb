@@ -40,12 +40,13 @@ module Jira
           it "creates a future auto and transitions it to the desired state" do
             allow(@tool).to receive_messages(create_future_sprint: nil, transition_sprint_state: nil)
 
-            @tool.create_sprint(name: "sprint_name", start: "2024-12-16 11:00 UTC", length_in_days: 14,
+            @tool.create_sprint(name: "sprint_name_24.4.2", start: "2024-12-16 11:00 UTC", length_in_days: 14,
                                 state: "a state")
 
-            expect(@tool).to have_received(:create_future_sprint).with("sprint_name",
+            expect(@tool).to have_received(:create_future_sprint).with("sprint_name_24.4.2",
                                                                        "2024-12-16 11:00 UTC", 14)
-            expect(@tool).to have_received(:transition_sprint_state).with(name: "sprint_name", desired_state: "a state")
+            expect(@tool).to have_received(:transition_sprint_state).with(name: "sprint_name_24.4.2",
+                                                                          desired_state: "a state")
           end
           # rubocop:enable RSpec/MultipleExpectations
         end
@@ -55,7 +56,7 @@ module Jira
             double(JIRA::Resource::Sprint, name: name) # rubocop:disable RSpec/VerifiedDoubles
           end
 
-          let(:expected_sprint) { build_sprint("expected_sprint_name") }
+          let(:expected_sprint) { build_sprint("expected_sprint_name_24.4.1") }
 
           let(:board_sprints) do
             other_boards = 4.times.to_a.collect { |i| build_sprint("sprint_#{i}") }
@@ -68,7 +69,7 @@ module Jira
           it do
             allow(@tool.sprint_controller).to receive_messages(jira_sprints: board_sprints)
 
-            expect(@tool.fetch_sprint("expected_sprint_name")).to eq(Sprint.new(expected_sprint, board.id))
+            expect(@tool.fetch_sprint("expected_sprint_name_24.4.1")).to eq(Sprint.new(expected_sprint, board.id))
           end
         end
 
