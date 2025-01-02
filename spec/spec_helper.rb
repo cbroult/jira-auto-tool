@@ -16,4 +16,12 @@ RSpec.configure do |config|
   config.mock_with :rspec do |mocks|
     mocks.verify_partial_doubles = true
   end
+
+  config.include(Module.new do
+    def jira_resource_double(*args)
+      # rubocop:disable RSpec/VerifiedDoubles
+      double(*args)
+      # rubocop:enable RSpec/VerifiedDoubles
+    end
+  end)
 end
