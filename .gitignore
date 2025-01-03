@@ -12,6 +12,7 @@
 *~
 
 *.log
+/log
 
 # rspec failure tracking
 .rspec_status
