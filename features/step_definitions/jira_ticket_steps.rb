@@ -9,11 +9,11 @@ end
 And(/^tickets on the board have a team field named "([^"]*)" with exactly those values:$/) do
   |team_field_name, field_values|
 
-  expected_field_values = field_values.hashes.values.flatten
+  expected_field_values = field_values.hashes.collect { |hashes| hashes["values"] }
 
   @team_field = @jira_auto_tool.implementation_team_field(team_field_name)
 
-  expect(@team_field.values).to eq(expected_field_values)
+  expect(@team_field.values.collect(&:value)).to eq(expected_field_values)
 end
 
 Given(/^the following tickets exist:$/) do |_table|
@@ -21,7 +21,7 @@ Given(/^the following tickets exist:$/) do |_table|
   pending
 end
 
-Then(/^the tickets should have the following attributes:$/) do |_table|
+Then(/^the tickets should have been assigned to sprints as follows:$/) do |_table|
   # table is a table.hashes.keys # => [:summary, :team, :expected_start, :sprint]
   pending
 end

@@ -53,20 +53,27 @@ module Jira
           raise NotImplementedError, "Subclasses must implement this method"
         end
 
+        def request_headers
+          { "Content-Type" => "application/json" }
+        end
+
         private
 
         def send_request
           send_args = [http_verb, *build_request_args(request_url, request_payload)]
-          log.debug { "Sending #{send_args.join(" ")}" }
+
+          log.info { "Sending #{send_args.collect { |arg| %("#{arg}") }.join(" ")}" }
+
           jira_client.send(*send_args)
         end
 
         def build_request_args(request_url, payload)
           [
             request_url,
-            payload.to_json,
-            { "Content-Type" => "application/json" }
+            payload&.to_json,
+            request_headers
           ]
+            .compact
         end
       end
     end

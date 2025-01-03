@@ -39,5 +39,13 @@ RSpec.describe Jira::Auto::Tool::RequestBuilder do
         expect(request_builder.run).to eq(expected_response)
       end
     end
+
+    describe ".build_request_args" do
+      it "removes payload as an argument if it is nil" do
+        allow(request_builder).to receive_messages(request_headers: :some_headers)
+
+        expect(request_builder.send(:build_request_args, :a_request_url, nil)).to eq(%i[a_request_url some_headers])
+      end
+    end
   end
 end

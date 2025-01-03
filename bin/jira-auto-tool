@@ -4,6 +4,7 @@
 require "bundler/setup"
 require "jira/auto/tool"
 require "jira/auto/tool/sprint_controller/options"
+require "jira/auto/tool/team_sprint_mapper/options"
 
 require "optparse"
 require "optparse/date"
@@ -30,5 +31,6 @@ OptionParser.new do |parser|
   end
 
   Jira::Auto::Tool::SprintController::Options.add(tool, parser)
+  Jira::Auto::Tool::TeamSprintMapper::Options.add(tool, parser)
 end
   .parse!
