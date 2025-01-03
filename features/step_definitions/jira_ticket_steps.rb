@@ -7,7 +7,7 @@ And(/^tickets on the board have an expected date field named "([^"]*)"$/) do |da
 end
 
 And(/^tickets on the board have a team field named "([^"]*)" with exactly those values:$/) do
-  |team_field_name, field_values|
+|team_field_name, field_values|
 
   expected_field_values = field_values.hashes.collect { |hashes| hashes["values"] }
 
@@ -24,4 +24,10 @@ end
 Then(/^the tickets should have been assigned to sprints as follows:$/) do |_table|
   # table is a table.hashes.keys # => [:summary, :team, :expected_start, :sprint]
   pending
+end
+
+And(/^the following environment variables are set:$/) do |table|
+  table.hashes.each do |env_var|
+    set_environment_variable(env_var.fetch("name"), env_var.fetch("value"))
+  end
 end

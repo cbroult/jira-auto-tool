@@ -7,9 +7,11 @@ require "active_support/core_ext/date/calculations"
 require "jira-ruby"
 require_relative "tool/project_controller"
 require_relative "tool/request_builder"
+require_relative "tool/setup_logging"
 require_relative "tool/sprint_controller"
 require_relative "tool/sprint_state_controller"
-require_relative "tool/setup_logging"
+require_relative "tool/team"
+require_relative "tool/team_sprint_mapper"
 require_relative "tool/version"
 
 module Jira
@@ -104,6 +106,18 @@ module Jira
 
       def implementation_team_field_name
         fetch_corresponding_environment_variable
+      end
+
+      def team_sprint_mapper
+        TeamSprintMapper.new(self)
+      end
+
+      def unclosed_sprints
+        sprint_controller.unclosed_sprints
+      end
+
+      def teams
+        implementation_team_field.values.collect { |value| Team.new(value) }
       end
 
       private
