@@ -5,7 +5,7 @@ require "jira/auto/tool/until_date"
 module Jira
   module Auto
     class Tool
-      class TeamSprintMapper
+      class TeamSprintPrefixMapper
         class Options
           def self.add(tool, parser)
             parser.on("--team-sprint-mapping-list", "--tsm-list",
@@ -15,7 +15,7 @@ module Jira
 
             parser.on("--team-sprint-mapping-dispatch-tickets", "--tsm-dispatch",
                       "Dispatch tickets to sprint so the teams start timely working on them") do
-              log.warn { "PENDING implementation tool.team_sprint_mapper.distpatch_tickets" }
+              log.warn { "PENDING implementation tool.team_sprint_prefix_mapper.distpatch_tickets" }
             end
           end
         end

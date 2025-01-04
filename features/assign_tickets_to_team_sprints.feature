@@ -10,6 +10,7 @@ Feature: Assign tickets to team sprints as per an expected start date
       | values       |
       | A16 CRM      |
       | A16 E2E-Test |
+      | A16 Logistic |
       | A16 Platform |
       | A16 Sys-Team |
     And the board only has the following sprints:
@@ -22,6 +23,7 @@ Feature: Assign tickets to team sprints as per an expected start date
       | ART-16_Platform_24.4.7  | 3-week | 2024-10-07 11:00:00 UTC | future |
       | ART-16_Sys-Team_24.4.12 | 1-week | 2024-12-24 11:00:00 UTC | future |
       | ART-16_Sys-Team_24.4.13 | 1-week | 2024-12-31 11:00:00 UTC | future |
+      | ART-16_Sys-Team_25.1.1  | 1-week | 2025-01-07 11:00:00 UTC | future |
     And the following environment variables are set:
       | name                           | value               |
       | IMPLEMENTATION_TEAM_FIELD_NAME | Implementation Team |
@@ -31,31 +33,36 @@ Feature: Assign tickets to team sprints as per an expected start date
     When I successfully run `jira-auto-tool --team-sprint-mapping-list`
     Then the stdout should contain exactly:
       """
-      +--------------+-------------------------+
-      |          Team Sprint Mappings          |
-      +--------------+-------------------------+
-      | Team         | Sprint                  |
-      +--------------+-------------------------+
-      | A16 CRM      | ART-16_CRM_24.4.2       |
-      | A16 E2E-Test | ART-16_E2E-Test_24.4.1  |
-      | A16 E2E-Test | ART-16_E2E-Test_24.4.2  |
-      | A16 Platform | ART-16_Platform_24.4.6  |
-      | A16 Platform | ART-16_Platform_24.4.7  |
-      | A16 Sys-Team | ART-16_Sys-Team_24.4.12 |
-      | A16 Sys-Team | ART-16_Sys-Team_24.4.13 |
-      +--------------+-------------------------+
+      +--------------+-----------------------------------+
+      |               Team Sprint Mappings               |
+      +--------------+-----------------------------------+
+      | Team         | Sprint Prefix                     |
+      +--------------+-----------------------------------+
+      | A16 CRM      | ART-16_CRM                        |
+      | A16 E2E-Test | ART-16_E2E-Test                   |
+      | A16 Logistic | !!__no matching sprint prefix__!! |
+      | A16 Platform | ART-16_Platform                   |
+      | A16 Sys-Team | ART-16_Sys-Team                   |
+      +--------------+-----------------------------------+
       """
 
   @in-specification
   Scenario: Assign tickets to the relevant implementation team sprints as per the expected starts
     Given the following tickets exist:
-      | summary                            | description                                           | team         | expected_start |
-      | ASX-1 - Prepare CI/CD Repository   |                                                       | A16 Sys-Team | 2024-12-05     |
-      | ASX-2 - Implement stage deployment |                                                       | A16 Sys-Team | 2024-12-26     |
-      | ASX-3 - Implement stage deployment | starts on sprint last day and be assigned to next one | A16 Sys-Team | 2024-12-31     |
+      | Summary                            | Description                                           | Implementation Team | Expected Start |
+      | ASX-1 - Prepare CI/CD Repository   | start date is overdue => earliest sprint              | A16 Sys-Team        | 2024-12-05     |
+      | ASX-2 - Implement stage deployment |                                                       | A16 Sys-Team        | 2024-12-26     |
+      | ASX-3 - Prepare L&P deployment     | start expected on sprint last day => next one         | A16 Sys-Team        | 2024-12-31     |
+      | ASX-4 - Implement prod deployment  | starts on sprint last day and be assigned to next one | A16 Sys-Team        | 2024-01-01     |
+      | ASX-5 - Setup monitoring dashboard |                                                       | A16 Sys-Team        | 2025-01-07     |
     When I successfully run `jira-auto-tool --team-sprint-mapping-dispatch-tickets`
     Then the tickets should have been assigned to sprints as follows:
-      | summary                            | sprint |
-      | ASX-1 - Prepare CI/CD Repository   |        |
-      | ASX-2 - Implement stage deployment |        |
-      | ASX-3 - Implement stage deployment |        |
+      | Summary                            | Sprint                  |
+      | ASX-1 - Prepare CI/CD Repository   | ART-16_Sys-Team_24.4.12 |
+      | ASX-2 - Implement stage deployment | ART-16_Sys-Team_24.4.12 |
+      | ASX-3 - Prepare L&P deployment     | ART-16_Sys-Team_24.4.13 |
+      | ASX-4 - Implement prod deployment  | ART-16_Sys-Team_24.4.13 |
+      | ASX-5 - Setup monitoring dashboard | ART-16_Sys-Team_25.1.1  |
+
+  Scenario: Error Messages for tickets where no team sprint exists
+  Scenario: Error Messages for tickets where no team sprint exists
