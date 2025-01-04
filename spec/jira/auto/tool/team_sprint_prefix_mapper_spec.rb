@@ -43,6 +43,20 @@ module Jira
             it { expect(mapper.team_sprint_prefix_mappings).to eq(expected_team_sprint_prefix_mappings) }
           end
 
+          describe "#fetch_for" do
+            it { expect(mapper.fetch_for("A16 CRM")).to eq "ART-16_CRM" }
+            it { expect(mapper.fetch_for("A32 64 Sys-Team")).to eq "ART-32-64_Sys-Team" }
+
+            it "raises an error if the prefix is not found" do
+              expect { mapper.fetch_for("team with no related prefix") }
+                .to raise_error(NoMatchingSprintPrefixError,
+                                /#{Regexp.escape(
+                                  "No matching sprint prefix for team 'team with no related prefix' in "
+                                )}
+                                  #{Regexp.escape(expected_team_sprint_prefix_mappings.inspect)}/x)
+            end
+          end
+
           describe "#map_prefix_name_to_team_name" do
             it { expect(mapper.map_prefix_name_to_team_name("ART-16_CRM")).to eq "A16 CRM" }
             it { expect(mapper.map_prefix_name_to_team_name("ART-32-64_Sys-Team")).to eq "A32 64 Sys-Team" }
@@ -50,7 +64,7 @@ module Jira
             it "raises an error if the prefix is not found" do
               expect { mapper.map_prefix_name_to_team_name("team-unrelated-prefix") }
                 .to raise_error(NoMatchingTeamError,
-                                /No\smatching\steam\sfound\sfor\sprefix\s'team-unrelated-prefix'\sin\s
+                                /#{Regexp.escape("No matching team for sprint prefix 'team-unrelated-prefix' in ")}
                                   #{Regexp.escape(teams.collect(&:name).inspect)}/x)
             end
           end
@@ -72,7 +86,7 @@ module Jira
             end
 
             it "lists the mappings" do
-              allow(mapper).to receive_messages(team_sprint_mappings: expected_team_sprint_prefix_mappings)
+              allow(mapper).to receive_messages(team_sprint_prefix_mappings: expected_team_sprint_prefix_mappings)
 
               expect { mapper.list_mappings }.to output(expected_mapping_output).to_stdout
             end

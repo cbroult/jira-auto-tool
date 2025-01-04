@@ -10,12 +10,12 @@ module Jira
           def self.add(tool, parser)
             parser.on("--team-sprint-mapping-list", "--tsm-list",
                       "List the sprint and team owning their content") do
-              tool.team_sprint_mapper.list_mappings
+              tool.team_sprint_prefix_mapper.list_mappings
             end
 
             parser.on("--team-sprint-mapping-dispatch-tickets", "--tsm-dispatch",
                       "Dispatch tickets to sprint so the teams start timely working on them") do
-              log.warn { "PENDING implementation tool.team_sprint_prefix_mapper.distpatch_tickets" }
+              tool.team_sprint_ticket_dispatcher.distpatch_tickets
             end
           end
         end

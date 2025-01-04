@@ -9,11 +9,15 @@ module Jira
         class Prefix
           include Comparable
 
-          attr_reader :name, :sprints
+          attr_reader :name
 
           def initialize(name, sprints = [])
             @name = name
             @sprints = sprints
+          end
+
+          def sprints
+            @sprints.sort
           end
 
           def <<(sprint)
