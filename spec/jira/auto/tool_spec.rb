@@ -76,7 +76,23 @@ module Jira
           expect(tool.sprint_controller).not_to be_nil
         end
 
-        RSpec.shared_examples "an environment based value" do |method_name|
+        describe "#project" do
+          it "#project" do
+            allow(tool)
+              .to receive_messages(
+                board:
+                  jira_resource_double(JIRA::Resource::Board, project: { "key" => "project_key" }),
+                jira_client:
+                  jira_resource_double(JIRA::Client,
+                                       Project: [jira_resource_double(JIRA::Resource::Project,
+                                                                      key: "project_key")])
+              )
+
+            expect(tool.project.key).to eq("project_key")
+          end
+        end
+
+        RSpec.shared_examples "an overridable environment based value" do |method_name|
           let(:env_var_name) { method_name.to_s.upcase }
 
           it "fetch its value from the environment" do
@@ -92,15 +108,12 @@ module Jira
 
             expect { tool.send(method_name) }.to raise_error(KeyError, /Missing #{env_var_name} environment variable!/)
           end
-        end
-
-        describe "jira_board_name" do
-          it_behaves_like "an environment based value", :jira_board_name
 
           it "can be overridden explicitly" do
-            tool.jira_board_name = "a board name"
+            override_value = "override value for #{method_name}"
+            tool.send("#{method_name}=", override_value)
 
-            expect(tool.jira_board_name).to eq("a board name")
+            expect(tool.send(method_name)).to eq(override_value)
           end
         end
 
@@ -108,10 +121,11 @@ module Jira
           expected_start_date_field_name
           implementation_team_field_name
           jira_api_token
+          jira_board_name
           jira_site_url jira_username
         ].each do |method_name|
           describe method_name.to_s do
-            it_behaves_like "an environment based value", method_name
+            it_behaves_like "an overridable environment based value", method_name
           end
         end
 
@@ -220,6 +234,7 @@ module Jira
         end
       end
     end
+
     # rubocop:enable  Metrics/ClassLength
   end
 end

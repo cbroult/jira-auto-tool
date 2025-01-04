@@ -12,4 +12,5 @@ Before do
   @board = @jira_auto_tool.board
 
   remove_existing_sprints(@jira_auto_tool)
+  remove_existing_board_tickets(@jira_auto_tool)
 end

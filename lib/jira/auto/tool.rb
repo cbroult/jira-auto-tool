@@ -19,12 +19,6 @@ module Jira
     class Tool
       class Error < StandardError; end
 
-      attr_writer :jira_board_name
-
-      def jira_board_name
-        @jira_board_name ||= fetch_corresponding_environment_variable
-      end
-
       def board_name
         jira_board_name
       end
@@ -67,16 +61,23 @@ module Jira
                          })
       end
 
-      def jira_api_token
-        fetch_corresponding_environment_variable
-      end
+      %i[
+        expected_start_date_field_name
+        implementation_team_field_name
+        jira_api_token
+        jira_board_name
+        jira_site_url
+        jira_username
+      ].each do |method_name|
+        attr_writer method_name
 
-      def jira_site_url
-        fetch_corresponding_environment_variable
-      end
+        define_method(method_name) do
+          instance_variable_name = "@#{method_name}"
 
-      def jira_username
-        fetch_corresponding_environment_variable
+          instance_variable_get(instance_variable_name) ||
+            instance_variable_set(instance_variable_name,
+                                  fetch_corresponding_environment_variable(method_name.to_s))
+        end
       end
 
       def sprint_controller
@@ -100,14 +101,6 @@ module Jira
         FieldController.new(jira_client)
       end
 
-      def expected_start_date_field_name
-        fetch_corresponding_environment_variable
-      end
-
-      def implementation_team_field_name
-        fetch_corresponding_environment_variable
-      end
-
       def team_sprint_mapper
         TeamSprintPrefixMapper.new(teams, unclosed_sprint_prefixes)
       end
@@ -124,6 +117,12 @@ module Jira
         implementation_team_field.values.collect { |value| Team.new(value) }
       end
 
+      def project
+        board_project_key = board.project.symbolize_keys.fetch(:key)
+
+        jira_client.Project.all.find { |project| project.key == board_project_key }
+      end
+
       private
 
       def create_future_sprint(name, start, length_in_days)
@@ -132,10 +131,12 @@ module Jira
           .run
       end
 
-      def fetch_corresponding_environment_variable
-        caller_method_name = caller_locations(1, 1).first.base_label
+      def fetch_corresponding_environment_variable(caller_method_name = caller_locations(1, 1).first.base_label)
+        environment_variable_name = caller_method_name.upcase
 
-        ENV.fetch(caller_method_name.upcase) { |name| raise KeyError, "Missing #{name} environment variable!" }
+        log.info { "fetch_corresponding_environment_variable(#{environment_variable_name})" }
+
+        ENV.fetch(environment_variable_name) { |name| raise KeyError, "Missing #{name} environment variable!" }
       end
     end
   end
