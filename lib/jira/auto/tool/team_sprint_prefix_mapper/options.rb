@@ -15,7 +15,7 @@ module Jira
 
             parser.on("--team-sprint-mapping-dispatch-tickets", "--tsm-dispatch",
                       "Dispatch tickets to sprint so the teams start timely working on them") do
-              tool.team_sprint_ticket_dispatcher.distpatch_tickets
+              tool.team_sprint_ticket_dispatcher.dispatch_tickets
             end
           end
         end

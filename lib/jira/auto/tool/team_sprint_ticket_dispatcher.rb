@@ -24,7 +24,15 @@ module Jira
           team_sprint_prefix_mapper.fetch_for(team)
         end
 
-        def dispatch_tickets_to_prefix_sprints(prefix, tickets); end
+        def dispatch_tickets_to_prefix_sprints(prefix_name, tickets)
+          prefix = sprint_prefixes.find { |sprint_prefix| sprint_prefix.name == prefix_name }
+
+          tickets.each do |ticket|
+            matched_sprint = match_ticket_to_prefix_sprint(prefix, ticket)
+
+            ticket.sprint = matched_sprint if matched_sprint
+          end
+        end
 
         def match_ticket_to_prefix_sprint(prefix, ticket)
           ticket_start_time = Time.parse(ticket.expected_start_date).end_of_day
