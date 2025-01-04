@@ -1,7 +1,7 @@
 # Jira::Sprint::Tool
 
-![Main Workflow - main branch](https://github.com/cbroult/jira-auto-tool/actions/workflows/main.yml/badge.svg?branch=main)
-![Main Workflow - all branches](https://github.com/cbroult/jira-auto-tool/actions/workflows/main.yml/badge.svg)
+![Main Workflow - main branch](https://github.com/cbroult/jira-auto-tool/actions/workflows/main.yml/badge.svg?branch=main&label=Ruby%20-%20main%20branch)
+![Main Workflow - all branches](https://github.com/cbroult/jira-auto-tool/actions/workflows/main.yml/badge.svg?label=Ruby%20-%20main%20branches)
 
 TODO: Delete this and the text below, and describe your gem
 
