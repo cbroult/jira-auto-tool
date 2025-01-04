@@ -33,17 +33,17 @@ module Jira
                 expect(actual_field).to eq(expected_field)
               end
 
-              it "verifies it is a date field" do
+              it "has the expected type" do
                 expect(actual_field.type).to eq(expected_field_type)
               end
             end
 
-            it "verifies it is a date field" do
+            it "report an unexpected field type" do
               expect { controller.send(method_under_test, field_with_incorrect_type_name) }
                 .to raise_error(
-                  ExpectedDateFieldError,
+                  ExpectedFieldTypeError,
                   /Field\ '#{field_with_incorrect_type_name}'\ expected\ to\ have\ type\ '#{expected_field_type}',
-                    \ but\ was \ 'unexpected_type'./x
+                \ but\ was \ 'unexpected_type'./x
                 )
             end
 

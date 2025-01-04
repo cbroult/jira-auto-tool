@@ -43,9 +43,7 @@ Then(/^the tickets should have been assigned to sprints as follows:$/) do |ticke
   ticket_expectations =
     ticket_expectation_table.hashes.collect { |expectation| [expectation[:summary], expectation[:sprint]] }
 
-  project_key = @jira_auto_tool.project.key
-
-  actual_ticket_values = @jira_auto_tool.jira_client.Issue.jql("project = #{project_key}").collect do |ticket|
+  actual_ticket_values = @jira_auto_tool.tickets.collect do |ticket|
     sprint = ticket.sprint
     [ticket.summary, sprint ? sprint.name : ""]
   end

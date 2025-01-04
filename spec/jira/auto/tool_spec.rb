@@ -77,19 +77,20 @@ module Jira
         end
 
         describe "#project" do
-          it "#project" do
+          before do
             allow(tool)
               .to receive_messages(
                 board:
                   jira_resource_double(JIRA::Resource::Board, project: { "key" => "project_key" }),
                 jira_client:
                   jira_resource_double(JIRA::Client,
-                                       Project: [jira_resource_double(JIRA::Resource::Project,
-                                                                      key: "project_key")])
+                                       Project: jira_resource_double("Project",
+                                                                     all: [jira_resource_double(JIRA::Resource::Project,
+                                                                                                key: "project_key")]))
               )
-
-            expect(tool.project.key).to eq("project_key")
           end
+
+          it { expect(tool.project.key).to eq("project_key") }
         end
 
         RSpec.shared_examples "an overridable environment based value" do |method_name|
@@ -207,13 +208,26 @@ module Jira
         end
 
         context "when dealing with mapping team tickets to sprints" do
-          describe "#team_sprint_mapper" do
+          describe "#team_sprint_ticket_dispatcher" do
+            before do
+              allow(tool).to receive_messages(jira_client: nil, teams: nil, tickets: nil,
+                                              unclosed_sprint_prefixes: nil, team_sprint_prefix_mapper: nil)
+            end
+
+            it { expect(tool.team_sprint_ticket_dispatcher).to be_a(TeamSprintTicketDispatcher) }
+          end
+
+          describe "#team_sprint_prefix_mapper" do
             before do
               allow(tool).to receive_messages(teams: [instance_double(Team)],
                                               unclosed_sprint_prefixes: [instance_double(Sprint::Prefix)])
             end
 
-            it { expect(tool.team_sprint_mapper).to be_a(TeamSprintPrefixMapper) }
+            it { expect(tool.team_sprint_prefix_mapper).to be_a(TeamSprintPrefixMapper) }
+          end
+
+          describe "#tickets" do
+            it { expect(tool.tickets).to all be_a(Ticket) }
           end
 
           describe "#teams" do

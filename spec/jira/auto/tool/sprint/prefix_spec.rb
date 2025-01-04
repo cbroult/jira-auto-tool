@@ -6,6 +6,7 @@ require "jira/auto/tool/until_date"
 module Jira
   module Auto
     class Tool
+      # rubocop:disable  Metrics/ClassLength RSpec/MultipleMemoizedHelpers
       class Sprint
         RSpec.describe Prefix do
           def new_prefix(name, sprints = [])
@@ -33,7 +34,22 @@ module Jira
               prefix << :one_sprint
               prefix << :another_sprint
 
-              expect(prefix.sprints).to eq(%i[one_sprint another_sprint])
+              expect(prefix.sprints).to eq(%i[another_sprint one_sprint])
+            end
+
+            context "when looking at the sprint order" do
+              let(:prefix) { new_prefix("ART_Team", %i[sprint_comes_2nd sprint_comes_1st]) }
+
+              it "has sorted sprints" do
+                expect(prefix.sprints).to eq(%i[sprint_comes_1st sprint_comes_2nd])
+              end
+
+              it "stays sorted when new sprints are added" do
+                prefix << :before_2nd_sprint
+                prefix << :before_1st_sprint
+
+                expect(prefix.sprints).to eq(%i[before_1st_sprint before_2nd_sprint sprint_comes_1st sprint_comes_2nd])
+              end
             end
           end
 
@@ -137,5 +153,7 @@ module Jira
         end
       end
     end
+
+    # rubocop:enable  Metrics/ClassLength RSpec/MultipleMemoizedHelpers
   end
 end

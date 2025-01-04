@@ -8,7 +8,7 @@ module Jira
     class Tool
       class FieldController
         class FieldNotFoundError < StandardError; end
-        class ExpectedDateFieldError < StandardError; end
+        class ExpectedFieldTypeError < StandardError; end
 
         def initialize(jira_client)
           @jira_client = jira_client
@@ -35,7 +35,7 @@ module Jira
             raise FieldNotFoundError, "Field '#{field_name}' not found!"
 
           field.type == expected_type or
-            raise ExpectedDateFieldError,
+            raise ExpectedFieldTypeError,
                   "Field '#{field_name}' expected to have type '#{expected_type}', but was '#{field.type}'."
 
           field

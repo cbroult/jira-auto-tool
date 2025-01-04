@@ -12,6 +12,8 @@ require_relative "tool/sprint_controller"
 require_relative "tool/sprint_state_controller"
 require_relative "tool/team"
 require_relative "tool/team_sprint_prefix_mapper"
+require_relative "tool/team_sprint_ticket_dispatcher"
+require_relative "tool/ticket"
 require_relative "tool/version"
 
 module Jira
@@ -101,7 +103,7 @@ module Jira
         FieldController.new(jira_client)
       end
 
-      def team_sprint_mapper
+      def team_sprint_prefix_mapper
         TeamSprintPrefixMapper.new(teams, unclosed_sprint_prefixes)
       end
 
@@ -121,6 +123,14 @@ module Jira
         board_project_key = board.project.symbolize_keys.fetch(:key)
 
         jira_client.Project.all.find { |project| project.key == board_project_key }
+      end
+
+      def tickets
+        jira_client.Issue.jql("project = #{project.key}")
+      end
+
+      def team_sprint_ticket_dispatcher
+        TeamSprintTicketDispatcher.new(jira_client, teams, tickets, unclosed_sprint_prefixes, team_sprint_prefix_mapper)
       end
 
       private
