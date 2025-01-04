@@ -70,6 +70,28 @@ module Jira
                                                                                another_ticket_for_2nd_team]).once
               end
             end
+
+            describe "#dispatch_tickets_to_prefix_sprints" do
+              it "dispatches tickets to the expected sprints" do
+                allow(dispatcher).to receive_messages(match_ticket_to_prefix_sprint: nil)
+                allow(ticket_for_1st_team).to receive_messages(:sprint= => nil)
+                allow(another_ticket_for_1st_team).to receive_messages(:sprint= => nil)
+
+                dispatcher.dispatch_tickets_to_prefix_sprints("ART_Team1", [ticket_for_1st_team, another_ticket_for_1st_team])
+
+                expect(dispatcher).
+                  to have_received(:match_ticket_to_prefix_sprint).
+                    with(sprint_prefix_for_1st_team, ticket_for_1st_team)
+
+                expect(ticket_for_1st_team).to have_received(:sprint=).with(sprint_prefix_for_1st_team)
+
+                expect(dispatcher).
+                  to have_received(:match_ticket_to_prefix_sprint).
+                    with(sprint_prefix_for_1st_team, another_ticket_for_1st_team)
+
+                expect(another_ticket_for_1st_team).to have_received(:sprint=).with(sprint_prefix_for_1st_team)
+              end
+            end
           end
 
           context "when iterating over tickets" do
