@@ -11,7 +11,7 @@ require_relative "tool/setup_logging"
 require_relative "tool/sprint_controller"
 require_relative "tool/sprint_state_controller"
 require_relative "tool/team"
-require_relative "tool/team_sprint_mapper"
+require_relative "tool/team_sprint_prefix_mapper"
 require_relative "tool/version"
 
 module Jira
@@ -109,11 +109,15 @@ module Jira
       end
 
       def team_sprint_mapper
-        TeamSprintMapper.new(self)
+        TeamSprintPrefixMapper.new(teams, unclosed_sprint_prefixes)
       end
 
       def unclosed_sprints
         sprint_controller.unclosed_sprints
+      end
+
+      def unclosed_sprint_prefixes
+        sprint_controller.unclosed_sprint_prefixes
       end
 
       def teams

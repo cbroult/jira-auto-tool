@@ -166,35 +166,56 @@ module Jira
           end
         end
 
-        describe "#unclosed_sprints" do
+        context "when dealing with sprints" do
+          let(:expected_sprint_prefixes) { [instance_double(Sprint::Prefix)] }
+
           let(:sprint_controller) do
-            instance_double(SprintController, unclosed_sprints: ["a sprint", "another sprint"])
+            instance_double(SprintController,
+                            unclosed_sprints: ["a sprint", "another sprint"],
+                            unclosed_sprint_prefixes: expected_sprint_prefixes)
           end
 
-          it do
+          before do
             allow(tool).to receive_messages(sprint_controller: sprint_controller)
-
-            expect(tool.unclosed_sprints).to eq(["a sprint", "another sprint"])
           end
-        end
 
-        describe "#team_sprint_mappers" do
-          it { expect(tool.team_sprint_mapper).to be_a(TeamSprintMapper) }
-        end
-
-        describe "#teams" do
-          let(:team_field_options) do
-            ["a team", "another team", "a third team"].collect do |team_name|
-              instance_double(FieldOption, value: team_name)
+          describe "#unclosed_sprints" do
+            it do
+              expect(tool.unclosed_sprints).to eq(["a sprint", "another sprint"])
             end
           end
 
-          let(:team_field) { instance_double(Field, values: team_field_options) }
+          describe "#unclosed_sprint_prefixes" do
+            it "returns an array of sprint prefixes" do
+              expect(tool.unclosed_sprint_prefixes).to eq(expected_sprint_prefixes)
+            end
+          end
+        end
 
-          it do
-            allow(tool).to receive_messages(implementation_team_field: team_field)
+        context "when dealing with mapping team tickets to sprints" do
+          describe "#team_sprint_mapper" do
+            before do
+              allow(tool).to receive_messages(teams: [instance_double(Team)],
+                                              unclosed_sprint_prefixes: [instance_double(Sprint::Prefix)])
+            end
 
-            expect(tool.teams).to all be_a(Team)
+            it { expect(tool.team_sprint_mapper).to be_a(TeamSprintPrefixMapper) }
+          end
+
+          describe "#teams" do
+            let(:team_field_options) do
+              ["a team", "another team", "a third team"].collect do |team_name|
+                instance_double(FieldOption, value: team_name)
+              end
+            end
+
+            let(:team_field) { instance_double(Field, values: team_field_options) }
+
+            it do
+              allow(tool).to receive_messages(implementation_team_field: team_field)
+
+              expect(tool.teams).to all be_a(Team)
+            end
           end
         end
       end
