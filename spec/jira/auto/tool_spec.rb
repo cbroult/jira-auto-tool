@@ -83,10 +83,16 @@ module Jira
                 board:
                   jira_resource_double(JIRA::Resource::Board, project: { "key" => "project_key" }),
                 jira_client:
-                  jira_resource_double(JIRA::Client,
-                                       Project: jira_resource_double("Project",
-                                                                     all: [jira_resource_double(JIRA::Resource::Project,
-                                                                                                key: "project_key")]))
+                  jira_resource_double(
+                    JIRA::Client,
+                    Project: jira_resource_double(
+                      "Project",
+                      all: [jira_resource_double(
+                        JIRA::Resource::Project,
+                        key: "project_key"
+                      )]
+                    )
+                  )
               )
           end
 
@@ -100,21 +106,23 @@ module Jira
             expected_value = "#{env_var_name} env_value"
             allow(ENV).to receive(:fetch).with(env_var_name).and_return(expected_value)
 
-            expect(tool.send(method_name)).to eq(expected_value)
+            expect(object_with_overridable_value.send(method_name)).to eq(expected_value)
           end
 
           it "raises an error if the environment variable is not found" do
-            allow(ENV).to receive(:fetch).with(env_var_name)
-                                         .and_raise(KeyError.new("Missing #{env_var_name} environment variable!)"))
+            allow(ENV).to receive(:fetch)
+              .with(env_var_name)
+              .and_raise(KeyError.new("Missing #{env_var_name} environment variable!)"))
 
-            expect { tool.send(method_name) }.to raise_error(KeyError, /Missing #{env_var_name} environment variable!/)
+            expect { object_with_overridable_value.send(method_name) }
+              .to raise_error(KeyError, /Missing #{env_var_name} environment variable!/)
           end
 
           it "can be overridden explicitly" do
             override_value = "override value for #{method_name}"
-            tool.send("#{method_name}=", override_value)
+            object_with_overridable_value.send("#{method_name}=", override_value)
 
-            expect(tool.send(method_name)).to eq(override_value)
+            expect(object_with_overridable_value.send(method_name)).to eq(override_value)
           end
         end
 
@@ -124,8 +132,11 @@ module Jira
           jira_api_token
           jira_board_name
           jira_site_url jira_username
+          jira_sprint_field_name
         ].each do |method_name|
-          describe method_name.to_s do
+          describe "environment based values" do
+            let(:object_with_overridable_value) { tool }
+
             it_behaves_like "an overridable environment based value", method_name
           end
         end

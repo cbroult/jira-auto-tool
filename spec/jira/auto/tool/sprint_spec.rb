@@ -9,10 +9,12 @@ module Jira
 
           let(:jira_sprint) do
             # rubocop:disable RSpec/VerifiedDoubles
-            double(JIRA::Resource::Sprint, name: "ART_Team_24.4.5",
-                                           startDate: "2024-12-27 13:00 UTC", endDate: "2024-12-31 13:00 UTC",
-                                           state: "future", originalBoardId: 16,
-                                           client: jira_client)
+            double(JIRA::Resource::Sprint,
+                   id: 40_820,
+                   name: "ART_Team_24.4.5",
+                   startDate: "2024-12-27 13:00 UTC", endDate: "2024-12-31 13:00 UTC",
+                   state: "future", originalBoardId: 16,
+                   client: jira_client)
             # rubocop:enable RSpec/VerifiedDoubles
           end
 
@@ -22,6 +24,10 @@ module Jira
 
           describe "#jira_client" do
             it { expect(sprint.jira_client).to eq(jira_client) }
+          end
+
+          describe "#id" do
+            it { expect(sprint.id).to eq(40_820) }
           end
 
           describe "#name" do

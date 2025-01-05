@@ -14,6 +14,10 @@ module Jira
           @jira_client = jira_client
         end
 
+        def sprint_field(field_name)
+          field_fetcher(field_name, "array")
+        end
+
         def expected_start_date_field(field_name)
           field_fetcher(field_name, "date")
         end

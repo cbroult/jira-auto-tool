@@ -5,6 +5,7 @@ require "date"
 require "active_support/core_ext/numeric/time"
 require "active_support/core_ext/date/calculations"
 require "jira-ruby"
+require_relative "tool/helpers/environment_based_value"
 require_relative "tool/project_controller"
 require_relative "tool/request_builder"
 require_relative "tool/setup_logging"
@@ -19,6 +20,8 @@ require_relative "tool/version"
 module Jira
   module Auto
     class Tool
+      extend Helpers::EnvironmentBasedValue
+
       class Error < StandardError; end
 
       def board_name
@@ -70,16 +73,9 @@ module Jira
         jira_board_name
         jira_site_url
         jira_username
+        jira_sprint_field_name
       ].each do |method_name|
-        attr_writer method_name
-
-        define_method(method_name) do
-          instance_variable_name = "@#{method_name}"
-
-          instance_variable_get(instance_variable_name) ||
-            instance_variable_set(instance_variable_name,
-                                  fetch_corresponding_environment_variable(method_name.to_s))
-        end
+        define_overridable_environment_based_value(method_name)
       end
 
       def sprint_controller
@@ -97,6 +93,10 @@ module Jira
 
       def implementation_team_field(field_name = implementation_team_field_name)
         field_controller.implementation_team_field(field_name)
+      end
+
+      def jira_sprint_field(field_name = jira_sprint_field_name)
+        field_controller.sprint_field(field_name)
       end
 
       def field_controller
@@ -126,7 +126,7 @@ module Jira
       end
 
       def tickets
-        jira_client.Issue.jql("project = #{project.key}")
+        jira_client.Issue.jql("project = #{project.key}").collect { |jira_ticket| Ticket.new(self, jira_ticket) }
       end
 
       def team_sprint_ticket_dispatcher
@@ -139,14 +139,6 @@ module Jira
         RequestBuilder::SprintCreator
           .new(jira_client, board.id, name, start, length_in_days)
           .run
-      end
-
-      def fetch_corresponding_environment_variable(caller_method_name = caller_locations(1, 1).first.base_label)
-        environment_variable_name = caller_method_name.upcase
-
-        log.info { "fetch_corresponding_environment_variable(#{environment_variable_name})" }
-
-        ENV.fetch(environment_variable_name) { |name| raise KeyError, "Missing #{name} environment variable!" }
       end
     end
   end
