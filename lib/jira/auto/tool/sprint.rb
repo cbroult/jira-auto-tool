@@ -19,6 +19,10 @@ module Jira
           @board_id = board_id
         end
 
+        def id
+          @jira_sprint.id
+        end
+
         def name
           @jira_sprint.name
         end

@@ -9,6 +9,7 @@ env:
   JIRA_USERNAME: "cbroult@yahoo.com"
   JIRA_API_TOKEN: "${{secrets.JIRA_API_TOKEN}}"
   JIRA_BOARD_NAME: "JAT Self Tests in GHActions"
+  SPRINT_FIELD_NAME: "Sprint"
 
 jobs:
   build:

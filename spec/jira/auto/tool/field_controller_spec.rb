@@ -61,6 +61,10 @@ module Jira
             it_behaves_like "a field fetcher", :implementation_team_field, "Custom Team", "option"
           end
 
+          describe "#sprint_field" do
+            it_behaves_like "a field fetcher", :sprint_field, "Custom Sprint", "array"
+          end
+
           describe "#ticket_fields" do
             let(:board_id) { 123 }
             let(:jira_fields) do

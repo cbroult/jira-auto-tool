@@ -16,6 +16,8 @@ module Jira
 
         def dispatch_tickets
           per_team_tickets do |team, tickets|
+            log.info { "#{team}: dispatching tickets #{tickets.collect(&:key).join(", ")}" }
+
             dispatch_tickets_to_prefix_sprints(sprint_prefix_for(team), tickets)
           end
         end
@@ -49,14 +51,12 @@ module Jira
           ticket_start_time < first_sprint.start_date ? first_sprint : nil
         end
 
-        def per_team_tickets
+        def per_team_tickets(&)
           return enum_for(:per_team_tickets) unless block_given?
 
           team_ticket_map = tickets.group_by(&:implementation_team)
 
-          teams.each do |team|
-            yield(team, team_ticket_map.fetch(team))
-          end
+          team_ticket_map.each(&)
         end
       end
     end

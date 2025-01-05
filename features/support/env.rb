@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 module JiraSprintToolWorld
+  def log
+    @log ||= Logging.logger[self]
+  end
+
   def remove_existing_sprints(jira_auto_tool)
     jira_auto_tool.sprint_controller.jira_sprints.each(&:delete)
   end

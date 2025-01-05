@@ -15,14 +15,16 @@ module Jira
             instance_double(TeamSprintPrefixMapper,
                             team_sprint_prefix_mappings: { "Team1" => "ART_Team1", "Team2" => "ART_Team2" })
           end
-          let(:ticket_for_1st_team) { build_ticket("Ticket1", "Team1") }
-          let(:ticket_for_2nd_team) { build_ticket("Ticket2", "Team2") }
-          let(:another_ticket_for_1st_team) { build_ticket("Ticket3", "Team1") }
-          let(:another_ticket_for_2nd_team) { build_ticket("Ticket4", "Team2") }
+          let(:ticket_for_1st_team) { build_ticket("Ticket1", "Team1", key: "ART-10040") }
+          let(:ticket_for_2nd_team) { build_ticket("Ticket2", "Team2", key: "ART-10041") }
+          let(:another_ticket_for_1st_team) { build_ticket("Ticket3", "Team1", key: "ART-10042") }
+          let(:another_ticket_for_2nd_team) { build_ticket("Ticket4", "Team2", key: "ART-10043") }
           let(:tickets) do
             [ticket_for_1st_team, ticket_for_2nd_team, another_ticket_for_1st_team, another_ticket_for_2nd_team]
           end
-          let(:teams) { %w[Team1 Team2] }
+          let(:first_team) { instance_double(Team, name: "Team1") }
+          let(:second_team) { instance_double(Team, name: "Team2") }
+          let(:teams) { [first_team, second_team] }
 
           def build_ticket(summary, implementation_team, expected_start_date = "undefined")
             instance_double(Ticket,
@@ -49,6 +51,12 @@ module Jira
                 allow(team_sprint_prefix_mapper).to receive(:fetch_for).with("Team1").once.and_return("ART_Team1")
                 allow(team_sprint_prefix_mapper).to receive(:fetch_for).with("Team2").once.and_return("ART_Team2")
 
+                allow(ticket_for_1st_team).to receive_messages(key: "ART-10040")
+                allow(another_ticket_for_1st_team).to receive_messages(key: "ART-10042")
+
+                allow(ticket_for_2nd_team).to receive_messages(key: "ART-10042")
+                allow(another_ticket_for_2nd_team).to receive_messages(key: "ART-10044")
+
                 allow(dispatcher).to receive_messages(dispatch_tickets_to_prefix_sprints: nil)
               end
 
@@ -72,25 +80,42 @@ module Jira
             end
 
             describe "#dispatch_tickets_to_prefix_sprints" do
-              it "dispatches tickets to the expected sprints" do
-                allow(dispatcher).to receive_messages(match_ticket_to_prefix_sprint: nil)
+              # rubocop:disable RSpec/MultipleExpectations
+
+              before do
                 allow(ticket_for_1st_team).to receive_messages(:sprint= => nil)
                 allow(another_ticket_for_1st_team).to receive_messages(:sprint= => nil)
-
-                dispatcher.dispatch_tickets_to_prefix_sprints("ART_Team1", [ticket_for_1st_team, another_ticket_for_1st_team])
-
-                expect(dispatcher).
-                  to have_received(:match_ticket_to_prefix_sprint).
-                    with(sprint_prefix_for_1st_team, ticket_for_1st_team)
-
-                expect(ticket_for_1st_team).to have_received(:sprint=).with(sprint_prefix_for_1st_team)
-
-                expect(dispatcher).
-                  to have_received(:match_ticket_to_prefix_sprint).
-                    with(sprint_prefix_for_1st_team, another_ticket_for_1st_team)
-
-                expect(another_ticket_for_1st_team).to have_received(:sprint=).with(sprint_prefix_for_1st_team)
               end
+
+              let(:ticket_planned_after_last_available_sprint) { build_ticket("Ticket5", "Team1") }
+
+              it "updates each ticket with matched sprint" do
+                allow(dispatcher).to receive(:match_ticket_to_prefix_sprint)
+                  .with(sprint_prefix_for_1st_team, ticket_for_1st_team).and_return(:first_sprint)
+
+                allow(dispatcher).to receive(:match_ticket_to_prefix_sprint)
+                  .with(sprint_prefix_for_1st_team, another_ticket_for_1st_team).and_return(:second_sprint)
+
+                dispatcher.dispatch_tickets_to_prefix_sprints("ART_Team1",
+                                                              [ticket_for_1st_team, another_ticket_for_1st_team])
+
+                expect(ticket_for_1st_team).to have_received(:sprint=).with(:first_sprint)
+                expect(another_ticket_for_1st_team).to have_received(:sprint=).with(:second_sprint)
+              end
+
+              it "does not update tickets that do not match a sprint" do
+                allow(ticket_planned_after_last_available_sprint).to receive_messages(:sprint= => nil)
+
+                allow(dispatcher).to receive(:match_ticket_to_prefix_sprint)
+                  .with(sprint_prefix_for_1st_team, ticket_planned_after_last_available_sprint)
+                  .and_return(nil)
+
+                dispatcher.dispatch_tickets_to_prefix_sprints("ART_Team1",
+                                                              [ticket_planned_after_last_available_sprint])
+
+                expect(ticket_planned_after_last_available_sprint).not_to have_received(:sprint=)
+              end
+              # rubocop:enable RSpec/MultipleExpectations
             end
           end
 
@@ -101,8 +126,8 @@ module Jira
               it "succeeds" do
                 expect { |block| dispatcher.per_team_tickets(&block) }
                   .to yield_successive_args(
-                    ["Team1", [ticket_for_1st_team, another_ticket_for_1st_team]],
-                    ["Team2", [ticket_for_2nd_team, another_ticket_for_2nd_team]]
+                    [first_team.name, [ticket_for_1st_team, another_ticket_for_1st_team]],
+                    [second_team.name, [ticket_for_2nd_team, another_ticket_for_2nd_team]]
                   )
               end
             end
@@ -111,13 +136,13 @@ module Jira
               it {
                 allow(team_sprint_prefix_mapper).to receive_messages(fetch_for: "ART_Team1")
 
-                expect(dispatcher.sprint_prefix_for("Team1")).to eq("ART_Team1")
+                expect(dispatcher.sprint_prefix_for(first_team)).to eq("ART_Team1")
               }
 
               it {
                 allow(team_sprint_prefix_mapper).to receive_messages(fetch_for: "ART_Team2")
 
-                expect(dispatcher.sprint_prefix_for("Team2")).to eq("ART_Team2")
+                expect(dispatcher.sprint_prefix_for(second_team)).to eq("ART_Team2")
               }
             end
           end
@@ -126,7 +151,7 @@ module Jira
             let(:dispatcher) { described_class.new(jira_client, nil, nil, nil, nil) }
 
             describe "#dispatch_to_prefix" do
-              RSpec::Matchers.define :dispatch_to_sprint do |expected_sprint|
+              RSpec::Matchers.define :be_dispatched_to_sprint do |expected_sprint|
                 match do |ticket|
                   matched_sprint = dispatcher.match_ticket_to_prefix_sprint(sprint_prefix, ticket)
 
@@ -142,15 +167,21 @@ module Jira
                 end
 
                 failure_message do |ticket|
-                  "expected ticket with start date #{ticket.expected_start_date} to dispatch to sprint " \
-                    "#{expected_sprint} (name = #{expected_sprint.name}, " \
-                    "start date = #{expected_sprint.start_date}), " \
-                    "but it did not match any sprint or matched an incorrect sprint"
+                  build_message(expected_sprint, ticket,
+                                "but it did not match any sprint or matched an incorrect sprint")
                 end
 
                 failure_message_when_negated do |ticket_date|
-                  "expected ticket with start date #{ticket_date.expected_start_date} not to dispatch " \
-                    "to sprint #{expected_sprint}, but it was dispatched"
+                  build_message(expected_sprint, ticket_date,
+                                "but it matched the expected sprint",
+                                "not ")
+                end
+
+                def build_message(expected_sprint, ticket, message, condition = "")
+                  "expected ticket with start date #{ticket.expected_start_date} #{condition}to dispatch to sprint " \
+                  "#{expected_sprint} (name = #{expected_sprint.name}, " \
+                  "start date = #{expected_sprint.start_date}), " +
+                    message
                 end
               end
 
@@ -167,30 +198,34 @@ module Jira
 
               let(:sprint_prefix) do
                 build_sprint_prefix("a sprint prefix",
-                                    [earliest_sprint, second_sprint, third_sprint, last_available_sprint])
+                                    [active_sprint, coming_sprint, next_sprint, last_available_sprint])
               end
 
-              let(:earliest_sprint) { build_sprint("sprint1", "2025-01-01", "2025-01-04") }
-              let(:second_sprint) { build_sprint("sprint2", "2025-01-04", "2025-01-07") }
-              let(:third_sprint) { build_sprint("sprint3", "2025-01-07", "2025-01-10") }
+              let(:active_sprint) { build_sprint("sprint1", "2025-01-01", "2025-01-04") }
+              let(:coming_sprint) { build_sprint("sprint2", "2025-01-04", "2025-01-07") }
+              let(:next_sprint) { build_sprint("sprint3", "2025-01-07", "2025-01-10") }
               let(:last_available_sprint) { build_sprint("sprint4", "2025-01-10", "2025-01-13") }
 
-              it "matches an overdue ticket with the first sprint" do
-                expect(ticket_due_to_start_on("2024-12-25")).to dispatch_to_sprint(earliest_sprint)
+              let(:overdue_ticket) { ticket_due_to_start_on("2024-12-25") }
+              let(:ticket_to_start_at_beginning_of_coming_sprint) { ticket_due_to_start_on("2025-01-04") }
+              let(:ticket_to_start_at_end_of_coming_sprint) { ticket_due_to_start_on("2025-01-07") }
+              let(:ticket_planned_after_last_available_sprint) { ticket_due_to_start_on("2025-01-14") }
+
+              it { expect(overdue_ticket).to be_dispatched_to_sprint(active_sprint) }
+
+              it { expect(ticket_to_start_at_beginning_of_coming_sprint).to be_dispatched_to_sprint(coming_sprint) }
+
+              it { expect(ticket_to_start_at_end_of_coming_sprint).not_to be_dispatched_to_sprint(coming_sprint) }
+              it { expect(ticket_to_start_at_end_of_coming_sprint).to be_dispatched_to_sprint(next_sprint) }
+
+              it do
+                expect(ticket_planned_after_last_available_sprint)
+                  .not_to be_dispatched_to_sprint(last_available_sprint)
               end
-
-              it { expect(ticket_due_to_start_on("2025-01-04")).to dispatch_to_sprint(second_sprint) }
-              it { expect(ticket_due_to_start_on("2025-01-07")).not_to dispatch_to_sprint(second_sprint) }
-              it { expect(ticket_due_to_start_on("2025-01-07")).to dispatch_to_sprint(third_sprint) }
-
-              it {
-                expect(ticket_due_to_start_on("2025-01-14"))
-                  .not_to dispatch_to_sprint(last_available_sprint)
-              }
 
               it "does not match a ticket planned after the last sprint" do
                 expect(dispatcher.match_ticket_to_prefix_sprint(
-                         sprint_prefix, ticket_due_to_start_on("2025-01-14")
+                         sprint_prefix, ticket_planned_after_last_available_sprint
                        ))
                   .to be_nil
               end

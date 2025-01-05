@@ -20,21 +20,21 @@ Given(/^the following tickets exist:$/) do |ticket_table|
   # Summary | Description | Implementation Team | Expected Start |
   # table is a table.hashes.keys # => [:summary, :team, :expected_start]
   ticket_table.hashes.each do |ticket_info|
-    Logging.logger.root.warn { ticket_info.inspect }
+    log.info { ticket_info.inspect }
 
-    ticket = @jira_auto_tool.jira_client.Issue.build
+    jira_ticket = @jira_auto_tool.jira_client.Issue.build
 
-    ticket.save!({ fields: {
-                   project: { key: @jira_auto_tool.board.project.symbolize_keys.fetch(:key) },
-                   summary: ticket_info[:summary],
-                   description: ticket_info[:description],
-                   issuetype: { name: "Task" },
-                   @jira_auto_tool.implementation_team_field.id.intern =>
+    jira_ticket.save!({ fields: {
+                        project: { key: @jira_auto_tool.board.project.symbolize_keys.fetch(:key) },
+                        summary: ticket_info[:summary],
+                        description: ticket_info[:description],
+                        issuetype: { name: "Task" },
+                        @jira_auto_tool.implementation_team_field.id.intern =>
                      { "value" => ticket_info[:implementation_team] },
-                   @jira_auto_tool.expected_start_date_field.id.intern => ticket_info[:expected_start_date]
-                 } })
+                        @jira_auto_tool.expected_start_date_field.id.intern => ticket_info[:expected_start_date]
+                      } })
 
-    Logging.logger.root.warn { "created ticket: #{ticket.key}" }
+    log.info { "created jira ticket: #{jira_ticket.key}" }
   end
 end
 
@@ -45,10 +45,13 @@ Then(/^the tickets should have been assigned to sprints as follows:$/) do |ticke
 
   actual_ticket_values = @jira_auto_tool.tickets.collect do |ticket|
     sprint = ticket.sprint
-    [ticket.summary, sprint ? sprint.name : ""]
+
+    log.info { "ticket: #{ticket.summary} sprint: #{sprint.inspect}" }
+
+    [ticket.summary, sprint ? sprint.first["name"] : ""]
   end
 
-  expect(actual_ticket_values).to eq(ticket_expectations)
+  expect(actual_ticket_values.sort).to eq(ticket_expectations.sort)
 end
 
 And(/^the following environment variables are set:$/) do |table|

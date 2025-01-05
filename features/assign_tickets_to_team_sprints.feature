@@ -28,6 +28,7 @@ Feature: Assign tickets to team sprints as per an expected start date
       | name                           | value               |
       | IMPLEMENTATION_TEAM_FIELD_NAME | Implementation Team |
       | EXPECTED_START_DATE_FIELD_NAME | Expected Start      |
+      | JIRA_SPRINT_FIELD_NAME         | Sprint              |
 
   Scenario: List team to sprint prefix mappings
     When I successfully run `jira-auto-tool --team-sprint-mapping-list`
@@ -49,17 +50,17 @@ Feature: Assign tickets to team sprints as per an expected start date
   Scenario: Assign tickets to the relevant implementation team sprints as per the expected starts
     Given the following tickets exist:
       | summary                                                   | description                                                    | implementation_team | expected_start_date |
-      | ASX-1 - Prepare Repository for CI/CD                      | start date is overdue => earliest sprint                       | A16 Sys-Team        | 2024-12-05          |
+      | ASX-1 - Prepare repository for CI/CD                      | start date is overdue => earliest sprint                       | A16 Sys-Team        | 2024-12-05          |
       | ASX-2 - Implement stage deployment                        |                                                                | A16 Sys-Team        | 2024-12-26          |
       | ASX-3 - Prepare L&P deployment                            | start expected on sprint last day => next one                  | A16 Sys-Team        | 2024-12-31          |
-      | ASX-4 - Implement prod deployment                         | starts on sprint last day and be assigned to next one          | A16 Sys-Team        | 2025-01-01          |
+      | ASX-4 - Implement prod deployment                         | starts mid sprint                                              | A16 Sys-Team        | 2025-01-01          |
       | ASX-5 - Setup monitoring dashboard                        |                                                                | A16 Sys-Team        | 2025-01-07          |
       | ASX-6 - Establish a solution wide holistic testing vision |                                                                | A16 E2E-Test        | 2024-12-04          |
       | ASX-7 - Prepare an E2E Smoke Test in CI                   | no sprint available at that time, so going to stay sprint-less | A16 E2E-Test        | 2024-12-12          |
-    When I successfully run `jira-auto-tool --team-sprint-mapping-dispatch-tickets`
+    When I successfully run `jira-auto-tool --team-sprint-mapping-dispatch-tickets` for up to 120 seconds
     Then the tickets should have been assigned to sprints as follows:
       | summary                                                   | sprint                  |
-      | ASX-1 - Prepare CI/CD Repository                          | ART-16_Sys-Team_24.4.12 |
+      | ASX-1 - Prepare repository for CI/CD                      | ART-16_Sys-Team_24.4.12 |
       | ASX-2 - Implement stage deployment                        | ART-16_Sys-Team_24.4.12 |
       | ASX-3 - Prepare L&P deployment                            | ART-16_Sys-Team_24.4.13 |
       | ASX-4 - Implement prod deployment                         | ART-16_Sys-Team_24.4.13 |
