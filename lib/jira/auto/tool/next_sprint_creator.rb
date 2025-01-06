@@ -28,7 +28,7 @@ module Jira
         def create
           RequestBuilder::SprintCreator
             .create_sprint(sprint.jira_client,
-                           sprint.board_id,
+                           sprint.origin_board_id,
                            next_sprint_name,
                            next_sprint_start_date.utc.to_s,
                            next_sprint_length_in_days)

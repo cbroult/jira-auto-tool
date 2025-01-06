@@ -5,15 +5,14 @@ module Jira
     class Tool
       class RequestBuilder
         class SprintCreator < RequestBuilder
-          def self.create_sprint(jira_client, board_id, name, start, length_in_days)
+          def self.create_sprint(jira_client, original_board_id, name, start, length_in_days)
             log.info { "create_sprint(name: #{name}, start: #{start}, length: #{length_in_days})" }
 
-            creation_response = new(jira_client, board_id, name, start, length_in_days)
+            creation_response = new(jira_client, original_board_id, name, start, length_in_days)
                                 .run
 
             created_sprint = Sprint.new(
-              jira_client.Sprint.find(JSON.parse(creation_response.body).fetch("id")),
-              board_id
+              jira_client.Sprint.find(JSON.parse(creation_response.body).fetch("id"))
             )
 
             log.info { "created_sprint: #{created_sprint.id}" }
@@ -23,12 +22,12 @@ module Jira
 
           protected
 
-          attr_reader :board_id, :name, :start, :length_in_days
+          attr_reader :origin_board_id, :name, :start, :length_in_days
 
-          def initialize(jira_client, board_id, name, start, length_in_days)
+          def initialize(jira_client, origin_board_id, name, start, length_in_days)
             super(jira_client)
 
-            @board_id = board_id
+            @origin_board_id = origin_board_id
             @name = name
             @start = start
             @length_in_days = length_in_days
@@ -36,7 +35,7 @@ module Jira
 
           def request_payload
             {
-              originBoardId: board_id,
+              originBoardId: origin_board_id,
               name: name,
               startDate: start_date.utc.iso8601,
               endDate: end_date.utc.iso8601

@@ -21,7 +21,7 @@ module Jira
                           length_in_days: 4,
                           index_in_quarter: last_sprint_index_in_quarter,
                           state: "closed",
-                          board_id: 64,
+                          origin_board_id: 512,
                           jira_client: jira_client)
         end
 
@@ -38,7 +38,7 @@ module Jira
 
               expect(RequestBuilder::SprintCreator)
                 .to have_received(:create_sprint)
-                .with(jira_client, 64,
+                .with(jira_client, 512,
                       expected[:next_sprint_name],
                       Time.parse(expected[:next_sprint_start]).utc.to_s,
                       4)

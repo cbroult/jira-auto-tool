@@ -51,7 +51,7 @@ module Jira
         end
 
         def sprints
-          jira_sprints.collect { |sprint| Sprint.new(sprint, board.id) }
+          jira_sprints.collect { |sprint| Sprint.new(sprint) }
         end
 
         PAGE_SIZE = 1000
