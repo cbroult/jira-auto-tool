@@ -12,7 +12,7 @@ module Jira
         include Comparable
 
         def initialize(jira_sprint)
-          super(jira_sprint)
+          super
           @jira_sprint = jira_sprint
         end
 

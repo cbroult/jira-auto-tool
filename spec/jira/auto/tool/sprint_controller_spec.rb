@@ -5,11 +5,11 @@ require "jira/auto/tool/sprint_controller"
 module Jira
   module Auto
     # rubocop:disable Metrics/ClassLength
-
     class Tool
       RSpec.describe SprintController do
+        let(:tool) { instance_double(Tool) }
         let(:board) { double(JIRA::Resource::Board, name: "board name", id: 128) } # rubocop:disable RSpec/VerifiedDoubles
-        let(:sprint_controller) { described_class.new(board) }
+        let(:sprint_controller) { described_class.new(tool, board) }
 
         describe "#add_sprints_until" do
           let(:actual_sprint_prefixes) do
@@ -75,10 +75,99 @@ module Jira
           end
         end
 
+        # rubocop:disable RSpec / MultipleMemoizedHelpers
+        describe "#jira_sprints" do
+          let(:all_sprints) do
+            %w[
+              ART-16_E2E-Test_24.4.1
+              ART-16_CRM_24.4.1
+              ART-16_E2E-Test_24.4.2
+              ART-32_Platform_24.4.7
+              ART-32_Sys-Team_24.4.12
+              ART-32_Sys-Team_25.1.1
+            ].collect { |name| jira_resource_double(Sprint, name: name) }
+          end
+          let(:art_sprint_regex_defined?) { false }
+          let(:art_sprint_regex) { nil }
+
+          before do
+            allow(tool)
+              .to receive_messages(art_sprint_regex_defined?: art_sprint_regex_defined?,
+                                   art_sprint_regex: art_sprint_regex)
+
+            allow(sprint_controller).to receive_messages(unfiltered_jira_sprints: all_sprints)
+          end
+
+          context "when no filter specified" do
+            it { expect(sprint_controller.jira_sprints).to eq(all_sprints) }
+          end
+
+          context "when filter specified" do
+            let(:art_sprint_regex_defined?) { true }
+
+            context "when using a string" do
+              let(:art_sprint_regex) { "ART-16" }
+
+              it do
+                expect(sprint_controller.jira_sprints.collect(&:name))
+                  .to eq(%w[
+                           ART-16_E2E-Test_24.4.1
+                           ART-16_CRM_24.4.1
+                           ART-16_E2E-Test_24.4.2
+                         ])
+              end
+            end
+
+            context "when using a regex" do
+              let(:art_sprint_regex) { "E2E|Sys" }
+
+              it do
+                expect(sprint_controller.jira_sprints.collect(&:name))
+                  .to eq(%w[
+                           ART-16_E2E-Test_24.4.1
+                           ART-16_E2E-Test_24.4.2
+                           ART-32_Sys-Team_24.4.12
+                           ART-32_Sys-Team_25.1.1
+                         ])
+              end
+            end
+          end
+        end
+        # rubocop:enable RSpec / MultipleMemoizedHelpers
+
+        describe "#list_sprints" do
+          context "when displaying on the console" do
+            let(:matching_sprints) do
+              ["1st sprint", "2nd sprint"].collect { |name| instance_double(Sprint, name: name) }
+            end
+
+            let(:expected_sprint_table) do
+              <<~END_OF_TABLE
+                +------------------+
+                | Matching Sprints |
+                +------------------+
+                | Sprint           |
+                +------------------+
+                | 1st sprint       |
+                | 2nd sprint       |
+                +------------------+
+              END_OF_TABLE
+            end
+
+            before { allow(sprint_controller).to receive_messages(sprints: matching_sprints) }
+
+            it "list the matching sprints as a table" do
+              expect { sprint_controller.list_sprints }.to output(expected_sprint_table).to_stdout
+            end
+          end
+        end
+
+        # rubocop:disable RSpec / MultipleMemoizedHelpers
         describe "#unclosed_sprint_prefixes" do
           def new_jira_sprints(name_start_end_trios)
             name_start_end_trios.collect do |name, start_data, end_date|
-              double(JIRA::Resource::Sprint, name: name, startDate: start_data, endDate: end_date, state: "future") # rubocop:disable RSpec/VerifiedDoubles
+              jira_resource_double(JIRA::Resource::Sprint,
+                                   name: name, startDate: start_data, endDate: end_date, state: "future")
             end
           end
 
@@ -113,6 +202,7 @@ module Jira
               )
           end
         end
+        # rubocop:enable RSpec / MultipleMemoizedHelpers
 
         describe "#sprint_exist?" do
           let(:examples) do
@@ -131,7 +221,7 @@ module Jira
           end
         end
 
-        describe "#jira_sprints" do
+        describe "#unfiltered_jira_sprints" do
           it "deals with JIRA::Resource pagination" do
             allow(board)
               .to receive(:sprints).with(maxResults: 1000, startAt: 0).and_return(%w[sprint_1 sprint_2])
@@ -142,7 +232,7 @@ module Jira
             allow(board)
               .to receive(:sprints).with(maxResults: 1000, startAt: 2000).and_return([])
 
-            expect(sprint_controller.jira_sprints).to eq(%w[sprint_1 sprint_2 sprint_3 sprint_4])
+            expect(sprint_controller.unfiltered_jira_sprints).to eq(%w[sprint_1 sprint_2 sprint_3 sprint_4])
           end
         end
       end

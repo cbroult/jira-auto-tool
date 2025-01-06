@@ -9,9 +9,10 @@ module Jira
   module Auto
     class Tool
       class SprintController
-        attr_accessor :board
+        attr_accessor :tool, :board
 
-        def initialize(board)
+        def initialize(tool, board)
+          @tool = tool
           @board = board
         end
 
@@ -30,6 +31,7 @@ module Jira
 
         SUCCESSFUL_EXECUTION_EXIT_CODE = 0
         UNSUCCESSFUL_EXECUTION_EXIT_CODE = 1
+
         def exit_with_board_warning(message, exit_code = SUCCESSFUL_EXECUTION_EXIT_CODE)
           log.warn { "Jira board '#{board.name}': #{message}" }
           exit(exit_code)
@@ -50,6 +52,16 @@ module Jira
           !sprints.empty?
         end
 
+        def list_sprints
+          table = Terminal::Table.new(
+            title: "Matching Sprints",
+            headings: ["Sprint"],
+            rows: sprints.collect { |sprint| [sprint.name] }
+          )
+
+          puts table
+        end
+
         def sprints
           jira_sprints.collect { |sprint| Sprint.new(sprint) }
         end
@@ -57,6 +69,13 @@ module Jira
         PAGE_SIZE = 1000
         # rubocop:disable Metrics/MethodLength
         def jira_sprints
+          sprint_filter_string = tool.art_sprint_regex_defined? ? tool.art_sprint_regex : ""
+          sprint_filter_regex = Regexp.new(sprint_filter_string)
+
+          unfiltered_jira_sprints.find_all { |sprint| sprint.name =~ sprint_filter_regex }
+        end
+
+        def unfiltered_jira_sprints
           all_jira_sprints = []
           start_at = 0
 
@@ -75,6 +94,7 @@ module Jira
 
           all_jira_sprints
         end
+
         # rubocop:enable Metrics/MethodLength
 
         def unclosed_sprints

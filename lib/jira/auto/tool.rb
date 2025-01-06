@@ -67,6 +67,7 @@ module Jira
       end
 
       %i[
+        art_sprint_regex
         expected_start_date_field_name
         implementation_team_field_name
         jira_api_token
@@ -79,7 +80,7 @@ module Jira
       end
 
       def sprint_controller
-        SprintController.new(board)
+        SprintController.new(self, board)
       end
 
       def project_ticket_fields

@@ -99,23 +99,41 @@ module Jira
           it { expect(tool.project.key).to eq("project_key") }
         end
 
+        # TODO: move that to environment_based_value_spec
         RSpec.shared_examples "an overridable environment based value" do |method_name|
           let(:env_var_name) { method_name.to_s.upcase }
+          let(:method_name?) { :"#{method_name}_defined?" }
 
-          it "fetch its value from the environment" do
-            expected_value = "#{env_var_name} env_value"
-            allow(ENV).to receive(:fetch).with(env_var_name).and_return(expected_value)
+          context "when the environment variable is set" do
+            let(:expected_value) { "#{env_var_name} env_value" }
 
-            expect(object_with_overridable_value.send(method_name)).to eq(expected_value)
+            before do
+              allow(ENV).to receive(:fetch).with(env_var_name).and_return(expected_value)
+              allow(ENV).to receive(:key?).with(env_var_name).and_return(true)
+            end
+
+            it("method_name?") { expect(object_with_overridable_value.send(method_name?)).to be(true) }
+
+            it "fetch its value from the environment" do
+              expect(object_with_overridable_value.send(method_name)).to eq(expected_value)
+            end
           end
 
-          it "raises an error if the environment variable is not found" do
-            allow(ENV).to receive(:fetch)
-              .with(env_var_name)
-              .and_raise(KeyError.new("Missing #{env_var_name} environment variable!)"))
+          context "when the environment variable is not set" do
+            before do
+              allow(ENV).to receive(:fetch)
+                .with(env_var_name)
+                .and_raise(KeyError.new("Missing #{env_var_name} environment variable!)"))
 
-            expect { object_with_overridable_value.send(method_name) }
-              .to raise_error(KeyError, /Missing #{env_var_name} environment variable!/)
+              allow(ENV).to receive(:key?).with(env_var_name).and_return(false)
+            end
+
+            it("method_name?") { expect(object_with_overridable_value.send(method_name?)).to be(false) }
+
+            it "raises an error if the environment variable is not found" do
+              expect { object_with_overridable_value.send(method_name) }
+                .to raise_error(KeyError, /Missing #{env_var_name} environment variable!/)
+            end
           end
 
           it "can be overridden explicitly" do
@@ -124,6 +142,16 @@ module Jira
 
             expect(object_with_overridable_value.send(method_name)).to eq(override_value)
           end
+
+          # rubocop:disable RSpec/MultipleExpectations
+          it "defines a constant with the same name" do
+            const_name = method_name.to_s.upcase
+            fully_qualified_const_name = "#{described_class}::Environment::#{const_name}"
+
+            expect(described_class.const_defined?(fully_qualified_const_name)).to be true
+            expect(described_class.const_get(fully_qualified_const_name)).to eq(const_name)
+          end
+          # rubocop:enable RSpec/MultipleExpectations
         end
 
         %i[

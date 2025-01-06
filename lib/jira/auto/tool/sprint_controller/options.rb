@@ -7,6 +7,7 @@ module Jira
     class Tool
       class SprintController
         class Options
+          # rubocop:disable Metrics/MethodLength
           def self.add(tool, parser)
             parser.on("--sprint-add-one",
                       "Create a follow up sprint for each of the existing unclosed sprint prefixes") do
@@ -19,7 +20,13 @@ module Jira
                       "Create sprints until date is included for each of the unclosed sprint prefixes") do |until_date|
               tool.sprint_controller.add_sprints_until(until_date)
             end
+
+            parser.on("--sprint-list",
+                      "List sprints. The output may be controlled via the ART_PREFIX_REGEX environment variable") do
+              tool.sprint_controller.list_sprints
+            end
           end
+          # rubocop:enable Metrics/MethodLength
         end
       end
     end
