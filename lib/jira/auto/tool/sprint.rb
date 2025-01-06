@@ -11,12 +11,9 @@ module Jira
       class Sprint < SimpleDelegator
         include Comparable
 
-        attr_reader :board_id
-
-        def initialize(jira_sprint, board_id)
+        def initialize(jira_sprint)
           super(jira_sprint)
           @jira_sprint = jira_sprint
-          @board_id = board_id
         end
 
         def id
@@ -43,8 +40,8 @@ module Jira
           @jira_sprint.state
         end
 
-        def original_board_id
-          @jira_sprint.originalBoardId
+        def origin_board_id
+          @jira_sprint.originBoardId
         end
 
         def index_in_quarter

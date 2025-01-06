@@ -84,7 +84,7 @@ module Jira
 
           def new_sprints(jira_sprints)
             jira_sprints.collect do |jira_sprint|
-              Sprint.new(jira_sprint, board_id: 512)
+              Sprint.new(jira_sprint)
             end
           end
 
