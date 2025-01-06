@@ -19,3 +19,6 @@
 
 # RubyMine configuration
 /.idea/
+
+# Cucumber failed tests for rerun
+/rerun_failures.txt
