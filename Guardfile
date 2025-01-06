@@ -71,9 +71,23 @@ def cucumber_options
   }
 end
 
+def cucumber_start_by_rerunning_failures_if_any
+  rerun_file = "rerun_failures.txt"
+
+  # If rerun file exists, rerun failed features first
+  if File.exist?(rerun_file) && !File.empty?(rerun_file)
+    # Return the failures to rerun them
+    ["@rerun", File.read(rerun_file).strip]
+  else
+    # Run full test suite if no recorded failures
+    :all
+  end
+end
+
 def guard_cucumber
   guard "cucumber", cucumber_options do
-    watch(%r{^features/.+\.feature$})
+    watch(%r{^features/.+\.feature$}) { |_m| cucumber_start_by_rerunning_failures_if_any }
+
     watch(%r{^features/support/.+$}) { "features" }
     watch(%r{^(bin|lib)/.+$}) { "features" }
     watch("cucumber.yml")
