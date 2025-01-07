@@ -57,7 +57,7 @@ Feature: Assign tickets to team sprints as per an expected start date
       | ASX-5 - Setup monitoring dashboard                        |                                                                | A16 Sys-Team        | 2025-01-07          |
       | ASX-6 - Establish a solution wide holistic testing vision |                                                                | A16 E2E-Test        | 2024-12-04          |
       | ASX-7 - Prepare an E2E Smoke Test in CI                   | no sprint available at that time, so going to stay sprint-less | A16 E2E-Test        | 2024-12-12          |
-    When I successfully run `jira-auto-tool --team-sprint-mapping-dispatch-tickets` for up to 120 seconds
+    When I successfully run `jira-auto-tool --team-sprint-mapping-dispatch-tickets`
     Then the tickets should have been assigned to sprints as follows:
       | summary                                                   | sprint                  |
       | ASX-1 - Prepare repository for CI/CD                      | ART-16_Sys-Team_24.4.12 |

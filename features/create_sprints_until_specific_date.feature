@@ -35,7 +35,7 @@ Feature: Add sprints until a specific date
       | yes                                                   | art_e2e-test_24.4.1  | 4-day  | 2024-12-01 11:00:00 UTC | future |
       | yes                                                   | art_people_24.4.6    | 3-week | 2024-10-07 11:00:00 UTC | active |
       | yes since finishes before midnight at the quarter end | art_sys-team_24.4.12 | 1-week | 2024-12-24 11:00:00 UTC | future |
-    When I successfully run `jira-auto-tool --sprint-add-until=current_quarter` for up to 120 seconds
+    When I successfully run `jira-auto-tool --sprint-add-until=current_quarter`
     Then afterwards the board only has the following sprints:
       | name                 | expected_start          | state  |
       | art_crm_24.4.1       | 2024-12-01 11:00:00 UTC | closed |

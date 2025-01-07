@@ -43,7 +43,7 @@ Feature: Add sprints using existing ones as a reference
       | yes                       | art_e2e-test_24.4.12 | 3-week | 2024-12-14 11:00:00 UTC | future |
       | yes                       | art_people_24.4.6    | 2-week | 2024-12-14 11:00:00 UTC | active |
       | yes                       | art_sys-team_24.4.12 | 1-week | 2024-12-21 11:00:00 UTC | future |
-    When I run `jira-auto-tool --sprint-add-one`
+    When I successfully run `jira-auto-tool --sprint-add-one`
     Then afterwards the board only has the following sprints:
       | name                 | expected_start          | state  |
       | art_crm_24.4.6       | 2024-12-14 11:00:00 UTC | closed |
@@ -61,7 +61,7 @@ Feature: Add sprints using existing ones as a reference
       | ignored since not last existing sprint  | art_sys-team_24.4.11 | 1-week | 2024-12-05 11:00:00 UTC | future |
       | yes                                     | art_sys-team_24.4.12 | 2-week | 2024-12-14 11:00:00 UTC | future |
 
-    When I run `jira-auto-tool --sprint-add-one`
+    When I successfully run `jira-auto-tool --sprint-add-one`
     Then afterwards the board only has the following sprints:
       | name                 | expected_start          | state  |
       | art_sys-team_24.4.10 | 2024-12-01 11:00:00 UTC | future |
