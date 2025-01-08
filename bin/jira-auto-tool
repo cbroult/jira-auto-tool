@@ -1,7 +1,22 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+GEM_ROOT = File.expand_path("..", __dir__)
+LIBRARY_PATH = File.join(GEM_ROOT, "lib")
+$LOAD_PATH.unshift(LIBRARY_PATH)
+
+DEBUG = false
+
+if DEBUG
+  puts "GEM_ROOT: #{GEM_ROOT}"
+  puts "LIBRARY_PATH: #{LIBRARY_PATH}"
+  puts "$LOAD_PATH: #{$LOAD_PATH}"
+end
+
 require "bundler/setup"
+Bundler.require(:default)
+
+require "active_support/core_ext/object/blank"
 require "jira/auto/tool"
 require "jira/auto/tool/sprint_controller/options"
 require "jira/auto/tool/team_sprint_prefix_mapper/options"
@@ -33,4 +48,4 @@ OptionParser.new do |parser|
   Jira::Auto::Tool::SprintController::Options.add(tool, parser)
   Jira::Auto::Tool::TeamSprintPrefixMapper::Options.add(tool, parser)
 end
-  .parse!
+            .parse!

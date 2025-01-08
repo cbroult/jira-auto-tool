@@ -21,6 +21,7 @@ PATH
   remote: .
   specs:
     jira-auto-tool (0.1.0)
+      activesupport
       http_logger
       jira-ruby
       logging
