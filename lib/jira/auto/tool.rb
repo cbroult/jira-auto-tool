@@ -75,11 +75,16 @@ module Jira
         jira_api_token
         jira_board_name
         jira_context_path
+        jira_project_key
         jira_site_url
         jira_username
         jira_sprint_field_name
       ].each do |method_name|
         define_overridable_environment_based_value(method_name)
+      end
+
+      def board_controller
+        BoardController.new(self)
       end
 
       def sprint_controller

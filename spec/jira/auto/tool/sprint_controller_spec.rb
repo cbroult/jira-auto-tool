@@ -223,16 +223,26 @@ module Jira
 
         describe "#unfiltered_jira_sprints" do
           it "deals with JIRA::Resource pagination" do
-            allow(board)
-              .to receive(:sprints).with(maxResults: 1000, startAt: 0).and_return(%w[sprint_1 sprint_2])
+            allow(sprint_controller)
+              .to receive(:fetch_jira_sprints).with(1000, 0).and_return(%w[sprint_1 sprint_2])
 
-            allow(board)
-              .to receive(:sprints).with(maxResults: 1000, startAt: 1000).and_return(%w[sprint_3 sprint_4])
+            allow(sprint_controller)
+              .to receive(:fetch_jira_sprints).with(1000, 1000).and_return(%w[sprint_3 sprint_4])
 
-            allow(board)
-              .to receive(:sprints).with(maxResults: 1000, startAt: 2000).and_return([])
+            allow(sprint_controller)
+              .to receive(:fetch_jira_sprints).with(1000, 2000).and_return([])
 
             expect(sprint_controller.unfiltered_jira_sprints).to eq(%w[sprint_1 sprint_2 sprint_3 sprint_4])
+          end
+        end
+
+        describe "#fetch_jira_sprints" do
+          it "gets the next batch of sprints" do
+            allow(board).to receive_messages(sprints: nil)
+
+            sprint_controller.fetch_jira_sprints(512, 1024)
+
+            expect(board).to have_received(:sprints).with(maxResults: 512, startAt: 1024)
           end
         end
       end

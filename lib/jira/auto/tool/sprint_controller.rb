@@ -82,7 +82,7 @@ module Jira
           loop do
             log.debug { "Fetching sprints from Jira (start_at: #{start_at})" }
 
-            fetched_sprints = board.sprints(maxResults: PAGE_SIZE, startAt: start_at)
+            fetched_sprints = fetch_jira_sprints(PAGE_SIZE, start_at)
 
             log.debug { "Fetched #{fetched_sprints.size} sprints from Jira: #{fetched_sprints.map(&:to_s).join(" ")}" }
 
@@ -96,6 +96,10 @@ module Jira
         end
 
         # rubocop:enable Metrics/MethodLength
+
+        def fetch_jira_sprints(max_results, start_at)
+          board.sprints(maxResults: max_results, startAt: start_at)
+        end
 
         def unclosed_sprints
           sprints.find_all { |sprint| sprint.state != SprintStateController::SprintState::CLOSED }

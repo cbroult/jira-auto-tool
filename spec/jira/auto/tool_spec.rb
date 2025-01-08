@@ -13,6 +13,10 @@ module Jira
           expect(Jira::Auto::Tool::VERSION).not_to be_nil
         end
 
+        describe "#board_controller" do
+          it { expect(tool.board_controller).to be_a(BoardController) }
+        end
+
         describe "#board" do
           def board_double(name)
             double("Board", name: name) # rubocop:disable RSpec/VerifiedDoubles
@@ -174,6 +178,7 @@ module Jira
           jira_api_token
           jira_board_name
           jira_context_path
+          jira_project_key
           jira_site_url jira_username
           jira_sprint_field_name
         ].each do |method_name|

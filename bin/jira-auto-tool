@@ -18,6 +18,7 @@ Bundler.require(:default)
 
 require "active_support/core_ext/object/blank"
 require "jira/auto/tool"
+require "jira/auto/tool/board_controller/options"
 require "jira/auto/tool/sprint_controller/options"
 require "jira/auto/tool/team_sprint_prefix_mapper/options"
 
@@ -45,6 +46,7 @@ OptionParser.new do |parser|
     tool.jira_board_name = board_name
   end
 
+  Jira::Auto::Tool::BoardController::Options.add(tool, parser)
   Jira::Auto::Tool::SprintController::Options.add(tool, parser)
   Jira::Auto::Tool::TeamSprintPrefixMapper::Options.add(tool, parser)
 end
