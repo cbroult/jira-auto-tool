@@ -72,8 +72,17 @@ module Jira
           end
         end
 
-        it "#sprint_controller" do
-          expect(tool.sprint_controller).not_to be_nil
+        describe "#sprint_controller" do
+          let(:board) do
+            jira_resource_double(JIRA::Resource::Board, sprints: [instance_double(JIRA::Resource::Sprint)])
+          end
+
+          before do
+            allow(tool).to receive_messages(jira_client: instance_double(JIRA::Client))
+            allow(tool).to receive_messages(board: board)
+          end
+
+          it { expect(tool.sprint_controller).to be_a(SprintController) }
         end
 
         describe "#project" do
@@ -130,6 +139,11 @@ module Jira
 
             it("method_name?") { expect(object_with_overridable_value.send(method_name?)).to be(false) }
 
+            it("method_name_when_defined_else") do
+              expect(object_with_overridable_value.send("#{method_name}_when_defined_else", "DEFAULT_VALUE"))
+                .to eq("DEFAULT_VALUE")
+            end
+
             it "raises an error if the environment variable is not found" do
               expect { object_with_overridable_value.send(method_name) }
                 .to raise_error(KeyError, /Missing #{env_var_name} environment variable!/)
@@ -159,6 +173,7 @@ module Jira
           implementation_team_field_name
           jira_api_token
           jira_board_name
+          jira_context_path
           jira_site_url jira_username
           jira_sprint_field_name
         ].each do |method_name|
@@ -175,14 +190,16 @@ module Jira
               username: "jira_username_value",
               password: "jira_api_token_value",
               site: "jira_site_url_value",
-              context_path: "",
+              context_path: "/context_path_value",
               auth_type: :basic
             }
           end
 
           it "has a jira client" do
-            allow(tool).to receive_messages(jira_username: "jira_username_value", jira_site_url: "jira_site_url_value",
-                                            jira_api_token: "jira_api_token_value")
+            allow(tool)
+              .to receive_messages(jira_username: "jira_username_value", jira_site_url: "jira_site_url_value",
+                                   jira_api_token: "jira_api_token_value",
+                                   jira_context_path_when_defined_else: "/context_path_value")
 
             expected_jira_client = instance_double(JIRA::Client)
 
@@ -192,10 +209,24 @@ module Jira
           end
         end
 
+        describe "#project_controller" do
+          before do
+            allow(tool).to receive_messages(jira_client: instance_double(JIRA::Client))
+          end
+
+          it { expect(tool.project_controller).to be_a(ProjectController) }
+        end
+
         context "when dealing with ticket fields" do
           let(:ticket_field) { instance_double(JIRA::Resource::Field) }
 
           describe "#project_ticket_fields" do
+            let(:project_controller) { instance_double(ProjectController, ticket_fields: [ticket_field]) }
+
+            before do
+              allow(tool).to receive_messages(project_controller: project_controller)
+            end
+
             it { expect(tool.project_ticket_fields).not_to be_empty }
           end
 
@@ -266,6 +297,15 @@ module Jira
           end
 
           describe "#tickets" do
+            let(:query) { jira_resource_double("query", jql: [instance_double(JIRA::Resource::Issue)]) }
+            let(:jira_client) { instance_double(JIRA::Client, Issue: query) }
+
+            before do
+              allow(tool).to receive_messages(jira_client: jira_client)
+              allow(tool)
+                .to receive_messages(project: jira_resource_double(JIRA::Resource::Project, key: "project_key"))
+            end
+
             it { expect(tool.tickets).to all be_a(Ticket) }
           end
 
