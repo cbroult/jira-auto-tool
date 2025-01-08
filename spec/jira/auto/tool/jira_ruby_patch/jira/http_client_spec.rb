@@ -6,8 +6,6 @@ require "jira/auto/tool/jira_ruby_patch/jira/http_client"
 
 module JIRA
   class HttpClient
-    ENABLED = false
-
     RSpec.describe JIRA::HttpClient do
       let(:options) do
         {
@@ -29,7 +27,7 @@ module JIRA
           it { expect(http_client.send(:request_path, "/some/path")).to eq("/some/path") }
         end
 
-        if ENABLED
+        if JIRA::PATCH_ENABLED
           context "when using a context_path" do
             let(:context_path) { "/path/to/context" }
 

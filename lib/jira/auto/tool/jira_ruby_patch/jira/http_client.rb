@@ -4,9 +4,9 @@ require "jira-ruby"
 require "jira/http_client"
 
 module JIRA
-  ENABLED_PATCH = false
+  PATCH_ENABLED = true
 
-  if ENABLED_PATCH
+  if PATCH_ENABLED
     class HttpClient
       def make_cookie_auth_request
         body = { username: @options[:username].to_s, password: @options[:password].to_s }.to_json
