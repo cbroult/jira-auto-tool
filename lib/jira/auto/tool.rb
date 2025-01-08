@@ -5,6 +5,8 @@ require "date"
 require "active_support/core_ext/numeric/time"
 require "active_support/core_ext/date/calculations"
 require "jira-ruby"
+require "jira/http_client"
+require "jira/auto/tool/jira_ruby_patch/jira/http_client"
 require_relative "tool/helpers/environment_based_value"
 require_relative "tool/project_controller"
 require_relative "tool/request_builder"
@@ -61,7 +63,7 @@ module Jira
                            username: jira_username,
                            password: jira_api_token,
                            site: jira_site_url,
-                           context_path: "",
+                           context_path: jira_context_path_when_defined_else(""),
                            auth_type: :basic
                          })
       end
@@ -72,6 +74,7 @@ module Jira
         implementation_team_field_name
         jira_api_token
         jira_board_name
+        jira_context_path
         jira_site_url
         jira_username
         jira_sprint_field_name
@@ -85,7 +88,11 @@ module Jira
 
       def project_ticket_fields
         # TODO: - should include project reference
-        ProjectController.new(jira_client).ticket_fields
+        project_controller.ticket_fields
+      end
+
+      def project_controller
+        ProjectController.new(jira_client)
       end
 
       def expected_start_date_field(field_name = expected_start_date_field_name)

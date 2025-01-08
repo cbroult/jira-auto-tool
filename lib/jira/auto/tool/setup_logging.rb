@@ -20,7 +20,7 @@ Logging.logger.root.add_appenders(
 Logging.logger.root.level = :info
 
 logging_logger = Logging.logger["HTTPLogger"]
-logging_logger.level = :info
+logging_logger.level = :debug # info
 logging_logger.add_appenders(
   Logging.appenders.stdout(level: :warn),
   Logging.appenders.file(File.join(log_dir, "http_requests.log"), level: :debug)
