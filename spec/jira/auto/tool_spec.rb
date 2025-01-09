@@ -127,6 +127,12 @@ module Jira
 
             it("method_name?") { expect(object_with_overridable_value.send(method_name?)).to be(true) }
 
+            it("method_name_when_defined_else") do
+              expect(object_with_overridable_value.send("#{method_name}_when_defined_else", "DEFAULT_VALUE"))
+                .to eq(expected_value)
+            end
+
+
             it "fetch its value from the environment" do
               expect(object_with_overridable_value.send(method_name)).to eq(expected_value)
             end

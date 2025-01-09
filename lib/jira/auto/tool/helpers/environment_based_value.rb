@@ -46,7 +46,7 @@ module Jira
           def define_reader_accepting_default_value(method_name)
             define_method(:"#{method_name}_when_defined_else") do |value|
               if self.class.corresponding_environment_variable_defined?(method_name.to_s)
-                method_name
+                send(method_name)
               else
                 value
               end
