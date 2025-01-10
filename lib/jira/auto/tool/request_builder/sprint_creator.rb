@@ -60,7 +60,7 @@ module Jira
             start.is_a?(Time) ? start : Time.parse(start)
           end
 
-          def request_url
+          def request_path
             "/rest/agile/1.0/sprint"
           end
 

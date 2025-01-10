@@ -12,9 +12,9 @@ module Jira
             described_class.new(jira_client, 32, "a_name", "2024-12-19 13:16 UTC", 14)
           end
 
-          let(:jira_client) { instance_spy(JIRA::Client).as_null_object }
+          let(:jira_client) { instance_spy(JIRA::Client, options: { context_path: :a_context_path }).as_null_object }
 
-          it { expect(sprint_creator_instance.send(:request_url)).to eq("/rest/agile/1.0/sprint") }
+          it { expect(sprint_creator_instance.send(:request_path)).to eq("/rest/agile/1.0/sprint") }
 
           it { expect(sprint_creator_instance.send(:http_verb)).to eq(:post) }
 

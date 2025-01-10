@@ -26,22 +26,22 @@ module Jira
             ]
           end
 
-          def build_board(name, project_key, url)
-            instance_double(Board, name:, project_key:, url:)
+          def build_board(name, project_key, ui_url)
+            instance_double(Board, name:, project_key:, ui_url:)
           end
 
           describe "#list_boards" do
             let(:expected_board_list) do
               <<~EOBL
-                +---------+-------------+-------------------------------------------------+
+                +-------------+---------+-------------------------------------------------+
                 |                                 Boards                                  |
-                +---------+-------------+-------------------------------------------------+
-                | Name    | Project Key | Board URL                                       |
-                +---------+-------------+-------------------------------------------------+
-                | Board 1 | ART         | https://jira.example.com/projects/ART/boards/1  |
-                | Board 2 | ART         | https://jira.example.com/projects/ART/boards/2  |
-                | Board 3 | TOOL        | https://jira.example.com/projects/TOOL/boards/3 |
-                +---------+-------------+-------------------------------------------------+
+                +-------------+---------+-------------------------------------------------+
+                | Project Key | Name    | Board UI URL                                    |
+                +-------------+---------+-------------------------------------------------+
+                | ART         | Board 1 | https://jira.example.com/projects/ART/boards/1  |
+                | ART         | Board 2 | https://jira.example.com/projects/ART/boards/2  |
+                | TOOL        | Board 3 | https://jira.example.com/projects/TOOL/boards/3 |
+                +-------------+---------+-------------------------------------------------+
               EOBL
             end
 

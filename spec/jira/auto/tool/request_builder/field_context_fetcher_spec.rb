@@ -15,10 +15,10 @@ module Jira
                                    id: "customfield_10000")
           end
 
-          let(:jira_client) { instance_spy(JIRA::Client).as_null_object }
+          let(:jira_client) { instance_spy(JIRA::Client, options: { context_path: :a_context_path }).as_null_object }
 
           it do
-            expect(field_context_fetcher.send(:request_url))
+            expect(field_context_fetcher.send(:request_path))
               .to eq("/rest/api/3/field/#{field.id}/context")
           end
 

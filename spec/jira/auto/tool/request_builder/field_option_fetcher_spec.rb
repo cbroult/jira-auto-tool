@@ -9,7 +9,7 @@ module Jira
       class RequestBuilder
         RSpec.describe FieldOptionFetcher do
           let(:field_option_fetcher) { described_class.new(jira_client, field, field_context) }
-          let(:jira_client) { instance_spy(JIRA::Client).as_null_object }
+          let(:jira_client) { instance_spy(JIRA::Client, options: { context_path: :a_context_path }).as_null_object }
           let(:field_context) { { "id" => context_id, "name" => "a context name" }.symbolize_keys }
 
           let(:field) do
@@ -25,7 +25,7 @@ module Jira
           end
 
           it do
-            expect(field_option_fetcher.send(:request_url))
+            expect(field_option_fetcher.send(:request_path))
               .to eq("/rest/api/3/field/#{field.id}/context/#{context_id}/option")
           end
 

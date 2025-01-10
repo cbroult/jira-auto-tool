@@ -66,7 +66,7 @@ module Jira
           jira_sprints.collect { |sprint| Sprint.new(sprint) }
         end
 
-        PAGE_SIZE = 1000
+        PAGE_SIZE = 50
         # rubocop:disable Metrics/MethodLength
         def jira_sprints
           sprint_filter_string = tool.art_sprint_regex_defined? ? tool.art_sprint_regex : ""
@@ -84,7 +84,7 @@ module Jira
 
             fetched_sprints = fetch_jira_sprints(PAGE_SIZE, start_at)
 
-            log.debug { "Fetched #{fetched_sprints.size} sprints from Jira: #{fetched_sprints.map(&:to_s).join(" ")}" }
+            log.warn { "Fetched #{fetched_sprints.size} sprints from Jira: #{fetched_sprints.map(&:to_s).join(" ")}" }
 
             all_jira_sprints.concat(fetched_sprints)
             start_at += PAGE_SIZE
@@ -92,13 +92,23 @@ module Jira
             break if fetched_sprints.empty?
           end
 
+          log.warn { all_jira_sprints }
+
           all_jira_sprints
         end
 
         # rubocop:enable Metrics/MethodLength
-
+        NULL_FOR_URI_RESPONSE_REGEX = /null for uri:/
         def fetch_jira_sprints(max_results, start_at)
+          log.warn { "Fetching sprints from Jira (max_results: #{max_results}, start_at: #{start_at})" }
+
           tool.jira_client.Sprint.all(maxResults: max_results, startAt: start_at)
+        rescue JIRA::HTTPError => e
+          log.debug { "Error fetching sprints from Jira: #{e.message.inspect}, #{e.inspect}" }
+
+          return [] if e.message =~ NULL_FOR_URI_RESPONSE_REGEX
+
+          raise e
         end
 
         def unclosed_sprints

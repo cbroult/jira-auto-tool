@@ -45,7 +45,7 @@ module Jira
           raise NotImplementedError, "Subclasses must implement this method"
         end
 
-        def request_url
+        def request_path
           raise NotImplementedError, "Subclasses must implement this method"
         end
 
@@ -57,10 +57,18 @@ module Jira
           { "Content-Type" => "application/json" }
         end
 
+        def context_path
+          jira_client.options[:context_path]
+        end
+
+        def request_path_with_context
+          "#{context_path}#{request_path}"
+        end
+
         private
 
         def send_request
-          send_args = [http_verb, *build_request_args(request_url, request_payload)]
+          send_args = [http_verb, *build_request_args(request_path_with_context, request_payload)]
 
           log.info { "Sending #{send_args.collect { |arg| %("#{arg}") }.join(" ")}" }
 

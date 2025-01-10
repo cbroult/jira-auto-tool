@@ -16,7 +16,7 @@ module Jira
 
           private
 
-          def request_url
+          def request_path
             "/rest/agile/1.0/sprint/#{sprint.id}"
           end
 

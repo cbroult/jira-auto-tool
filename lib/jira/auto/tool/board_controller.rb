@@ -16,8 +16,8 @@ module Jira
         def list_boards
           table = Terminal::Table.new(
             title: "Boards",
-            headings: ["Name", "Project Key", "Board URL"],
-            rows: boards.collect { |board| [board.name, board.project_key, board.url] }
+            headings: ["Project Key", "Name", "Board UI URL"],
+            rows: boards.collect { |board| [board.project_key, board.name, board.ui_url] }
           )
 
           puts table

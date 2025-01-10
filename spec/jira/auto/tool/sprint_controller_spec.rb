@@ -224,13 +224,13 @@ module Jira
         describe "#unfiltered_jira_sprints" do
           it "deals with JIRA::Resource pagination" do
             allow(sprint_controller)
-              .to receive(:fetch_jira_sprints).with(1000, 0).and_return(%w[sprint_1 sprint_2])
+              .to receive(:fetch_jira_sprints).with(50, 0).and_return(%w[sprint_1 sprint_2])
 
             allow(sprint_controller)
-              .to receive(:fetch_jira_sprints).with(1000, 1000).and_return(%w[sprint_3 sprint_4])
+              .to receive(:fetch_jira_sprints).with(50, 50).and_return(%w[sprint_3 sprint_4])
 
             allow(sprint_controller)
-              .to receive(:fetch_jira_sprints).with(1000, 2000).and_return([])
+              .to receive(:fetch_jira_sprints).with(50, 100).and_return([])
 
             expect(sprint_controller.unfiltered_jira_sprints).to eq(%w[sprint_1 sprint_2 sprint_3 sprint_4])
           end
@@ -241,13 +241,29 @@ module Jira
 
           let(:jira_client) { instance_double(JIRA::Client, Sprint: sprint_query) }
 
-          it "gets the next batch of sprints" do
+          before do
             allow(tool).to receive_messages(jira_client: jira_client)
+          end
 
+          it "gets the next batch of sprints" do
             sprint_controller.fetch_jira_sprints(512, 1024)
 
             expect(sprint_query).to have_received(:all).with(maxResults: 512, startAt: 1024)
           end
+
+          # rubocop:disable RSpec/MultipleMemoizedHelpers:
+          context "when no more sprints are available" do
+            let(:response) { instance_double(Net::HTTPResponse, message: "null for uri:") }
+
+            before do
+              allow(sprint_query).to receive(:all).and_raise(JIRA::HTTPError, response)
+            end
+
+            it "returns an empty array" do
+              expect(sprint_controller.fetch_jira_sprints(50, 4096)).to eq([])
+            end
+          end
+          # rubocop:enable RSpec/MultipleMemoizedHelpers:
         end
       end
     end

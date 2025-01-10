@@ -10,9 +10,9 @@ RSpec.describe Jira::Auto::Tool::RequestBuilder::SprintStateUpdater do
     instance_spy(JIRA::Resource::Sprint, id: 12_345, attrs: { id: 12_345, state: "open" })
   end
 
-  let(:jira_client) { instance_spy(JIRA::Client).as_null_object }
+  let(:jira_client) { instance_spy(JIRA::Client, options: { context_path: :a_context_path }).as_null_object }
 
-  it { expect(sprint_creator_instance.send(:request_url)).to eq("/rest/agile/1.0/sprint/12345") }
+  it { expect(sprint_creator_instance.send(:request_path)).to eq("/rest/agile/1.0/sprint/12345") }
 
   it { expect(sprint_creator_instance.send(:http_verb)).to eq(:put) }
 

@@ -36,7 +36,7 @@ module Jira
 
           private
 
-          def request_url
+          def request_path
             "/rest/api/3/field/#{field.id}/context/#{@field_context.fetch(:id)}/option"
           end
 
