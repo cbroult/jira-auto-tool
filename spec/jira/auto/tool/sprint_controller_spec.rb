@@ -237,12 +237,16 @@ module Jira
         end
 
         describe "#fetch_jira_sprints" do
+          let(:sprint_query) { double("sprint_query", all: %w[sprint_1 sprint_2]) } # rubocop:disable RSpec/VerifiedDoubles
+
+          let(:jira_client) { instance_double(JIRA::Client, Sprint: sprint_query) }
+
           it "gets the next batch of sprints" do
-            allow(board).to receive_messages(sprints: nil)
+            allow(tool).to receive_messages(jira_client: jira_client)
 
             sprint_controller.fetch_jira_sprints(512, 1024)
 
-            expect(board).to have_received(:sprints).with(maxResults: 512, startAt: 1024)
+            expect(sprint_query).to have_received(:all).with(maxResults: 512, startAt: 1024)
           end
         end
       end

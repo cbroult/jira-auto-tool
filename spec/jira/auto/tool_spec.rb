@@ -132,7 +132,6 @@ module Jira
                 .to eq(expected_value)
             end
 
-
             it "fetch its value from the environment" do
               expect(object_with_overridable_value.send(method_name)).to eq(expected_value)
             end
@@ -183,6 +182,7 @@ module Jira
           implementation_team_field_name
           jira_api_token
           jira_board_name
+          jira_board_name_regex
           jira_context_path
           jira_project_key
           jira_site_url jira_username
@@ -195,12 +195,38 @@ module Jira
           end
         end
 
+        context "when dealing with jira site and context path related values" do
+          let(:jira_client) do
+            JIRA::Client.new({ site: "https://jira_site_url_value", context_path: "/context_path_value" })
+          end
+
+          before do
+            allow(tool).to receive_messages(jira_client: jira_client)
+          end
+
+          describe "#jira_base_url" do
+            it { expect(tool.jira_base_url).to eq("https://jira_site_url_value/context_path_value") }
+          end
+
+          describe "#jira_request_path" do
+            it { expect(tool.jira_request_path("/some/path")).to eq("/context_path_value/some/path") }
+          end
+
+          describe "#jira_url" do
+            before { allow(tool).to receive_messages(jira_base_url: "https://jira_site_url_value/context_path_value") }
+
+            it "has a jira instance url" do
+              expect(tool.jira_url("/board/4")).to eq("https://jira_site_url_value/context_path_value/board/4")
+            end
+          end
+        end
+
         describe "#jira_client" do
           let(:client_options) do
             {
               username: "jira_username_value",
               password: "jira_api_token_value",
-              site: "jira_site_url_value",
+              site: "https://jira_site_url_value",
               context_path: "/context_path_value",
               auth_type: :basic
             }
@@ -208,7 +234,7 @@ module Jira
 
           it "has a jira client" do
             allow(tool)
-              .to receive_messages(jira_username: "jira_username_value", jira_site_url: "jira_site_url_value",
+              .to receive_messages(jira_username: "jira_username_value", jira_site_url: "https://jira_site_url_value",
                                    jira_api_token: "jira_api_token_value",
                                    jira_context_path_when_defined_else: "/context_path_value")
 

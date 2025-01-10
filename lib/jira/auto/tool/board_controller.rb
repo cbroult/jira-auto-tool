@@ -24,6 +24,23 @@ module Jira
         end
 
         def boards
+          boards_to_filter = unfiltered_boards
+
+          boards_to_filter =
+            if tool.jira_board_name_regex_defined?
+              board_name_regex = Regexp.new(tool.jira_board_name_regex)
+
+              boards_to_filter.find_all { |board| board.name =~ board_name_regex }
+            else
+              boards_to_filter
+            end
+
+          return boards_to_filter unless tool.jira_project_key_defined?
+
+          boards_to_filter.find_all { |board| board.project_key == tool.jira_project_key }
+        end
+
+        def unfiltered_boards
           jira_client.Board.all.collect { |board| Board.new(tool, board) }
         end
       end

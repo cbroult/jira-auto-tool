@@ -4,7 +4,7 @@ require "jira-ruby"
 require "jira/http_client"
 
 module JIRA
-  PATCH_ENABLED = true
+  PATCH_ENABLED = false
 
   if PATCH_ENABLED
     class HttpClient

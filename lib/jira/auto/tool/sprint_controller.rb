@@ -98,7 +98,7 @@ module Jira
         # rubocop:enable Metrics/MethodLength
 
         def fetch_jira_sprints(max_results, start_at)
-          board.sprints(maxResults: max_results, startAt: start_at)
+          tool.jira_client.Sprint.all(maxResults: max_results, startAt: start_at)
         end
 
         def unclosed_sprints

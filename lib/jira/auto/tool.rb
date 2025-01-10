@@ -7,6 +7,7 @@ require "active_support/core_ext/date/calculations"
 require "jira-ruby"
 require "jira/http_client"
 require "jira/auto/tool/jira_ruby_patch/jira/http_client"
+require_relative "tool/board_controller"
 require_relative "tool/helpers/environment_based_value"
 require_relative "tool/project_controller"
 require_relative "tool/request_builder"
@@ -21,6 +22,7 @@ require_relative "tool/version"
 
 module Jira
   module Auto
+    # rubocop:disable Metrics/ClassLength
     class Tool
       extend Helpers::EnvironmentBasedValue
 
@@ -68,12 +70,25 @@ module Jira
                          })
       end
 
+      def jira_request_path(path)
+        jira_client.options[:context_path] + path
+      end
+
+      def jira_base_url
+        jira_client.options[:site] + jira_client.options[:context_path]
+      end
+
+      def jira_url(url)
+        jira_base_url + url
+      end
+
       %i[
         art_sprint_regex
         expected_start_date_field_name
         implementation_team_field_name
         jira_api_token
         jira_board_name
+        jira_board_name_regex
         jira_context_path
         jira_project_key
         jira_site_url
@@ -154,5 +169,6 @@ module Jira
           .run
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
