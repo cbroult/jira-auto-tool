@@ -176,7 +176,56 @@ module Jira
             expect(matching_sprints).to all receive(:to_table_row).with(without_board_information: true) # rubocop:disable RSpec/MessageSpies
             # rubocop:enable RSpec / MessageExpectation
 
+            allow($stdout).to receive_messages(puts: nil)
+
             sprint_controller.list_sprints(without_board_information: true)
+          end
+        end
+
+        describe "#list_sprint_prefixes" do
+          let(:sprint_prefixes) do
+            [
+              ["Food_Supply", "Food_Supply_25.2.2", 14, "2024-05-01", "2024-05-15", "board info 1", "board info 2"],
+              ["Food_Supply", "Food_Supply_25.2.3", 7, "2024-05-15", "2024-05-22", "board info 3", "board info 4"]
+            ]
+              .collect { |row_info| instance_double(Sprint::Prefix, to_table_row: row_info) }
+          end
+
+          let(:expected_sprint_prefix_table) do
+            <<~END_OF_TABLE
+              +---------------+--------------------+----------------+------------+------------+---------------+---------------+
+              |                                Sprint Prefixes With Corresponding Last Sprints                                |
+              +---------------+--------------------+----------------+------------+------------+---------------+---------------+
+              | Sprint Prefix | Last Sprint Name   | Length In Days | Start Date | End Date   | Board Column1 | Board Column2 |
+              +---------------+--------------------+----------------+------------+------------+---------------+---------------+
+              | Food_Supply   | Food_Supply_25.2.2 | 14             | 2024-05-01 | 2024-05-15 | board info 1  | board info 2  |
+              | Food_Supply   | Food_Supply_25.2.3 | 7              | 2024-05-15 | 2024-05-22 | board info 3  | board info 4  |
+              +---------------+--------------------+----------------+------------+------------+---------------+---------------+
+            END_OF_TABLE
+          end
+
+          before { allow(sprint_controller).to receive_messages(unclosed_sprint_prefixes: sprint_prefixes) }
+
+          it "list the sprint prefixes as a table" do
+            allow(Sprint::Prefix).to receive_messages(
+              to_table_row_header: ["Sprint Prefix", "Last Sprint Name", "Length In Days", "Start Date", "End Date",
+                                    "Board Column1", "Board Column2"]
+            )
+
+            expect { sprint_controller.list_sprint_prefixes }.to output(expected_sprint_prefix_table).to_stdout
+          end
+
+          it "can be called so that the board information is excluded" do
+            allow(Sprint::Prefix)
+              .to receive(:to_table_row_header).with(without_board_information: true).and_return([:name])
+
+            # rubocop:disable RSpec / MessageExpectation
+            expect(sprint_prefixes).to all receive(:to_table_row).with(without_board_information: true) # rubocop:disable RSpec/MessageSpies
+            # rubocop:enable RSpec / MessageExpectation
+
+            allow($stdout).to receive_messages(puts: nil)
+
+            sprint_controller.list_sprint_prefixes(without_board_information: true)
           end
         end
 

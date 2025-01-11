@@ -52,6 +52,56 @@ module Jira
             end
           end
 
+          describe "#to_table_row" do
+            let(:prefix) { new_prefix("Food_Supply", []) }
+
+            let(:last_sprint) { instance_double(Sprint) }
+
+            before { allow(prefix).to receive_messages(last_sprint: last_sprint) }
+
+            it do
+              allow(last_sprint)
+                .to receive_messages(to_table_row:
+                                       ["Food_Supply_24.4.5", 4, "2024-12-27 13:00 UTC", "2024-12-31 13:00 UTC",
+                                        "Food Supply Team Board", :url_to_suppply_team_board, "FOOD"])
+
+              expect(prefix.to_table_row)
+                .to eq(["Food_Supply", "Food_Supply_24.4.5", 4, "2024-12-27 13:00 UTC", "2024-12-31 13:00 UTC",
+                        "Food Supply Team Board", :url_to_suppply_team_board, "FOOD"])
+            end
+
+            it "can exclude the board information" do
+              allow(last_sprint)
+                .to receive(:to_table_row)
+                .with(without_board_information: true)
+                .and_return(["Food_Supply_24.4.5", 4, "2024-12-27 13:00 UTC", "2024-12-31 13:00 UTC"])
+
+              expect(prefix.to_table_row(without_board_information: true))
+                .to eq(["Food_Supply", "Food_Supply_24.4.5", 4, "2024-12-27 13:00 UTC", "2024-12-31 13:00 UTC"])
+            end
+          end
+
+          describe ".to_table_row_header" do
+            it do
+              allow(Sprint)
+                .to receive_messages(to_table_row_header: ["Name", "Length In Days", "Start Date", "End Date",
+                                                           "Board Name", "Board UI URL", "Board Project Key"])
+
+              expect(described_class.to_table_row_header)
+                .to eq(["Sprint Prefix", "Last Sprint Name", "Length In Days", "Start Date", "End Date",
+                        "Board Name", "Board UI URL", "Board Project Key"])
+            end
+
+            it "can exclude the board information" do
+              allow(Sprint)
+                .to receive(:to_table_row_header).with(without_board_information: true)
+                                                 .and_return(["Name", "Length In Days", "Start Date", "End Date"])
+
+              expect(described_class.to_table_row_header(without_board_information: true))
+                .to eq(["Sprint Prefix", "Last Sprint Name", "Length In Days", "Start Date", "End Date"])
+            end
+          end
+
           describe "#<=>" do
             let(:art_team_prefix) { new_prefix("ART_Team", %w[sprint_1 sprint_2]) }
 

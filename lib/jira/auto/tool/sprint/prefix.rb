@@ -40,6 +40,17 @@ module Jira
             "name: #{name}, sprints: #{sprints}"
           end
 
+          def to_table_row(without_board_information: false)
+            [name].concat(last_sprint.to_table_row(without_board_information:))
+          end
+
+          def self.to_table_row_header(without_board_information: false)
+            sprint_header = Sprint.to_table_row_header(without_board_information: without_board_information)
+            sprint_header[0] = "Last Sprint Name"
+
+            ["Sprint Prefix"].concat(sprint_header)
+          end
+
           def last_sprint
             log.debug { "name = #{name}, #sprints = #{sprints.size}" }
             sprints.max

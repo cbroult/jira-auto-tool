@@ -52,13 +52,28 @@ module Jira
           !sprints.empty?
         end
 
+        def list_sprint_prefixes(without_board_information: false)
+          list_object(Sprint::Prefix, :unclosed_sprint_prefixes,
+                      "Sprint Prefixes With Corresponding Last Sprints",
+                      without_board_information: without_board_information)
+        end
+
         def list_sprints(without_board_information: false)
+          list_object(Sprint, :sprints, "Matching Sprints",
+                      without_board_information: without_board_information)
+        end
+
+        def list_object(object_class, object_method, title, without_board_information: false)
+          table_row_header = object_class.to_table_row_header(without_board_information: without_board_information)
+
+          rows = send(object_method).collect do |sprint|
+            sprint.to_table_row(without_board_information: without_board_information)
+          end
+
           table = Terminal::Table.new(
-            title: "Matching Sprints",
-            headings: Sprint.to_table_row_header(without_board_information: without_board_information),
-            rows: sprints.collect do |sprint|
-              sprint.to_table_row(without_board_information: without_board_information)
-            end
+            title: title,
+            headings: table_row_header,
+            rows: rows
           )
 
           puts table
