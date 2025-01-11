@@ -5,17 +5,16 @@ module Jira
     class Tool
       class RequestBuilder
         class SprintCreator < RequestBuilder
-          def self.create_sprint(jira_client, original_board_id, name, start, length_in_days)
-            log.info { "create_sprint(name: #{name}, start: #{start}, length: #{length_in_days})" }
+          def self.create_sprint(tool, original_board_id, name, start, length_in_days)
+            log.debug { "create_sprint(name: #{name}, start: #{start}, length: #{length_in_days})" }
 
-            creation_response = new(jira_client, original_board_id, name, start, length_in_days)
+            creation_response = new(tool.jira_client, original_board_id, name, start, length_in_days)
                                 .run
 
-            created_sprint = Sprint.new(
-              jira_client.Sprint.find(JSON.parse(creation_response.body).fetch("id"))
-            )
+            created_sprint = Sprint.new(tool,
+                                        tool.jira_client.Sprint.find(JSON.parse(creation_response.body).fetch("id")))
 
-            log.info { "created_sprint: #{created_sprint.id}" }
+            log.debug { "created_sprint: #{created_sprint.id}" }
 
             created_sprint
           end

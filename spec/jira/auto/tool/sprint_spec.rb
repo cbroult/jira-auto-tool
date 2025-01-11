@@ -4,14 +4,15 @@ module Jira
   module Auto
     class Tool
       RSpec.describe Sprint do
-        context "when using its attributes" do
-          let(:jira_client) { instance_double(JIRA::Client) }
+        let(:jira_client) { instance_double(JIRA::Client) }
+        let(:tool) { instance_double(Tool, jira_client: jira_client) }
 
+        context "when using its attributes" do
           let(:jira_sprint) do
             # rubocop:disable RSpec/VerifiedDoubles
             double(JIRA::Resource::Sprint,
                    id: 40_820,
-                   name: "ART_Team_24.4.5",
+                   name: "Food_Supply_24.4.5",
                    startDate: "2024-12-27 13:00 UTC", endDate: "2024-12-31 13:00 UTC",
                    state: "future", originBoardId: 4096,
                    client: jira_client)
@@ -19,7 +20,7 @@ module Jira
           end
 
           let(:sprint) do
-            described_class.new(jira_sprint)
+            described_class.new(tool, jira_sprint)
           end
 
           describe "#jira_client" do
@@ -31,7 +32,7 @@ module Jira
           end
 
           describe "#name" do
-            it { expect(sprint.name).to eq("ART_Team_24.4.5") }
+            it { expect(sprint.name).to eq("Food_Supply_24.4.5") }
           end
 
           describe "#length_in_days" do
@@ -53,12 +54,67 @@ module Jira
           describe "#origin_board_id" do
             it { expect(sprint.origin_board_id).to eq(4096) }
           end
+
+          describe "#board" do
+            let(:expected_board) { instance_double(Board, name: "Food_Supply_24.4.5") }
+
+            before do
+              allow(sprint).to receive(:origin_board_id).and_return(8192)
+
+              allow(Board).to receive(:find_by_id).with(tool, 8192).and_return(expected_board)
+            end
+
+            it { expect(sprint.board).to eq(expected_board) }
+          end
+
+          describe "#to_table_row" do
+            let(:board) do
+              instance_double(Board, to_table_row: ["Food Supply Team Board", :url_to_suppply_team_board, "FOOD"])
+            end
+
+            before do
+              allow(sprint).to receive_messages(board: board)
+            end
+
+            it do
+              expect(sprint.to_table_row)
+                .to eq(["Food_Supply_24.4.5", 4, "2024-12-27 13:00 UTC", "2024-12-31 13:00 UTC",
+                        "Food Supply Team Board", :url_to_suppply_team_board, "FOOD"])
+            end
+
+            it "can exclude the board information" do
+              expect(sprint.to_table_row(without_board_information: true))
+                .to eq(["Food_Supply_24.4.5", 4, "2024-12-27 13:00 UTC", "2024-12-31 13:00 UTC"])
+            end
+          end
+
+          describe ".to_table_row_field_names" do
+            it { expect(described_class.to_table_row_field_names).to eq(%i[name length_in_days start_date end_date]) }
+          end
+
+          describe ".to_table_row_header" do
+            before do
+              allow(Board).to receive_messages(to_table_row_header: ["Name", "UI URL", "Project Key"])
+            end
+
+            it do
+              expect(described_class.to_table_row_header)
+                .to eq(["Name", "Length In Days", "Start Date", "End Date",
+                        "Board Name", "Board UI URL", "Board Project Key"])
+            end
+
+            it "can exclude the board information" do
+              expect(described_class.to_table_row_header(without_board_information: true))
+                .to eq(["Name", "Length In Days", "Start Date", "End Date"])
+            end
+          end
         end
 
         describe "#<=>" do
           def new_sprint_named(name, start_date: "2024-12-30 13:00 UTC", end_date: "2025-01-14 13:00 UTC")
             # rubocop:disable RSpec/VerifiedDoubles
             described_class.new(
+              tool,
               double(JIRA::Resource::Sprint, name: name, startDate: start_date, endDate: end_date,
                                              originBoardId: 2048)
             )

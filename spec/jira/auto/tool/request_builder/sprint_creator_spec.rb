@@ -13,6 +13,7 @@ module Jira
           end
 
           let(:jira_client) { instance_spy(JIRA::Client, options: { context_path: :a_context_path }).as_null_object }
+          let(:tool) { instance_double(Tool, jira_client: jira_client) }
 
           it { expect(sprint_creator_instance.send(:request_path)).to eq("/rest/agile/1.0/sprint") }
 
@@ -42,16 +43,12 @@ module Jira
               ]
             end
 
-            let(:jira_board) do
-              instance_spy(JIRA::Resource::Board).as_null_object
-            end
-
             it "returns the object corresponding to the created sprint" do
               allow(jira_client).to receive_messages(send: actual_response)
               allow(jira_client).to receive_messages(Sprint: actual_sprints)
               allow(actual_sprints).to receive(:find).with(512).and_return(actual_sprints.last)
 
-              expect(described_class.create_sprint(jira_client, 32, "a_name",
+              expect(described_class.create_sprint(tool, 32, "a_name",
                                                    "2024-12-19 13:16 UTC",
                                                    14))
                 .to be_a(Sprint)

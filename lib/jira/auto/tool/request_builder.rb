@@ -70,7 +70,7 @@ module Jira
         def send_request
           send_args = [http_verb, *build_request_args(request_path_with_context, request_payload)]
 
-          log.info { "Sending #{send_args.collect { |arg| %("#{arg}") }.join(" ")}" }
+          log.debug { "Sending #{send_args.collect { |arg| %("#{arg}") }.join(" ")}" }
 
           jira_client.send(*send_args)
         end

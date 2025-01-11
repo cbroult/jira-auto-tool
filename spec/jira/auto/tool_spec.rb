@@ -39,19 +39,19 @@ module Jira
         end
 
         describe "#create_sprint" do
-          # rubocop:disable RSpec/MultipleExpectations
-          it "creates a future auto and transitions it to the desired state" do
+          it "creates a future sprint and transitions it to the desired state" do
             allow(tool).to receive_messages(create_future_sprint: nil, transition_sprint_state: nil)
+
+            allow(tool).to receive(:create_future_sprint)
+              .with("sprint_name_24.4.2", "2024-12-16 11:00 UTC", 14)
+              .and_return(:created_sprint)
 
             tool.create_sprint(name: "sprint_name_24.4.2", start: "2024-12-16 11:00 UTC", length_in_days: 14,
                                state: "a state")
 
-            expect(tool).to have_received(:create_future_sprint).with("sprint_name_24.4.2",
-                                                                      "2024-12-16 11:00 UTC", 14)
-            expect(tool).to have_received(:transition_sprint_state).with(name: "sprint_name_24.4.2",
+            expect(tool).to have_received(:transition_sprint_state).with(:created_sprint,
                                                                          desired_state: "a state")
           end
-          # rubocop:enable RSpec/MultipleExpectations
         end
 
         describe "#fetch_sprint" do
@@ -228,7 +228,8 @@ module Jira
               password: "jira_api_token_value",
               site: "https://jira_site_url_value",
               context_path: "/context_path_value",
-              auth_type: :basic
+              auth_type: :basic,
+              http_debug: false
             }
           end
 

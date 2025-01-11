@@ -22,7 +22,6 @@ require_relative "tool/version"
 
 module Jira
   module Auto
-    # rubocop:disable Metrics/ClassLength
     class Tool
       extend Helpers::EnvironmentBasedValue
 
@@ -36,7 +35,7 @@ module Jira
         found_board = boards.find { |a_board| a_board.name == board_name } or
           raise KeyError, "Board '#{board_name}' not found!"
 
-        log.info { "Jira board '#{board_name}' found: #{found_board}!" }
+        log.debug { "Jira board '#{board_name}' found: #{found_board}!" }
 
         found_board
       end
@@ -51,13 +50,15 @@ module Jira
       end
 
       def create_sprint(name:, start: Time.now.utc.iso8601, length_in_days: 14, state: "future")
-        create_future_sprint(name, start, length_in_days)
+        created_sprint = create_future_sprint(name, start, length_in_days)
 
-        transition_sprint_state(name: name, desired_state: state)
+        log.debug { created_sprint.inspect }
+
+        transition_sprint_state(created_sprint, desired_state: state)
       end
 
-      def transition_sprint_state(name:, desired_state:)
-        SprintStateController.new(jira_client, fetch_sprint(name)).transition_to(desired_state)
+      def transition_sprint_state(created_sprint, desired_state:)
+        SprintStateController.new(jira_client, created_sprint).transition_to(desired_state)
       end
 
       def jira_client
@@ -66,7 +67,8 @@ module Jira
                            password: jira_api_token,
                            site: jira_site_url,
                            context_path: jira_context_path_when_defined_else(""),
-                           auth_type: :basic
+                           auth_type: :basic,
+                           http_debug: false
                          })
       end
 
@@ -165,10 +167,8 @@ module Jira
 
       def create_future_sprint(name, start, length_in_days)
         RequestBuilder::SprintCreator
-          .new(jira_client, board.id, name, start, length_in_days)
-          .run
+          .create_sprint(self, board.id, name, start, length_in_days)
       end
     end
-    # rubocop:enable Metrics/ClassLength
   end
 end

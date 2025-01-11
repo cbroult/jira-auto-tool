@@ -17,7 +17,7 @@ module Jira
         attr_reader :sprint
 
         def initialize(sprint)
-          log.info { "Creating next sprint for #{sprint}" }
+          log.debug { "Creating next sprint for #{sprint}" }
           @sprint = sprint
         end
 
@@ -27,7 +27,7 @@ module Jira
 
         def create
           RequestBuilder::SprintCreator
-            .create_sprint(sprint.jira_client,
+            .create_sprint(sprint.tool,
                            sprint.origin_board_id,
                            next_sprint_name,
                            next_sprint_start_date.utc.to_s,

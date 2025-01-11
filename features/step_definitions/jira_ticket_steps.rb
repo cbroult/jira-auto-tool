@@ -20,7 +20,7 @@ Given(/^the following tickets exist:$/) do |ticket_table|
   # Summary | Description | Implementation Team | Expected Start |
   # table is a table.hashes.keys # => [:summary, :team, :expected_start]
   ticket_table.hashes.each do |ticket_info|
-    log.info { ticket_info.inspect }
+    log.debug { ticket_info.inspect }
 
     jira_ticket = @jira_auto_tool.jira_client.Issue.build
 
@@ -34,7 +34,7 @@ Given(/^the following tickets exist:$/) do |ticket_table|
                         @jira_auto_tool.expected_start_date_field.id.intern => ticket_info[:expected_start_date]
                       } })
 
-    log.info { "created jira ticket: #{jira_ticket.key}" }
+    log.debug { "created jira ticket: #{jira_ticket.key}" }
   end
 end
 
@@ -46,7 +46,7 @@ Then(/^the tickets should have been assigned to sprints as follows:$/) do |ticke
   actual_ticket_values = @jira_auto_tool.tickets.collect do |ticket|
     sprint = ticket.sprint
 
-    log.info { "ticket: #{ticket.summary} sprint: #{sprint.inspect}" }
+    log.debug { "ticket: #{ticket.summary} sprint: #{sprint.inspect}" }
 
     [ticket.summary, sprint ? sprint.first["name"] : ""]
   end

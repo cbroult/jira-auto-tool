@@ -61,13 +61,13 @@ module Jira
         end
 
         def jira_field_value(field_id = caller_locations(1, 1).first.base_label)
-          log.info { "jira_field_value(#{field_id})" }
+          log.debug { "jira_field_value(#{field_id})" }
 
           field = jira_ticket.fields.fetch(field_id) do |id|
             raise "#{id}: value not found in\#{field}"
           end
 
-          log.info { "jira_field_value(#{field_id}), field: #{field}" }
+          log.debug { "jira_field_value(#{field_id}), field: #{field}" }
 
           field
         end

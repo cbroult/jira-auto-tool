@@ -69,7 +69,7 @@ module Jira
           def corresponding_environment_variable_defined?(caller_method_name = caller_locations(1, 1).first.base_label)
             environment_variable_name = caller_method_name.upcase
 
-            log.info { "corresponding_environment_variable_defined?(#{environment_variable_name})" }
+            log.debug { "corresponding_environment_variable_defined?(#{environment_variable_name})" }
 
             ENV.key?(environment_variable_name)
           end

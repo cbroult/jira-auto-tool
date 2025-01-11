@@ -16,7 +16,7 @@ module Jira
 
         def dispatch_tickets
           per_team_tickets do |team, tickets|
-            log.info { "#{team}: dispatching tickets #{tickets.collect(&:key).join(", ")}" }
+            log.debug { "#{team}: dispatching tickets #{tickets.collect(&:key).join(", ")}" }
 
             dispatch_tickets_to_prefix_sprints(sprint_prefix_for(team), tickets)
           end

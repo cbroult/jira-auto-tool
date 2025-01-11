@@ -25,6 +25,12 @@ module Jira
                       "List sprints. The output may be controlled via the ART_PREFIX_REGEX environment variable") do
               tool.sprint_controller.list_sprints
             end
+
+            parser.on("--sprint-list-without-board-info",
+                      "List sprints without the board information. " \
+                      "The output may be controlled via the ART_PREFIX_REGEX environment variable") do
+              tool.sprint_controller.list_sprints(without_board_information: true)
+            end
           end
           # rubocop:enable Metrics/MethodLength
         end

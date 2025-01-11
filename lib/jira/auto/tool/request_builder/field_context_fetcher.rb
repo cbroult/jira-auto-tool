@@ -9,7 +9,7 @@ module Jira
       class RequestBuilder
         class FieldContextFetcher < Get
           def self.fetch_field_contexts(field)
-            log.info { "fetching field contexts for #{field}" }
+            log.debug { "fetching field contexts for #{field}" }
 
             response = new(field.jira_client, field).run
 
@@ -20,7 +20,7 @@ module Jira
               .fetch(:values)
               .collect(&:symbolize_keys)
 
-            log.info { "field #{field} contexts fetched: #{field_contexts}" }
+            log.debug { "field #{field} contexts fetched: #{field_contexts}" }
 
             field_contexts
           end

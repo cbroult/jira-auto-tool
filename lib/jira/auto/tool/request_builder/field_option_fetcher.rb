@@ -9,7 +9,7 @@ module Jira
       class RequestBuilder
         class FieldOptionFetcher < Get
           def self.fetch_field_options(field)
-            log.info { "fetching field options for #{field}" }
+            log.debug { "fetching field options for #{field}" }
 
             response = new(field.jira_client, field, field.field_context).run
 
@@ -19,7 +19,7 @@ module Jira
               FieldOption.new(field.jira_client, option["id"], option["value"])
             end
 
-            log.info { "field #{field} options fetched: #{field_options}" }
+            log.debug { "field #{field} options fetched: #{field_options}" }
 
             field_options
           end

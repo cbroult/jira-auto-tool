@@ -13,7 +13,7 @@ log_dir = File.join("log")
 FileUtils.makedirs(log_dir)
 
 Logging.logger.root.add_appenders(
-  Logging.appenders.stdout(level: :warn),
+  Logging.appenders.stdout(level: :info),
   Logging.appenders.file(File.join(log_dir, "#{File.basename($PROGRAM_NAME)}.log"), level: :info)
 )
 

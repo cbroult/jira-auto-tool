@@ -6,23 +6,22 @@ module Jira
   module Auto
     class Tool
       RSpec.describe NextSprintCreator do
-        let(:jira_client) { instance_double(JIRA::Client) }
+        let(:tool) { instance_double(Tool) }
         let(:last_sprint_name) { "ART_Team_24.4.5" }
         let(:last_sprint_index_in_quarter) { 5 }
         let(:last_sprint_start) { "2024-12-27 13:00:00 UTC" }
         let(:last_sprint_end) { "2024-12-31 13:00:00 UTC" }
 
         def last_sprint
-          instance_double(Sprint,
-                          name: last_sprint_name,
-                          start_date: Time.parse(last_sprint_start),
-                          end_date: Time.parse(last_sprint_end),
-                          name_prefix: "ART_Team",
-                          length_in_days: 4,
-                          index_in_quarter: last_sprint_index_in_quarter,
-                          state: "closed",
-                          origin_board_id: 512,
-                          jira_client: jira_client)
+          instance_double(Sprint, tool: tool,
+                                  name: last_sprint_name,
+                                  start_date: Time.parse(last_sprint_start),
+                                  end_date: Time.parse(last_sprint_end),
+                                  name_prefix: "ART_Team",
+                                  length_in_days: 4,
+                                  index_in_quarter: last_sprint_index_in_quarter,
+                                  state: "closed",
+                                  origin_board_id: 512)
         end
 
         def next_sprint_creator_instance
@@ -38,7 +37,7 @@ module Jira
 
               expect(RequestBuilder::SprintCreator)
                 .to have_received(:create_sprint)
-                .with(jira_client, 512,
+                .with(tool, 512,
                       expected[:next_sprint_name],
                       Time.parse(expected[:next_sprint_start]).utc.to_s,
                       4)

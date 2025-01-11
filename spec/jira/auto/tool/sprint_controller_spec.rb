@@ -95,7 +95,7 @@ module Jira
               .to receive_messages(art_sprint_regex_defined?: art_sprint_regex_defined?,
                                    art_sprint_regex: art_sprint_regex)
 
-            allow(sprint_controller).to receive_messages(unfiltered_jira_sprints: all_sprints)
+            allow(sprint_controller).to receive_messages(unfiltered_board_sprints: all_sprints)
           end
 
           context "when no filter specified" do
@@ -136,29 +136,47 @@ module Jira
         # rubocop:enable RSpec / MultipleMemoizedHelpers
 
         describe "#list_sprints" do
-          context "when displaying on the console" do
-            let(:matching_sprints) do
-              ["1st sprint", "2nd sprint"].collect { |name| instance_double(Sprint, name: name) }
-            end
+          let(:matching_sprints) do
+            [
+              ["1st sprint", 14, "2024-05-01", "2024-05-15", "board info 1", "board info 2"],
+              ["2nd sprint", 7, "2024-05-15", "2024-05-22", "board info 3", "board info 4"]
+            ]
+              .collect { |row_info| instance_double(Sprint, to_table_row: row_info) }
+          end
 
-            let(:expected_sprint_table) do
-              <<~END_OF_TABLE
-                +------------------+
-                | Matching Sprints |
-                +------------------+
-                | Sprint           |
-                +------------------+
-                | 1st sprint       |
-                | 2nd sprint       |
-                +------------------+
-              END_OF_TABLE
-            end
+          let(:expected_sprint_table) do
+            <<~END_OF_TABLE
+              +------------+----------------+------------+------------+---------------+---------------+
+              |                                   Matching Sprints                                    |
+              +------------+----------------+------------+------------+---------------+---------------+
+              | Sprint     | Length In Days | Start Date | End Date   | Board Column1 | Board Column2 |
+              +------------+----------------+------------+------------+---------------+---------------+
+              | 1st sprint | 14             | 2024-05-01 | 2024-05-15 | board info 1  | board info 2  |
+              | 2nd sprint | 7              | 2024-05-15 | 2024-05-22 | board info 3  | board info 4  |
+              +------------+----------------+------------+------------+---------------+---------------+
+            END_OF_TABLE
+          end
 
-            before { allow(sprint_controller).to receive_messages(sprints: matching_sprints) }
+          before do
+            allow(sprint_controller).to receive_messages(sprints: matching_sprints)
+          end
 
-            it "list the matching sprints as a table" do
-              expect { sprint_controller.list_sprints }.to output(expected_sprint_table).to_stdout
-            end
+          it "list the matching sprints as a table" do
+            allow(Sprint).to receive_messages(
+              to_table_row_header: ["Sprint", "Length In Days", "Start Date", "End Date",
+                                    "Board Column1", "Board Column2"]
+            )
+            expect { sprint_controller.list_sprints }.to output(expected_sprint_table).to_stdout
+          end
+
+          it "can be called so that the board information is excluded" do
+            allow(Sprint).to receive(:to_table_row_header).with(without_board_information: true).and_return([:name])
+
+            # rubocop:disable RSpec / MessageExpectation
+            expect(matching_sprints).to all receive(:to_table_row).with(without_board_information: true) # rubocop:disable RSpec/MessageSpies
+            # rubocop:enable RSpec / MessageExpectation
+
+            sprint_controller.list_sprints(without_board_information: true)
           end
         end
 
@@ -172,9 +190,7 @@ module Jira
           end
 
           def new_sprints(jira_sprints)
-            jira_sprints.collect do |jira_sprint|
-              Sprint.new(jira_sprint)
-            end
+            jira_sprints.collect { |jira_sprint| Sprint.new(tool, jira_sprint) }
           end
 
           let(:e2e_jira_sprints) do
@@ -221,52 +237,54 @@ module Jira
           end
         end
 
+        describe "#sprint_compatible_boards" do
+          let(:boards) do
+            [
+              ["scrum board_1", true],
+              ["kanban board_2", false],
+              ["scrum board_3", true],
+              ["simple board_4", false]
+            ].collect do |name, sprint_compatible|
+              instance_double(Board, name: name, sprint_compatible?: sprint_compatible)
+            end
+          end
+
+          before { allow(sprint_controller).to receive_messages(boards: boards) }
+
+          it { expect(sprint_controller.sprint_compatible_boards).to all be_sprint_compatible }
+        end
+
         describe "#unfiltered_jira_sprints" do
           it "deals with JIRA::Resource pagination" do
             allow(sprint_controller)
-              .to receive(:fetch_jira_sprints).with(50, 0).and_return(%w[sprint_1 sprint_2])
+              .to receive(:fetch_jira_sprints).with(board, 50, 0).and_return(%w[sprint_1 sprint_2])
 
             allow(sprint_controller)
-              .to receive(:fetch_jira_sprints).with(50, 50).and_return(%w[sprint_3 sprint_4])
+              .to receive(:fetch_jira_sprints).with(board, 50, 50).and_return(%w[sprint_3 sprint_4])
 
             allow(sprint_controller)
-              .to receive(:fetch_jira_sprints).with(50, 100).and_return([])
+              .to receive(:fetch_jira_sprints).with(board, 50, 100).and_return([])
 
-            expect(sprint_controller.unfiltered_jira_sprints).to eq(%w[sprint_1 sprint_2 sprint_3 sprint_4])
+            expect(sprint_controller.unfiltered_jira_sprints(board)).to eq(%w[sprint_1 sprint_2 sprint_3 sprint_4])
           end
         end
 
         describe "#fetch_jira_sprints" do
-          let(:sprint_query) { double("sprint_query", all: %w[sprint_1 sprint_2]) } # rubocop:disable RSpec/VerifiedDoubles
-
-          let(:jira_client) { instance_double(JIRA::Client, Sprint: sprint_query) }
+          let(:jira_board) { jira_resource_double(JIRA::Resource::Board, sprints: []) }
 
           before do
-            allow(tool).to receive_messages(jira_client: jira_client)
+            allow(board).to receive_messages(jira_board: jira_board)
           end
 
           it "gets the next batch of sprints" do
-            sprint_controller.fetch_jira_sprints(512, 1024)
+            sprint_controller.fetch_jira_sprints(board, 512, 1024)
 
-            expect(sprint_query).to have_received(:all).with(maxResults: 512, startAt: 1024)
+            expect(jira_board).to have_received(:sprints).with(maxResults: 512, startAt: 1024)
           end
-
-          # rubocop:disable RSpec/MultipleMemoizedHelpers:
-          context "when no more sprints are available" do
-            let(:response) { instance_double(Net::HTTPResponse, message: "null for uri:") }
-
-            before do
-              allow(sprint_query).to receive(:all).and_raise(JIRA::HTTPError, response)
-            end
-
-            it "returns an empty array" do
-              expect(sprint_controller.fetch_jira_sprints(50, 4096)).to eq([])
-            end
-          end
-          # rubocop:enable RSpec/MultipleMemoizedHelpers:
         end
       end
     end
+
     # rubocop:enable Metrics/ClassLength
   end
 end

@@ -6,7 +6,6 @@ require "jira/auto/tool/until_date"
 module Jira
   module Auto
     class Tool
-      # rubocop:disable  Metrics/ClassLength RSpec/MultipleMemoizedHelpers
       class Sprint
         RSpec.describe Prefix do
           def new_prefix(name, sprints = [])
@@ -153,7 +152,5 @@ module Jira
         end
       end
     end
-
-    # rubocop:enable  Metrics/ClassLength RSpec/MultipleMemoizedHelpers
   end
 end

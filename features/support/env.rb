@@ -6,11 +6,19 @@ module JiraSprintToolWorld
   end
 
   def remove_existing_sprints(jira_auto_tool)
-    jira_auto_tool.sprint_controller.jira_sprints.each(&:delete)
+    sprints = jira_auto_tool.board.sprints
+
+    log.debug { "Removing sprints from board #{jira_auto_tool.board.name}:  #sprints = #{sprints.size}" }
+
+    sprints.each(&:delete)
   end
 
   def remove_existing_board_tickets(jira_auto_tool)
-    jira_auto_tool.jira_client.Issue.jql("project = #{jira_auto_tool.board.project.fetch("key")}").each(&:delete)
+    tickets = jira_auto_tool.jira_client.Issue.jql("project = #{jira_auto_tool.board.project.fetch("key")}")
+
+    log.debug { "Removing tickets from board #{jira_auto_tool.board.name}:  #tickets = #{tickets.size}" }
+
+    tickets.each(&:delete)
   end
 end
 

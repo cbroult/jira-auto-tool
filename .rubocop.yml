@@ -9,8 +9,14 @@ RSpec/ExampleLength:
   Enabled: true
   Max: 10
 
+Metrics/ClassLength:
+  Max: 150
+
 Style/Documentation:
   Enabled: false # TODO - reenable
+
+Layout/EndOfLine:
+  Enabled: false
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
