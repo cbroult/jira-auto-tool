@@ -59,7 +59,7 @@ module Jira
           end
 
           describe "#sprint_compatible?" do
-            context "when sprints are available" do
+            context "when a scrum board" do
               let(:jira_board) { jira_resource_double(JIRA::Resource::Board, type: "scrum") }
 
               it { expect(board).to be_sprint_compatible }

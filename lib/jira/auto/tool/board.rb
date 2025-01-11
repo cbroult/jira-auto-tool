@@ -62,7 +62,7 @@ module Jira
         end
 
         def sprint_compatible?
-          jira_board.type == "scrum"
+          jira_board.type =~ /^(scrum)$/
         end
 
         def url

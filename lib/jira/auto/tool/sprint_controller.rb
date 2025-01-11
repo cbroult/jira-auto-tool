@@ -141,7 +141,8 @@ module Jira
           fetched_sprints = board.jira_board.sprints(maxResults: max_results, startAt: start_at)
 
           log.debug do
-            "Fetched #sprints #{fetched_sprints.size} sprints from Jira: #{fetched_sprints.map(&:name).join(", ")}"
+            "Board: #{board.name}: Fetched #sprints #{fetched_sprints.size} sprints from Jira: "\
+              "#{fetched_sprints.map(&:name).join(", ")}"
           end
 
           fetched_sprints
