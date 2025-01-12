@@ -32,11 +32,11 @@ module Jira
         end
 
         def start_date
-          parse_date(startDate)
+          parse_date(jira_sprint.startDate)
         end
 
         def end_date
-          parse_date(endDate)
+          parse_date(jira_sprint.endDate)
         end
 
         def state
@@ -53,6 +53,8 @@ module Jira
 
         def board
           @board ||= Board.find_by_id(tool, origin_board_id)
+        rescue StandardError => e
+          raise e.class, "#{e.class}: sprint #{name.inspect}: #{e.message}"
         end
 
         def jira_client
@@ -93,6 +95,8 @@ module Jira
           row.concat(board.to_table_row) unless without_board_information
 
           row
+        rescue StandardError => e
+          raise e.class, "#{e.class}: sprint #{name.inspect}: #{e.message}:\n#{self.inspect}"
         end
 
         private
