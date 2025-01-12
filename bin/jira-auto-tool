@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-ENABLE_RATE_LIMITING = true
-
 GEM_ROOT = File.expand_path("..", __dir__)
 LIBRARY_PATH = File.join(GEM_ROOT, "lib")
 $LOAD_PATH.unshift(LIBRARY_PATH)
@@ -59,12 +57,8 @@ option_parser = OptionParser.new do |parser|
   Jira::Auto::Tool::TeamSprintPrefixMapper::Options.add(tool, parser)
 end
 
-unless ENABLE_RATE_LIMITING
-  option_parser.parse!
-else
-  rate_limiter = Ratelimit.new(:jira_auto_tool_api_requests, interval: 1, limit: 1)
+rate_limiter = Ratelimit.new(:jira_auto_tool_api_requests, interval: 1, limit: 1)
 
-  rate_limiter.exec_within_threshold(:jira_auto_tool_api_requests) do
-    option_parser.parse!
-  end
+rate_limiter.exec_within_threshold(:jira_auto_tool_api_requests) do
+  option_parser.parse!
 end
