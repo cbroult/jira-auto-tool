@@ -22,12 +22,32 @@ jobs:
         ruby:
           - '3.4.1'
 
+    env:
+      REDIS_PORT: 6379
+
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - ${{ env.REDIS_PORT }}:${{ env.REDIS_PORT }}
+#        options: >-
+#          --requirepass secret_password
+
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
+
+     - name: Test Redis Connection
+     run: |
+       redis-cli -p ${{ env.REDIS_PORT }} ping
+
     - name: Run the default task
+      env:
+        REDIS_HOST: localhost
+        REDIS_PORT: ${{ env.REDIS_PORT }}
       run: bundle exec rake
