@@ -29,6 +29,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install Redis CLI
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y redis-tools
+        
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -36,7 +41,7 @@ jobs:
         bundler-cache: true
 
     - name: Test Redis Connection
-      run: redis-cli -p $REDIS_PORT ping
+      run: redis-cli ping
 
     - name: Run the default task
       run: bundle exec rake
