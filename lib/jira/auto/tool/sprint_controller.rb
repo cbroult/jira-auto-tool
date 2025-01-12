@@ -38,10 +38,7 @@ module Jira
         end
 
         def unclosed_sprint_prefixes
-          @unclosed_sprint_prefixes ||= unclosed_sprints.each_with_object({}) do |sprint, prefixes|
-            prefix = prefixes[sprint.name_prefix] ||= Sprint::Prefix.new(sprint.name_prefix)
-            prefix << sprint
-          end.values
+          @unclosed_sprint_prefixes ||= calculate_unclosed_sprint_prefixes
         end
 
         def unclosed_sprint_exist?
@@ -109,6 +106,7 @@ module Jira
         end
 
         PAGE_SIZE = 50
+
         def unfiltered_jira_sprints(board)
           all_jira_sprints = []
           start_at = 0
@@ -146,6 +144,22 @@ module Jira
 
         def unclosed_sprints
           sprints.find_all { |sprint| sprint.state != SprintStateController::SprintState::CLOSED }
+        end
+
+        private
+
+        def calculate_unclosed_sprint_prefixes
+          unclosed_sprints.each_with_object({}) do |sprint, prefixes|
+            if Sprint::Name.respects_naming_convention?(sprint.name)
+              prefix = prefixes[sprint.name_prefix] ||= Sprint::Prefix.new(sprint.name_prefix)
+              prefix << sprint
+            else
+              log.warn do
+                "IGNORING sprint '#{sprint.name}' (board '#{board.name}'): " \
+                  "it does not respect the naming conventions #{Sprint::Name::SPRINT_NAME_REGEX}."
+              end
+            end
+          end.values
         end
       end
     end

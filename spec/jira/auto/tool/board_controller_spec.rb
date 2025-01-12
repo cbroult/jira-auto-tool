@@ -14,20 +14,28 @@ module Jira
               jira_resource_double(JIRA::Resource::Board, name:, project_key:, url:)
             end
           end
-          let(:expected_boards) { board_info.collect { |name, project_key, url| build_board(name, project_key, url) } }
+
+          let(:expected_boards) do
+            board_info.collect do |name, project_key, url, with_project_information|
+              build_board(name, project_key, url, with_project_information: with_project_information)
+            end
+          end
+
           let(:tool) { instance_double(Tool, jira_client: jira_client) }
           let(:board_controller) { described_class.new(tool) }
 
           let(:board_info) do
             [
-              ["Board 1", "ART", "https://jira.example.com/projects/ART/boards/1"],
-              ["Board 2", "ART", "https://jira.example.com/projects/ART/boards/2"],
-              ["Board 3", "TOOL", "https://jira.example.com/projects/TOOL/boards/3"]
+              ["Board 1", "ART", "https://jira.example.com/projects/ART/boards/1", true],
+              ["Board 2", "ART", "https://jira.example.com/projects/ART/boards/2", true],
+              ["Board 3", "TOOL", "https://jira.example.com/projects/TOOL/boards/3", true],
+              ["Board 4", "N/A", "https://jira.example.com/projects/TOOL/boards/4", false]
             ]
           end
 
-          def build_board(name, project_key, ui_url)
-            instance_double(Board, name:, project_key:, ui_url:)
+          def build_board(name, project_key, ui_url, with_project_information: true)
+            instance_double(Board, name:, project_key:, ui_url:, with_project_information?: with_project_information,
+                                   inspect: name)
           end
 
           describe "#list_boards" do
@@ -41,6 +49,7 @@ module Jira
                 | ART         | Board 1 | https://jira.example.com/projects/ART/boards/1  |
                 | ART         | Board 2 | https://jira.example.com/projects/ART/boards/2  |
                 | TOOL        | Board 3 | https://jira.example.com/projects/TOOL/boards/3 |
+                | N/A         | Board 4 | https://jira.example.com/projects/TOOL/boards/4 |
                 +-------------+---------+-------------------------------------------------+
               EOBL
             end
@@ -69,15 +78,12 @@ module Jira
 
             context "when using board name filtering" do
               context "when a board name regex is specified" do
-                let(:board_name_regex) { "1|2" }
-                let(:board_expected_to_be_excluded) do
-                  build_board("Board 3", "ART", "https://jira.example.com/projects/ART/boards/3")
-                end
+                let(:board_name_regex) { "1|3" }
 
-                it { expect(board_controller.boards).to eq(expected_boards.find_all { |b| b.name != "Board 3" }) }
+                it { expect(board_controller.boards).to eq(expected_boards.find_all { |b| b.name !~ /Board (2|4)/ }) }
               end
 
-              context "when no project key is specified" do
+              context "when no board name regex is specified" do
                 it { expect(board_controller.boards).to eq(expected_boards) }
               end
             end
@@ -90,6 +96,7 @@ module Jira
                 end
 
                 it { expect(board_controller.boards).to eq(expected_boards.find_all { |b| b.name != "Board 3" }) }
+                it { expect(board_controller.boards).not_to include(board_expected_to_be_excluded) }
               end
 
               context "when no project key is specified" do

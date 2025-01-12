@@ -22,6 +22,10 @@ module Jira
             (\d+)                                        # index in quarter
             $/x
 
+          def self.respects_naming_convention?(name_string)
+            SPRINT_NAME_REGEX.match? name_string
+          end
+
           def self.parse(name_string)
             name_string =~ SPRINT_NAME_REGEX ||
               raise(NameConventionError,

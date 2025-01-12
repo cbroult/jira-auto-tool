@@ -24,24 +24,36 @@ module Jira
         end
 
         def boards
+          log.debug { caller_locations.join("\n") }
+
           boards_to_filter = unfiltered_boards
 
-          boards_to_filter =
-            if tool.jira_board_name_regex_defined?
-              board_name_regex = Regexp.new(tool.jira_board_name_regex)
+          named_filtered_boards = apply_board_name_filter(boards_to_filter)
 
-              boards_to_filter.find_all { |board| board.name =~ board_name_regex }
-            else
-              boards_to_filter
-            end
-
-          return boards_to_filter unless tool.jira_project_key_defined?
-
-          boards_to_filter.find_all { |board| board.project_key == tool.jira_project_key }
+          apply_project_key_filter(named_filtered_boards)
         end
 
         def unfiltered_boards
-          jira_client.Board.all.collect { |board| Board.new(tool, board) }
+          @unfiltered_boards ||= jira_client.Board.all.collect { |board| Board.new(tool, board) }
+        end
+
+        private
+
+        def apply_project_key_filter(boards_to_filter)
+          return boards_to_filter unless tool.jira_project_key_defined?
+
+          boards_to_filter.find_all do |board|
+            !board.with_project_information? ||
+              board.project_key == tool.jira_project_key
+          end
+        end
+
+        def apply_board_name_filter(boards_to_filter)
+          return boards_to_filter unless tool.jira_board_name_regex_defined?
+
+          board_name_regex = Regexp.new(tool.jira_board_name_regex)
+
+          boards_to_filter.find_all { |board| board.name =~ board_name_regex }
         end
       end
     end

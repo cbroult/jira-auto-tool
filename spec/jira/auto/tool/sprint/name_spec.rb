@@ -23,6 +23,20 @@ module Jira
             end
           end
 
+          # rubocop:disable RSpec/PredicateMatcher
+          describe ".respects_naming_convention?" do
+            it "returns true if the sprint name is according to convention" do
+              expect(described_class.respects_naming_convention?("ART_Team_24.4.5"))
+                .to be_truthy
+            end
+
+            it "returns false if the sprint name is not according to convention" do
+              expect(described_class.respects_naming_convention?("name ignoring naming convention"))
+                .to be_falsey
+            end
+          end
+          # rubocop:enable RSpec/PredicateMatcher
+
           describe ".build" do
             it "builds the expected name" do
               expect(described_class.build("ART_Team", 25, 2, 3)).to eq("ART_Team_25.2.3")

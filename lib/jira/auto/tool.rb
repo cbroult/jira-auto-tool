@@ -106,11 +106,11 @@ module Jira
       end
 
       def board_controller
-        BoardController.new(self)
+        @board_controller ||= BoardController.new(self)
       end
 
       def sprint_controller
-        SprintController.new(self, board)
+        @sprint_controller ||= SprintController.new(self, board)
       end
 
       def project_ticket_fields
