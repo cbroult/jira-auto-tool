@@ -11,6 +11,7 @@ env:
   JIRA_BOARD_NAME:  "JATCIGALX - Supply"
   JIRA_BOARD_NAME_REGEX: "JATCIGALX"
   SPRINT_FIELD_NAME: "Sprint"
+  REDIS_HOST: localhost
   REDIS_PORT: 6379
 
 jobs:
@@ -27,9 +28,7 @@ jobs:
       redis:
         image: redis:alpine
         ports:
-          - ${{ env.REDIS_PORT }}:${{ env.REDIS_PORT }}
-#        options: >-
-#          --requirepass secret_password
+          - ${{ env.REDIS_PORT }}:6379
 
     steps:
     - uses: actions/checkout@v4
@@ -44,7 +43,4 @@ jobs:
       run: redis-cli -p $REDIS_PORT ping
 
     - name: Run the default task
-      env:
-        REDIS_HOST: localhost
-        REDIS_PORT: ${{ env.REDIS_PORT }}
       run: bundle exec rake
