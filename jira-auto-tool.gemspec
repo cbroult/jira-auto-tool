@@ -41,6 +41,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "jira-ruby"
   spec.add_dependency "logging"
   spec.add_dependency "ostruct"
+  spec.add_dependency "ratelimit"
+  spec.add_dependency "redis"
   spec.add_dependency "reline"
   spec.add_dependency "syslog"
   spec.add_dependency "terminal-table"

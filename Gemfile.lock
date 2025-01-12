@@ -26,6 +26,8 @@ PATH
       jira-ruby
       logging
       ostruct
+      ratelimit
+      redis
       reline
       syslog
       terminal-table
@@ -155,9 +157,18 @@ GEM
     racc (1.8.1)
     rainbow (3.1.1)
     rake (13.2.1)
+    ratelimit (1.1.0)
+      redis (>= 3.0.0)
+      redis-namespace (>= 1.0.0)
     rb-fsevent (0.11.2)
     rb-inotify (0.11.1)
       ffi (~> 1.0)
+    redis (5.3.0)
+      redis-client (>= 0.22.0)
+    redis-client (0.23.0)
+      connection_pool
+    redis-namespace (1.11.0)
+      redis (>= 4)
     regexp_parser (2.10.0)
     reline (0.6.0)
       io-console (~> 0.5)

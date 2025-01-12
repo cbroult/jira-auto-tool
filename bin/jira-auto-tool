@@ -24,6 +24,8 @@ require "jira/auto/tool/team_sprint_prefix_mapper/options"
 
 require "optparse"
 require "optparse/date"
+require 'ratelimit'
+require 'redis'
 
 DISPLAY_HELP_OPTION = "--help"
 
@@ -31,7 +33,7 @@ ARGV << DISPLAY_HELP_OPTION if ARGV.empty?
 
 tool = Jira::Auto::Tool.new
 
-OptionParser.new do |parser|
+option_parser = OptionParser.new do |parser|
   parser.banner = <<~EOBANNER
     Usage: #{File.basename(__FILE__)} [options]*
 
@@ -50,4 +52,13 @@ OptionParser.new do |parser|
   Jira::Auto::Tool::SprintController::Options.add(tool, parser)
   Jira::Auto::Tool::TeamSprintPrefixMapper::Options.add(tool, parser)
 end
-            .parse!
+
+
+#redis = Redis.new
+
+rate_limiter = Ratelimit.new(:jira_auto_tool_api_requests, interval: 1, limit: 1)
+#backend: Ratelimit::RedisClient.new(redis))
+
+rate_limiter.exec_within_threshold(:jira_auto_tool_api_requests) do
+  option_parser.parse!
+end
