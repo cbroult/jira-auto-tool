@@ -8,8 +8,8 @@ module Jira
       class BoardController
         class Options
           def self.add(tool, parser)
-            parser.on("--board-list",
-                      "List boards. The output can be controlled via the JIRA_PROJECT_KEY environment variable") do
+            parser.on("--board-list", "List boards. The output can be controlled via the " \
+              "#{Tool::Environment::JIRA_BOARD_NAME_REGEX} environment variable") do
               tool.board_controller.list_boards
             end
           end

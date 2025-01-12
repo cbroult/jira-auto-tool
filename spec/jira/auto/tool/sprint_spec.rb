@@ -39,12 +39,40 @@ module Jira
             it { expect(sprint.length_in_days).to eq(4) }
           end
 
+          shared_examples "an optional date" do |date_method, jira_field:, expected_value:|
+            it { expect(sprint.send(date_method)).to eq(Time.parse(expected_value).utc) }
+
+            context "when the date fieldsprint has no start date" do
+              before do
+                allow(jira_sprint).to receive(:respond_to?).with(jira_field).and_return(false)
+              end
+
+              it("handles missing date information") { expect(sprint.send(date_method)).to eq(Sprint::UNDEFINED_DATE) }
+            end
+          end
+
           describe "#start_date" do
-            it { expect(sprint.start_date).to eq(Time.parse("2024-12-27 13:00 UTC").utc) }
+            it_behaves_like "an optional date",
+                            :start_date, jira_field: :startDate, expected_value: "2024-12-27 13:00 UTC"
           end
 
           describe "#end_date" do
-            it { expect(sprint.end_date).to eq(Time.parse("2024-12-31 13:00 UTC").utc) }
+            it_behaves_like "an optional date",
+                            :end_date, jira_field: :endDate, expected_value: "2024-12-31 13:00 UTC"
+          end
+
+          describe "#missing_dates?" do
+            def new_sprint(start_date: Sprint::UNDEFINED_DATE, end_date: Sprint::UNDEFINED_DATE)
+              allow(sprint).to receive_messages(start_date: start_date, end_date: end_date)
+
+              sprint
+            end
+
+            it { expect(new_sprint).to be_missing_dates }
+            it { expect(new_sprint(start_date: Time.now)).to be_missing_dates }
+            it { expect(new_sprint(end_date: Time.now.tomorrow)).to be_missing_dates }
+
+            it { expect(new_sprint(start_date: Time.now, end_date: Time.now + 14.days)).not_to be_missing_dates }
           end
 
           describe "#state" do
@@ -122,6 +150,12 @@ module Jira
           end
 
           let(:abc_sprint) { new_sprint_named("abc name_24.4.9") }
+          let(:sprint_with_missing_date) do
+            new_sprint_named("name that should last_24.4.9",
+                             end_date: Sprint::UNDEFINED_DATE.utc.to_s)
+          end
+
+          it { expect(sprint_with_missing_date).to be < abc_sprint }
 
           it { expect(abc_sprint).to eq new_sprint_named("abc name_24.4.9") }
           it { expect(abc_sprint).to be < new_sprint_named("xyz name_24.4.9") }

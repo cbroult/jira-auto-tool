@@ -109,7 +109,6 @@ module Jira
         end
 
         PAGE_SIZE = 50
-        # rubocop:disable Metrics/MethodLength
         def unfiltered_jira_sprints(board)
           all_jira_sprints = []
           start_at = 0
@@ -132,16 +131,13 @@ module Jira
           all_jira_sprints
         end
 
-        # rubocop:enable Metrics/MethodLength
-        NULL_FOR_URI_RESPONSE_REGEX = /null for uri:|Not Found/
-
         def fetch_jira_sprints(board, max_results, start_at)
           log.debug { "Fetching sprints from Jira (max_results: #{max_results}, start_at: #{start_at})" }
 
           fetched_sprints = board.jira_board.sprints(maxResults: max_results, startAt: start_at)
 
           log.debug do
-            "Board: #{board.name}: Fetched #sprints #{fetched_sprints.size} sprints from Jira: "\
+            "Board: #{board.name}: Fetched #sprints #{fetched_sprints.size} sprints from Jira: " \
               "#{fetched_sprints.map(&:name).join(", ")}"
           end
 

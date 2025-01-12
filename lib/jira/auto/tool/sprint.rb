@@ -32,11 +32,23 @@ module Jira
         end
 
         def start_date
-          parse_date(jira_sprint.startDate)
+          get_optional_date :startDate
         end
 
         def end_date
-          parse_date(jira_sprint.endDate)
+          get_optional_date :endDate
+        end
+
+        UNDEFINED_DATE = Time.new(1970, 1, 1, 0, 0, 0, "UTC")
+
+        def get_optional_date(jira_field_id)
+          return UNDEFINED_DATE unless jira_sprint.respond_to?(jira_field_id)
+
+          parse_date(jira_sprint.send(jira_field_id))
+        end
+
+        def missing_dates?
+          start_date == UNDEFINED_DATE || end_date == UNDEFINED_DATE
         end
 
         def state
@@ -53,8 +65,6 @@ module Jira
 
         def board
           @board ||= Board.find_by_id(tool, origin_board_id)
-        rescue StandardError => e
-          raise e.class, "#{e.class}: sprint #{name.inspect}: #{e.message}"
         end
 
         def jira_client
@@ -96,7 +106,7 @@ module Jira
 
           row
         rescue StandardError => e
-          raise e.class, "#{e.class}: sprint #{name.inspect}: #{e.message}:\n#{self.inspect}"
+          raise e.class, "#{e.class}: sprint #{name.inspect}: #{e.message}:\n#{inspect}"
         end
 
         private

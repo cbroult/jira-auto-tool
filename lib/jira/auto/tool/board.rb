@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "jira/auto/tool"
+require "jira/auto/tool/board/unavailable_board"
 
 module Jira
   module Auto
@@ -11,7 +11,22 @@ module Jira
         attr_reader :tool, :jira_board
 
         def self.find_by_id(tool, id)
-          new(tool, JIRA::Resource::Board.find(tool.jira_client, id))
+          cached_boards[id] ||=
+            begin
+              new(tool, JIRA::Resource::Board.find(tool.jira_client, id))
+            rescue JIRA::HTTPError => e
+              if e.code.to_i == 404
+                UnavailableBoard.new(tool, id)
+              else
+                raise e.class,
+                      "#{e.class}: code = #{e.code.inspect}: #{self.class}.find_by_id(tool, #{id.inspect}): " \
+                      "#{e.message}"
+              end
+            end
+        end
+
+        def self.cached_boards
+          @cached_boards ||= {}
         end
 
         def initialize(tool, jira_board)
@@ -21,6 +36,10 @@ module Jira
 
         def id
           jira_board.id
+        end
+
+        def unavailable?
+          instance_of?(UnavailableBoard)
         end
 
         def <=>(other)
@@ -39,6 +58,7 @@ module Jira
           inflect.acronym "UI" # Protects 'UI'
           inflect.acronym "URL" # Protects 'URL'
         end
+
         def self.to_table_row_header
           to_table_row_field_names.collect { |field| field.to_s.titleize }
         end

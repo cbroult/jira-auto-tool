@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+ENABLE_RATE_LIMITING = true
+
 GEM_ROOT = File.expand_path("..", __dir__)
 LIBRARY_PATH = File.join(GEM_ROOT, "lib")
 $LOAD_PATH.unshift(LIBRARY_PATH)
@@ -24,8 +26,8 @@ require "jira/auto/tool/team_sprint_prefix_mapper/options"
 
 require "optparse"
 require "optparse/date"
-require 'ratelimit'
-require 'redis'
+require "ratelimit"
+require "redis"
 
 DISPLAY_HELP_OPTION = "--help"
 
@@ -44,6 +46,10 @@ option_parser = OptionParser.new do |parser|
     exit
   end
 
+  parser.on("--[no-]jira-http-debug", "Enable or disable HTTP debug mode") do |v|
+    tool.jira_http_debug = v
+  end
+
   parser.on("--board-name=STRING", String) do |board_name|
     tool.jira_board_name = board_name
   end
@@ -53,12 +59,12 @@ option_parser = OptionParser.new do |parser|
   Jira::Auto::Tool::TeamSprintPrefixMapper::Options.add(tool, parser)
 end
 
-
-#redis = Redis.new
-
-rate_limiter = Ratelimit.new(:jira_auto_tool_api_requests, interval: 1, limit: 1)
-#backend: Ratelimit::RedisClient.new(redis))
-
-rate_limiter.exec_within_threshold(:jira_auto_tool_api_requests) do
+unless ENABLE_RATE_LIMITING
   option_parser.parse!
+else
+  rate_limiter = Ratelimit.new(:jira_auto_tool_api_requests, interval: 1, limit: 1)
+
+  rate_limiter.exec_within_threshold(:jira_auto_tool_api_requests) do
+    option_parser.parse!
+  end
 end

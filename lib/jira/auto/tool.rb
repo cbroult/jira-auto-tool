@@ -68,7 +68,11 @@ module Jira
                            site: jira_site_url,
                            context_path: jira_context_path_when_defined_else(""),
                            auth_type: :basic,
-                           http_debug: false
+                           http_debug: if defined?(@jira_http_debug)
+                                         @jira_http_debug
+                                       else
+                                         jira_http_debug_defined? && jira_http_debug =~ /true|yes|1/i
+                                       end
                          })
       end
 
@@ -92,6 +96,7 @@ module Jira
         jira_board_name
         jira_board_name_regex
         jira_context_path
+        jira_http_debug
         jira_project_key
         jira_site_url
         jira_username

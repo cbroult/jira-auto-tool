@@ -184,6 +184,7 @@ module Jira
           jira_board_name
           jira_board_name_regex
           jira_context_path
+          jira_http_debug
           jira_project_key
           jira_site_url jira_username
           jira_sprint_field_name
@@ -237,7 +238,8 @@ module Jira
             allow(tool)
               .to receive_messages(jira_username: "jira_username_value", jira_site_url: "https://jira_site_url_value",
                                    jira_api_token: "jira_api_token_value",
-                                   jira_context_path_when_defined_else: "/context_path_value")
+                                   jira_context_path_when_defined_else: "/context_path_value",
+                                   jira_http_debug: false)
 
             expected_jira_client = instance_double(JIRA::Client)
 

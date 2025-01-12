@@ -6,9 +6,9 @@ module JiraSprintToolWorld
   end
 
   def remove_existing_sprints(jira_auto_tool)
-    sprints = jira_auto_tool.board.sprints
+    sprints = jira_auto_tool.sprint_controller.sprints
 
-    log.debug { "Removing sprints from board #{jira_auto_tool.board.name}:  #sprints = #{sprints.size}" }
+    log.debug { "Removing sprints #sprints = #{sprints.size}" }
 
     sprints.each(&:delete)
   end

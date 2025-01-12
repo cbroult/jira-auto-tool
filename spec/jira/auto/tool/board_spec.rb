@@ -40,6 +40,27 @@ module Jira
             end
 
             it { expect(described_class.find_by_id(tool, 4)).to eq(board) }
+
+            it "deals with non available boards" do
+              allow(JIRA::Resource::Board)
+                .to receive(:find).with(jira_client, 16)
+                                  .and_raise(JIRA::HTTPError.new(instance_double(Net::HTTPResponse, code: "404")))
+
+              expect(described_class.find_by_id(tool, 16)).to eq(Board::UnavailableBoard.new(tool, 16))
+            end
+
+            it "caches the boards" do
+              allow(JIRA::Resource::Board).to receive(:find).with(jira_client, 4).and_return(jira_board).once
+
+              bord_on_1st_call = described_class.find_by_id(tool, 4)
+
+              expect(described_class.find_by_id(tool, 4)).to be(bord_on_1st_call)
+            end
+          end
+
+          describe "#unavailable?" do
+            it { expect(board).not_to be_unavailable }
+            it { expect(UnavailableBoard.new(tool, 512)).to be_unavailable }
           end
 
           describe ".to_table_row_field_names" do

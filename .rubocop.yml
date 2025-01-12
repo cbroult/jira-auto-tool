@@ -12,6 +12,9 @@ RSpec/ExampleLength:
 Metrics/ClassLength:
   Max: 150
 
+Metrics/MethodLength:
+  Max: 12
+
 Style/Documentation:
   Enabled: false # TODO - reenable
 
