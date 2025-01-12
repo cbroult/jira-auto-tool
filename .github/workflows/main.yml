@@ -11,6 +11,7 @@ env:
   JIRA_BOARD_NAME:  "JATCIGALX - Supply"
   JIRA_BOARD_NAME_REGEX: "JATCIGALX"
   SPRINT_FIELD_NAME: "Sprint"
+  REDIS_PORT: 6379
 
 jobs:
   build:
@@ -21,9 +22,6 @@ jobs:
       matrix:
         ruby:
           - '3.4.1'
-
-    env:
-      REDIS_PORT: 6379
 
     services:
       redis:
@@ -43,7 +41,7 @@ jobs:
         bundler-cache: true
 
     - name: Test Redis Connection
-      run: redis-cli -p ${{ env.REDIS_PORT }} ping
+      run: redis-cli -p $REDIS_PORT ping
 
     - name: Run the default task
       env:
