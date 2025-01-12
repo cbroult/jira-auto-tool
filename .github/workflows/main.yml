@@ -11,6 +11,7 @@ env:
   JIRA_BOARD_NAME:  "JATCIGALX - Supply"
   JIRA_BOARD_NAME_REGEX: "JATCIGALX"
   SPRINT_FIELD_NAME: "Sprint"
+  REDIS_PORT: 6379
 
 jobs:
   build:
@@ -25,6 +26,8 @@ jobs:
     services:
       redis:
         image: redis:alpine
+        ports:
+          - "6379:6379"
 
     steps:
     - uses: actions/checkout@v4
@@ -38,8 +41,8 @@ jobs:
       run: |
         for i in {1..10}; do
           (echo > /dev/tcp/localhost/$REDIS_PORT) >/dev/null 2>&1 && break
-          echo "Waiting for Redis to start..."
-          sleep 3
+          echo "Waiting for Redis to start $i..."
+          sleep 4
         done
         echo "Redis is ready to accept connections on port $REDIS_PORT"
 
@@ -50,7 +53,7 @@ jobs:
         bundler-cache: true
 
     - name: Test Redis Connection
-      run: redis-cli ping
+      run: redis-cli -p $REDIS_PORT ping
 
     - name: Run the default task
       run: bundle exec rake
