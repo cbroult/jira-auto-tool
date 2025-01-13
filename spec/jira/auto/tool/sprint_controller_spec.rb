@@ -141,7 +141,7 @@ module Jira
               ["1st sprint", 14, "2024-05-01", "2024-05-15", "board info 1", "board info 2"],
               ["2nd sprint", 7, "2024-05-15", "2024-05-22", "board info 3", "board info 4"]
             ]
-              .collect { |row_info| instance_double(Sprint, to_table_row: row_info) }
+              .collect { |row_info| instance_double(Sprint, to_table_row: row_info, state: "future") }
           end
 
           let(:expected_sprint_table) do
