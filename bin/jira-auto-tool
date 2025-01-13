@@ -57,7 +57,7 @@ option_parser = OptionParser.new do |parser|
   Jira::Auto::Tool::TeamSprintPrefixMapper::Options.add(tool, parser)
 end
 
-rate_limiter = Ratelimit.new(:jira_auto_tool_api_requests, interval: 60, limit: 30)
+rate_limiter = Ratelimit.new(:jira_auto_tool_api_requests, interval: 4, limit: 1)
 
 rate_limiter.exec_within_threshold(:jira_auto_tool_api_requests) do
   option_parser.parse!
