@@ -56,7 +56,7 @@ module Jira
         end
 
         def list_sprints(without_board_information: false)
-          list_object(Sprint, :sprints, "Matching Sprints",
+          list_object(Sprint, :unclosed_sprints, "Matching Sprints",
                       without_board_information: without_board_information)
         end
 
