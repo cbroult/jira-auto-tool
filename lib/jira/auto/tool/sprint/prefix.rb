@@ -46,7 +46,7 @@ module Jira
 
           def self.to_table_row_header(without_board_information: false)
             sprint_header = Sprint.to_table_row_header(without_board_information: without_board_information)
-            sprint_header[0] = "Last Sprint Name"
+            0.upto(1) { |i| sprint_header[i] = "Last Sprint #{sprint_header[i]}" }
 
             ["Sprint Prefix"].concat(sprint_header)
           end

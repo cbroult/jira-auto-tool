@@ -88,7 +88,7 @@ module Jira
         end
 
         def self.to_table_row_field_names
-          %i[name length_in_days start_date end_date]
+          %i[id name length_in_days start_date end_date]
         end
 
         def self.to_table_row_header(without_board_information: false)

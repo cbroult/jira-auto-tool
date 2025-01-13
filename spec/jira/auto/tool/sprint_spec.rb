@@ -106,18 +106,20 @@ module Jira
 
             it do
               expect(sprint.to_table_row)
-                .to eq(["Food_Supply_24.4.5", 4, "2024-12-27 13:00 UTC", "2024-12-31 13:00 UTC",
+                .to eq([40_820, "Food_Supply_24.4.5", 4, "2024-12-27 13:00 UTC", "2024-12-31 13:00 UTC",
                         "Food Supply Team Board", :url_to_suppply_team_board, "FOOD"])
             end
 
             it "can exclude the board information" do
               expect(sprint.to_table_row(without_board_information: true))
-                .to eq(["Food_Supply_24.4.5", 4, "2024-12-27 13:00 UTC", "2024-12-31 13:00 UTC"])
+                .to eq([40_820, "Food_Supply_24.4.5", 4, "2024-12-27 13:00 UTC", "2024-12-31 13:00 UTC"])
             end
           end
 
           describe ".to_table_row_field_names" do
-            it { expect(described_class.to_table_row_field_names).to eq(%i[name length_in_days start_date end_date]) }
+            it {
+              expect(described_class.to_table_row_field_names).to eq(%i[id name length_in_days start_date end_date])
+            }
           end
 
           describe ".to_table_row_header" do
@@ -127,13 +129,13 @@ module Jira
 
             it do
               expect(described_class.to_table_row_header)
-                .to eq(["Name", "Length In Days", "Start Date", "End Date",
+                .to eq(["Id", "Name", "Length In Days", "Start Date", "End Date",
                         "Board Name", "Board UI URL", "Board Project Key"])
             end
 
             it "can exclude the board information" do
               expect(described_class.to_table_row_header(without_board_information: true))
-                .to eq(["Name", "Length In Days", "Start Date", "End Date"])
+                .to eq(["Id", "Name", "Length In Days", "Start Date", "End Date"])
             end
           end
         end
