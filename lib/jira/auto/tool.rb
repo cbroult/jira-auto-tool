@@ -41,7 +41,7 @@ module Jira
       end
 
       def boards
-        jira_client.Board.all
+        board_controller.boards
       end
 
       def fetch_sprint(sprint_name)

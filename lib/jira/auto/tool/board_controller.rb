@@ -24,8 +24,6 @@ module Jira
         end
 
         def boards
-          log.debug { caller_locations.join("\n") }
-
           boards_to_filter = unfiltered_boards
 
           named_filtered_boards = apply_board_name_filter(boards_to_filter)
