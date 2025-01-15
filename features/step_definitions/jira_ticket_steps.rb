@@ -25,7 +25,7 @@ Given(/^the following tickets exist:$/) do |ticket_table|
     jira_ticket = @jira_auto_tool.jira_client.Issue.build
 
     jira_ticket.save!({ fields: {
-                        project: { key: @jira_auto_tool.board.project.symbolize_keys.fetch(:key) },
+                        project: { key: @jira_auto_tool.board.project_key },
                         summary: ticket_info[:summary],
                         description: ticket_info[:description],
                         issuetype: { name: "Task" },

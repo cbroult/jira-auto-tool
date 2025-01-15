@@ -68,12 +68,16 @@ module Jira
                            site: jira_site_url,
                            context_path: jira_context_path_when_defined_else(""),
                            auth_type: :basic,
-                           http_debug: if defined?(@jira_http_debug)
-                                         @jira_http_debug
-                                       else
-                                         jira_http_debug_defined? && jira_http_debug =~ /true|yes|1/i
-                                       end
+                           http_debug: jira_http_debug?
                          })
+      end
+
+      def jira_http_debug?
+        if defined?(@jira_http_debug)
+          @jira_http_debug
+        else
+          jira_http_debug_defined? && jira_http_debug =~ /^(true|yes|1)$/i
+        end
       end
 
       def jira_request_path(path)
@@ -101,6 +105,7 @@ module Jira
         jira_site_url
         jira_username
         jira_sprint_field_name
+        jira_tickets_for_team_sprint_jql
       ].each do |method_name|
         define_overridable_environment_based_value(method_name)
       end
@@ -155,7 +160,7 @@ module Jira
       end
 
       def project
-        board_project_key = board.project.symbolize_keys.fetch(:key)
+        board_project_key = board.project_key
 
         jira_client.Project.all.find { |project| project.key == board_project_key }
       end

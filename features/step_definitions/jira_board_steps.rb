@@ -5,7 +5,7 @@ Given(/^a Jira Scrum board$/) do
 end
 
 Given(/^the board has no sprint$/) do
-  expect(@board.sprints).to be_empty
+  expect(@board.jira_board.sprints).to be_empty
 end
 
 Given(/^the board has only closed sprints$/) do

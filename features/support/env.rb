@@ -14,7 +14,7 @@ module JiraSprintToolWorld
   end
 
   def remove_existing_board_tickets(jira_auto_tool)
-    tickets = jira_auto_tool.jira_client.Issue.jql("project = #{jira_auto_tool.board.project.fetch("key")}")
+    tickets = jira_auto_tool.jira_client.Issue.jql("project = #{jira_auto_tool.board.project_key}")
 
     log.debug { "Removing tickets from board #{jira_auto_tool.board.name}:  #tickets = #{tickets.size}" }
 

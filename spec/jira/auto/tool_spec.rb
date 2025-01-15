@@ -77,39 +77,26 @@ module Jira
         end
 
         describe "#sprint_controller" do
-          let(:board) do
-            jira_resource_double(JIRA::Resource::Board, sprints: [instance_double(JIRA::Resource::Sprint)])
-          end
-
-          before do
-            allow(tool).to receive_messages(jira_client: instance_double(JIRA::Client))
-            allow(tool).to receive_messages(board: board)
-          end
-
           it { expect(tool.sprint_controller).to be_a(SprintController) }
         end
 
         describe "#project" do
+          let(:board) { instance_double(Board, project_key: "board_project_key") }
+
           before do
             allow(tool)
-              .to receive_messages(
-                board:
-                  jira_resource_double(JIRA::Resource::Board, project: { "key" => "project_key" }),
-                jira_client:
-                  jira_resource_double(
-                    JIRA::Client,
-                    Project: jira_resource_double(
-                      "Project",
-                      all: [jira_resource_double(
-                        JIRA::Resource::Project,
-                        key: "project_key"
-                      )]
-                    )
-                  )
-              )
+              .to receive_messages(board:,
+                                   jira_client:
+                                     jira_resource_double(
+                                       JIRA::Client,
+                                       Project: jira_resource_double(
+                                         "project_query",
+                                         all: [jira_resource_double(JIRA::Resource::Project, key: "board_project_key")]
+                                       )
+                                     ))
           end
 
-          it { expect(tool.project.key).to eq("project_key") }
+          it { expect(tool.project.key).to eq("board_project_key") }
         end
 
         # TODO: move that to environment_based_value_spec
@@ -188,6 +175,7 @@ module Jira
           jira_project_key
           jira_site_url jira_username
           jira_sprint_field_name
+          jira_tickets_for_team_sprint_jql
         ].each do |method_name|
           describe "environment based values" do
             let(:object_with_overridable_value) { tool }
@@ -239,13 +227,50 @@ module Jira
               .to receive_messages(jira_username: "jira_username_value", jira_site_url: "https://jira_site_url_value",
                                    jira_api_token: "jira_api_token_value",
                                    jira_context_path_when_defined_else: "/context_path_value",
-                                   jira_http_debug: false)
+                                   jira_http_debug: "false")
 
             expected_jira_client = instance_double(JIRA::Client)
 
             allow(JIRA::Client).to receive(:new).with(client_options).and_return(expected_jira_client)
 
             expect(tool.jira_client).to equal(expected_jira_client)
+          end
+        end
+
+        describe "#jira_http_debug?" do
+          let(:jira_http_debug_defined?) { true }
+
+          before do
+            allow(tool).to receive_messages(jira_http_debug: jira_http_debug,
+                                            jira_http_debug_defined?: jira_http_debug_defined?)
+          end
+
+          context "when jira_http_debug is overridden with a specific value" do
+            let(:jira_http_debug) { :overridden_value }
+
+            before do
+              tool.jira_http_debug = jira_http_debug
+            end
+
+            it { expect(tool.jira_http_debug?).to eq(:overridden_value) }
+          end
+
+          context "when a true value is set for jira_http_debug" do
+            let(:jira_http_debug) { "true" }
+
+            it { expect(tool).to be_jira_http_debug }
+          end
+
+          context "when jira_http_debug is set to nil" do
+            let(:jira_http_debug) { nil }
+
+            it { expect(tool).not_to be_jira_http_debug }
+          end
+
+          context "when a false value is set for jira_http_debug" do
+            let(:jira_http_debug) { "false" }
+
+            it { expect(tool).not_to be_jira_http_debug }
           end
         end
 

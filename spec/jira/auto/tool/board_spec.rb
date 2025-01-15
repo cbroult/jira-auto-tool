@@ -52,9 +52,9 @@ module Jira
             it "caches the boards" do
               allow(JIRA::Resource::Board).to receive(:find).with(jira_client, 4).and_return(jira_board).once
 
-              bord_on_1st_call = described_class.find_by_id(tool, 4)
+              board_on_1st_call = described_class.find_by_id(tool, 4)
 
-              expect(described_class.find_by_id(tool, 4)).to be(bord_on_1st_call)
+              expect(described_class.find_by_id(tool, 4)).to be(board_on_1st_call)
             end
           end
 
