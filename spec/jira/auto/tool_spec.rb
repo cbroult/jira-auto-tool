@@ -229,9 +229,9 @@ module Jira
                                    jira_context_path_when_defined_else: "/context_path_value",
                                    jira_http_debug: "false")
 
-            expected_jira_client = instance_double(JIRA::Client)
+            expected_jira_client = instance_double(RateLimitedJiraClient)
 
-            allow(JIRA::Client).to receive(:new).with(client_options).and_return(expected_jira_client)
+            allow(RateLimitedJiraClient).to receive(:new).with(client_options).and_return(expected_jira_client)
 
             expect(tool.jira_client).to equal(expected_jira_client)
           end
@@ -276,7 +276,7 @@ module Jira
 
         describe "#project_controller" do
           before do
-            allow(tool).to receive_messages(jira_client: instance_double(JIRA::Client))
+            allow(tool).to receive_messages(jira_client: instance_double(RateLimitedJiraClient))
           end
 
           it { expect(tool.project_controller).to be_a(ProjectController) }
@@ -363,7 +363,7 @@ module Jira
 
           describe "#tickets" do
             let(:query) { jira_resource_double("query", jql: [instance_double(JIRA::Resource::Issue)]) }
-            let(:jira_client) { instance_double(JIRA::Client, Issue: query) }
+            let(:jira_client) { instance_double(RateLimitedJiraClient, Issue: query) }
 
             before do
               allow(tool).to receive_messages(jira_client: jira_client)

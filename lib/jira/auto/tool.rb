@@ -10,6 +10,7 @@ require "jira/auto/tool/jira_ruby_patch/jira/http_client"
 require_relative "tool/board_controller"
 require_relative "tool/helpers/environment_based_value"
 require_relative "tool/project_controller"
+require_relative "tool/rate_limited_jira_client"
 require_relative "tool/request_builder"
 require_relative "tool/setup_logging"
 require_relative "tool/sprint_controller"
@@ -62,14 +63,14 @@ module Jira
       end
 
       def jira_client
-        JIRA::Client.new({
-                           username: jira_username,
-                           password: jira_api_token,
-                           site: jira_site_url,
-                           context_path: jira_context_path_when_defined_else(""),
-                           auth_type: :basic,
-                           http_debug: jira_http_debug?
-                         })
+        RateLimitedJiraClient.new({
+                                    username: jira_username,
+                                    password: jira_api_token,
+                                    site: jira_site_url,
+                                    context_path: jira_context_path_when_defined_else(""),
+                                    auth_type: :basic,
+                                    http_debug: jira_http_debug?
+                                  })
       end
 
       def jira_http_debug?
