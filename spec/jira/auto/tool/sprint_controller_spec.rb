@@ -42,8 +42,8 @@ module Jira
 
           context "when only closed sprint are found" do
             let(:closed_sprints) do
-              ["1st sprint", "2nd sprint"]
-                .collect { |name| double(JIRA::Resource::Sprint, name: name, state: "closed") } # rubocop:disable RSpec/VerifiedDoubles
+              [[1, "1st sprint"], [2, "2nd sprint"]]
+                .collect { |id, name| double(JIRA::Resource::Sprint, id: id, name: name, state: "closed") } # rubocop:disable RSpec/VerifiedDoubles
             end
 
             it "exits with a warning" do
@@ -72,6 +72,40 @@ module Jira
 
               expect(actual_sprint_prefixes).to all have_received(:add_sprint_following_last_one)
             end
+          end
+        end
+
+        describe "#sprints" do
+          let(:jira_sprints) do
+            [
+              [1, "ART-16_E2E-Test_24.4.1"],
+              [2, "ART-16_CRM_24.4.1"],
+              [3, "ART-16_E2E-Test_24.4.2"],
+              [4, "ART-32_Platform_24.4.7"],
+              [5, "ART-32_Sys-Team_24.4.12"],
+              [6, "ART-32_Sys-Team_25.1.1"],
+              [2, "ART-16_CRM_24.4.1"],
+              [3, "ART-16_E2E-Test_24.4.2"]
+            ].collect { |id, name| jira_resource_double(Sprint, id: id, name: name) }
+          end
+
+          before do
+            allow(sprint_controller).to receive_messages(jira_sprints: jira_sprints)
+          end
+
+          it "returns the sprints" do
+            expect(sprint_controller.sprints).to all be_a(Sprint)
+          end
+
+          it "does not return duplicate sprints" do
+            expect(sprint_controller.sprints.collect(&:name)).to eq(%w[
+                                                                      ART-16_E2E-Test_24.4.1
+                                                                      ART-16_CRM_24.4.1
+                                                                      ART-16_E2E-Test_24.4.2
+                                                                      ART-32_Platform_24.4.7
+                                                                      ART-32_Sys-Team_24.4.12
+                                                                      ART-32_Sys-Team_25.1.1
+                                                                    ])
           end
         end
 
@@ -232,9 +266,9 @@ module Jira
         # rubocop:disable RSpec / MultipleMemoizedHelpers
         describe "#unclosed_sprint_prefixes" do
           def new_jira_sprints(name_start_end_trios)
-            name_start_end_trios.collect do |name, start_data, end_date|
+            name_start_end_trios.collect do |id, name, start_data, end_date|
               jira_resource_double(JIRA::Resource::Sprint,
-                                   name: name, startDate: start_data, endDate: end_date, state: "future")
+                                   id: id, name: name, startDate: start_data, endDate: end_date, state: "future")
             end
           end
 
@@ -244,14 +278,14 @@ module Jira
 
           let(:e2e_jira_sprints) do
             new_jira_sprints [
-              ["art_e2e_25.1.2", "2024-12-08", "2024-12-14"]
+              [1, "art_e2e_25.1.2", "2024-12-08", "2024-12-14"]
             ]
           end
 
           let(:sys_jira_sprints) do
             new_jira_sprints [
-              ["art_sys_24.4.8", "2024-12-15", "2024-12-22"],
-              ["art_sys_24.4.9", "2024-12-22", "2024-12-29"]
+              [2, "art_sys_24.4.8", "2024-12-15", "2024-12-22"],
+              [3, "art_sys_24.4.9", "2024-12-22", "2024-12-29"]
             ]
           end
 
