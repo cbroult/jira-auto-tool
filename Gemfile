@@ -17,6 +17,7 @@ group :development do
   gem "fiddle", platform: :mswin
   gem "rubocop-rake", require: false
   gem "rubocop-rspec", require: false
+  gem "simplecov", require: false
   gem "win32ole", platform: :mswin
 
   gem "guard"

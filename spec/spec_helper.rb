@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require "simplecov"
+
 require "jira/auto/tool"
+
+SimpleCov.start
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
