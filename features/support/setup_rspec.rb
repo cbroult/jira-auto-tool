@@ -3,7 +3,6 @@
 require "rspec"
 
 RSpec.configure do |config|
-  # Enable `expect` syntax
   config.expect_with :rspec do |c|
     c.syntax = :expect
     c.max_formatted_output_length = nil
