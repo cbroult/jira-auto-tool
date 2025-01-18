@@ -14,7 +14,6 @@ if DEBUG
 end
 
 require "bundler/setup"
-Bundler.require(:default)
 
 require "active_support/core_ext/object/blank"
 require "jira/auto/tool"
