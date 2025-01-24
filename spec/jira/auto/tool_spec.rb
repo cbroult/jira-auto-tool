@@ -77,6 +77,12 @@ module Jira
         end
 
         describe "#sprint_controller" do
+          let(:board) { instance_double(Board, project_key: "board_project_key") }
+
+          before do
+            allow(tool).to receive_messages(board: board)
+          end
+
           it { expect(tool.sprint_controller).to be_a(SprintController) }
         end
 
@@ -85,7 +91,7 @@ module Jira
 
           before do
             allow(tool)
-              .to receive_messages(board:,
+              .to receive_messages(board: board,
                                    jira_client:
                                      jira_resource_double(
                                        JIRA::Client,
