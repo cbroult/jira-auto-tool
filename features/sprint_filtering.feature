@@ -9,10 +9,10 @@ Feature: Sprint Filtering
       | name                    | length | start                   | state  |
       | ART-16_CRM_24.4.1       | 2-week | 2024-12-01 11:00:00 UTC | closed |
       | ART-16_E2E-Test_24.4.1  | 4-day  | 2024-12-01 11:00:00 UTC | future |
-      | ART-16_E2E-Test_24.4.2  | 4-day  | 2024-12-05 11:00:00 UTC | future |
-      | ART-32_Platform_24.4.7  | 3-week | 2024-10-07 11:00:00 UTC | future |
       | ART-32_Sys-Team_24.4.12 | 1-week | 2024-12-24 11:00:00 UTC | future |
       | ART-32_Sys-Team_25.1.1  | 1-week | 2025-01-07 11:00:00 UTC | future |
+      | ART-16_E2E-Test_24.4.2  | 4-day  | 2024-12-05 11:00:00 UTC | future |
+      | ART-32_Platform_24.4.7  | 3-week | 2024-10-07 11:00:00 UTC | future |
 
 
   Scenario: No filter applied except ignoring closed sprints
@@ -30,9 +30,9 @@ Feature: Sprint Filtering
       .+-------------------------.+
       .+ Name                    .+
       .+-------------------------.+
+      .+ ART-32_Platform_24.4.7  .+
       .+ ART-16_E2E-Test_24.4.1  .+
       .+ ART-16_E2E-Test_24.4.2  .+
-      .+ ART-32_Platform_24.4.7  .+
       .+ ART-32_Sys-Team_24.4.12 .+
       .+ ART-32_Sys-Team_25.1.1  .+
       .+-------------------------.+
@@ -53,9 +53,9 @@ Feature: Sprint Filtering
       .+-------------------------.+
       .+ Name                    .+
       .+-------------------------.+
+      .+ ART-32_Platform_24.4.7  .+
       .+ ART-16_E2E-Test_24.4.1  .+
       .+ ART-16_E2E-Test_24.4.2  .+
-      .+ ART-32_Platform_24.4.7  .+
       .+ ART-32_Sys-Team_24.4.12 .+
       .+ ART-32_Sys-Team_25.1.1  .+
       .+-------------------------.+
@@ -103,8 +103,8 @@ Feature: Sprint Filtering
       .+------------------------.+
       .+ Name                   .+
       .+------------------------.+
-      .+ ART-16_E2E-Test_24.4.1 .+
       .+ ART-32_Platform_24.4.7 .+
+      .+ ART-16_E2E-Test_24.4.1 .+
       .+------------------------.+
       """
 
