@@ -192,22 +192,22 @@ module Jira
         describe "#list_sprint_prefixes" do
           let(:sprint_prefixes) do
             [
-              ["Food_Supply", "Food_Supply_25.2.2", 14, "2024-05-01", "2024-05-15", "board info 1", "board info 2"],
-              ["Food_Supply", "Food_Supply_25.2.3", 7, "2024-05-15", "2024-05-22", "board info 3", "board info 4"]
+              ["Food_Delivery", "Food_Delivery_25.2.3", 7, "2024-05-15", "2024-05-22", "board info 3", "board info 4"],
+              ["Food_Supply", "Food_Supply_25.2.2", 14, "2024-05-01", "2024-05-15", "board info 1", "board info 2"]
             ]
               .collect { |row_info| instance_double(Sprint::Prefix, to_table_row: row_info) }
           end
 
           let(:expected_sprint_prefix_table) do
             <<~END_OF_TABLE
-              +---------------+--------------------+----------------+------------+------------+---------------+---------------+
-              |                                Sprint Prefixes With Corresponding Last Sprints                                |
-              +---------------+--------------------+----------------+------------+------------+---------------+---------------+
-              | Sprint Prefix | Last Sprint Name   | Length In Days | Start Date | End Date   | Board Column1 | Board Column2 |
-              +---------------+--------------------+----------------+------------+------------+---------------+---------------+
-              | Food_Supply   | Food_Supply_25.2.2 | 14             | 2024-05-01 | 2024-05-15 | board info 1  | board info 2  |
-              | Food_Supply   | Food_Supply_25.2.3 | 7              | 2024-05-15 | 2024-05-22 | board info 3  | board info 4  |
-              +---------------+--------------------+----------------+------------+------------+---------------+---------------+
+              +---------------+----------------------+----------------+------------+------------+---------------+---------------+
+              |                                 Sprint Prefixes With Corresponding Last Sprints                                 |
+              +---------------+----------------------+----------------+------------+------------+---------------+---------------+
+              | Sprint Prefix | Last Sprint Name     | Length In Days | Start Date | End Date   | Board Column1 | Board Column2 |
+              +---------------+----------------------+----------------+------------+------------+---------------+---------------+
+              | Food_Delivery | Food_Delivery_25.2.3 | 7              | 2024-05-15 | 2024-05-22 | board info 3  | board info 4  |
+              | Food_Supply   | Food_Supply_25.2.2   | 14             | 2024-05-01 | 2024-05-15 | board info 1  | board info 2  |
+              +---------------+----------------------+----------------+------------+------------+---------------+---------------+
             END_OF_TABLE
           end
 
@@ -322,16 +322,22 @@ module Jira
             ]
           end
 
-          let(:jira_sprints) { e2e_jira_sprints + sys_jira_sprints }
+          let(:jira_sprints) { sys_jira_sprints + e2e_jira_sprints }
+
+          let(:art_e2e_prefix) { Sprint::Prefix.new("art_e2e", new_sprints(e2e_jira_sprints)) }
+          let(:art_sys_prefix) { Sprint::Prefix.new("art_sys", new_sprints(sys_jira_sprints)) }
 
           it "groups sprints as per their prefix" do
             allow(sprint_controller).to receive_messages(jira_sprints: jira_sprints)
 
-            expect(sprint_controller.unclosed_sprint_prefixes)
-              .to contain_exactly(
-                Sprint::Prefix.new("art_e2e", new_sprints(e2e_jira_sprints)),
-                Sprint::Prefix.new("art_sys", new_sprints(sys_jira_sprints))
-              )
+            expect(sprint_controller.unclosed_sprint_prefixes).to contain_exactly(art_e2e_prefix, art_sys_prefix)
+          end
+
+          it "provides the sprint prefixes sorted by their name" do
+            allow(sprint_controller).
+              to receive_messages(calculate_unclosed_sprint_prefixes: [art_sys_prefix, art_e2e_prefix])
+
+            expect(sprint_controller.unclosed_sprint_prefixes.collect(&:name)).to eq(%w[art_e2e art_sys])
           end
         end
         # rubocop:enable RSpec / MultipleMemoizedHelpers

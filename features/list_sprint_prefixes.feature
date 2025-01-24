@@ -14,16 +14,15 @@ Feature: List Sprint Prefixes
       | ART-32_Sys-Team_24.4.12 | 1-week | 2024-12-24 11:00:00 UTC | future |
       | ART-32_Sys-Team_25.1.1  | 1-week | 2025-01-07 11:00:00 UTC | future |
 
-
   Scenario: No filter applied
     When I successfully run `jira-auto-tool --sprint-prefix-list-without-board-info`
-    Then the output should contain:
+    Then the output should match:
       """
-      +-----------------+----------------+------------------------+----------------+-------------------------+-------------------------+
-      |                                        Sprint Prefixes With Corresponding Last Sprints                                         |
-      +-----------------+----------------+------------------------+----------------+-------------------------+-------------------------+
-      | Sprint Prefix   | Last Sprint Id | Last Sprint Name       | Length In Days | Start Date              | End Date                |
-      +-----------------+----------------+------------------------+----------------+-------------------------+-------------------------+
+      \+-----------------\+----------------\+------------------+\+----------------\+-------------------------\+-------------------------\+
+      \| \s+  Sprint Prefixes With Corresponding Last Sprints\s+  \|
+      \+-----------------\+----------------\+------------------+\+----------------\+-------------------------\+-------------------------\+
+      \| Sprint Prefix   \| Last Sprint Id \| Last Sprint Name\s+\| Length In Days \| Start Date              \| End Date                \|
+      \+-----------------\+----------------\+------------------+\+----------------\+-------------------------\+-------------------------\+
       """
     And the output should match:
       """

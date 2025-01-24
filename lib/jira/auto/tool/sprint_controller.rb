@@ -38,7 +38,7 @@ module Jira
         end
 
         def unclosed_sprint_prefixes
-          @unclosed_sprint_prefixes ||= calculate_unclosed_sprint_prefixes
+          @unclosed_sprint_prefixes ||= calculate_unclosed_sprint_prefixes.sort_by(&:name)
         end
 
         def unclosed_sprint_exist?
