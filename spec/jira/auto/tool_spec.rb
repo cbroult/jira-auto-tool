@@ -14,6 +14,8 @@ module Jira
         end
 
         describe "#board_controller" do
+          before { allow(tool).to receive_messages(jira_client: instance_double(RateLimitedJiraClient)) }
+
           it { expect(tool.board_controller).to be_a(BoardController) }
         end
 
@@ -173,6 +175,8 @@ module Jira
         %i[
           expected_start_date_field_name
           implementation_team_field_name
+          jat_rate_limit_in_seconds
+          jat_rate_interval_in_seconds
           jira_api_token
           jira_board_name
           jira_board_name_regex
@@ -228,16 +232,22 @@ module Jira
             }
           end
 
-          it "has a jira client" do
+          before do
             allow(tool)
               .to receive_messages(jira_username: "jira_username_value", jira_site_url: "https://jira_site_url_value",
                                    jira_api_token: "jira_api_token_value",
                                    jira_context_path_when_defined_else: "/context_path_value",
-                                   jira_http_debug: "false")
+                                   jira_http_debug: "false",
+                                   jat_rate_limit_in_seconds_when_defined_else: "10",
+                                   jat_rate_interval_in_seconds_when_defined_else: "60")
+          end
 
+          it "has a jira client" do
             expected_jira_client = instance_double(RateLimitedJiraClient)
 
-            allow(RateLimitedJiraClient).to receive(:new).with(client_options).and_return(expected_jira_client)
+            allow(RateLimitedJiraClient)
+              .to receive(:new).with(client_options, rate_limit: 10, rate_interval: 60)
+                               .and_return(expected_jira_client)
 
             expect(tool.jira_client).to equal(expected_jira_client)
           end

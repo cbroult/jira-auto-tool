@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "time"
+
 Given(/^a Jira Scrum board$/) do
   expect(@board).not_to be_nil
 end
@@ -63,8 +65,4 @@ Then(/^afterwards the board only has the following sprints:$/) do |table|
   end
 
   expect(actual_sprints).to contain_exactly(*expected_sprints)
-end
-
-And("the current date time is {string}") do |current_date_time|
-  set_environment_variable("JAT_CURRENT_DATE_TIME", current_date_time)
 end

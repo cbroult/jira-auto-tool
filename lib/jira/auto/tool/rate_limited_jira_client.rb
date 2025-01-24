@@ -9,6 +9,9 @@ module Jira
   module Auto
     class Tool
       class RateLimitedJiraClient < JIRA::Client
+        NO_RATE_LIMIT_IN_SECONDS = 0
+        NO_RATE_INTERVAL_IN_SECONDS = 0
+
         attr_reader :rate_interval, :rate_limit
 
         def initialize(options, rate_interval: 1, rate_limit: 1)
@@ -19,6 +22,8 @@ module Jira
 
         alias original_request request
         def request(*args)
+          return original_request(*args) if rate_limit == NO_RATE_LIMIT_IN_SECONDS
+
           rate_limiter.exec_within_threshold(rate_limiter_key, interval: rate_interval, threshold: rate_limit) do
             response = original_request(*args)
 

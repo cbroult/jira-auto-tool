@@ -69,7 +69,15 @@ module Jira
                                     context_path: jira_context_path_when_defined_else(""),
                                     auth_type: :basic,
                                     http_debug: jira_http_debug?
-                                  })
+                                  },
+                                  rate_interval:
+                                    jat_rate_interval_in_seconds_when_defined_else(
+                                      RateLimitedJiraClient::NO_RATE_INTERVAL_IN_SECONDS
+                                    ).to_i,
+                                  rate_limit:
+                                    jat_rate_limit_in_seconds_when_defined_else(
+                                      RateLimitedJiraClient::NO_RATE_LIMIT_IN_SECONDS
+                                    ).to_i)
       end
 
       def jira_http_debug?
@@ -96,6 +104,8 @@ module Jira
         art_sprint_regex
         expected_start_date_field_name
         implementation_team_field_name
+        jat_rate_limit_in_seconds
+        jat_rate_interval_in_seconds
         jira_api_token
         jira_board_name
         jira_board_name_regex

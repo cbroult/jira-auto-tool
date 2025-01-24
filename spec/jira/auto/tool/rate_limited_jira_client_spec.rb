@@ -12,7 +12,7 @@ module Jira
             let(:rate_interval) { 2 }
             let(:rate_limit) { 1 }
             let(:oauth_client) { instance_double(JIRA::OauthClient, request: nil, consumer: nil) }
-            let(:rate_limiter) { Ratelimit.new(rate_interval:, rate_limit:) }
+            let(:rate_limiter) { instance_double(Ratelimit) }
 
             before do
               allow(described_class).to receive_messages(rate_limiter: rate_limiter)
@@ -21,7 +21,8 @@ module Jira
 
               allow(client).to receive_messages(original_request: :response)
 
-              allow(rate_limiter).to receive_messages(sleep: nil)
+              allow(rate_limiter).to receive_messages(add: nil)
+              allow(rate_limiter).to receive(:exec_within_threshold).and_yield
             end
 
             it "returns the response" do
@@ -31,7 +32,7 @@ module Jira
             it "calls the original request method" do
               client.request(:get, "/path/to/resource")
 
-              expect(client).to have_received(:original_request)
+              expect(client).to have_received(:original_request).with(:get, "/path/to/resource")
             end
 
             context "when it leverages the rate limiter" do
@@ -56,11 +57,21 @@ module Jira
                   .with("jira_auto_tool_api_requests")
                   .exactly(4).times
               end
+            end
 
-              it "uses sleep to limit the rate" do
-                4.times { client.request(:get, "/path/to/resource") }
+            context "when it does not leverage the rate limiter" do
+              let(:rate_limit) { 0 }
 
-                expect(rate_limiter).to have_received(:sleep).at_least(3).times
+              it "does not use :exec_within_threshold to control rate limiting" do
+                client.request(:get, "/path/to/resource")
+
+                expect(rate_limiter).not_to have_received(:exec_within_threshold)
+              end
+
+              it "calls the original request method" do
+                client.request(:get, "/path/to/resource")
+
+                expect(client).to have_received(:original_request).with(:get, "/path/to/resource")
               end
             end
           end

@@ -53,12 +53,3 @@ Then(/^the tickets should have been assigned to sprints as follows:$/) do |ticke
 
   expect(actual_ticket_values.sort).to eq(ticket_expectations.sort)
 end
-
-And(/^the following environment variables are set:$/) do |table|
-  table.hashes.each do |env_var|
-    name = env_var.fetch("name")
-    value = env_var.fetch("value")
-    @jira_auto_tool.send("#{name.downcase}=", value)
-    set_environment_variable(name, value)
-  end
-end
