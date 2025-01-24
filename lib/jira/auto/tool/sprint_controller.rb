@@ -79,6 +79,7 @@ module Jira
         def sprints
           jira_sprints.collect { |jira_sprint| Sprint.new(tool, jira_sprint) }
                       .uniq(&:id)
+                      .sort
         end
 
         def jira_sprints

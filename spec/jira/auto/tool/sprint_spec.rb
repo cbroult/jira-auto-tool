@@ -6,19 +6,16 @@ module Jira
       RSpec.describe Sprint do
         let(:jira_client) { instance_double(JIRA::Client) }
         let(:tool) { instance_double(Tool, jira_client: jira_client) }
+        let(:jira_sprint) do
+          jira_resource_double(JIRA::Resource::Sprint,
+                               id: 40_820,
+                               name: "Food_Supply_24.4.5",
+                               startDate: "2024-12-27 13:00 UTC", endDate: "2024-12-31 13:00 UTC",
+                               state: "future", originBoardId: 4096,
+                               client: jira_client)
+        end
 
         context "when using its attributes" do
-          let(:jira_sprint) do
-            # rubocop:disable RSpec/VerifiedDoubles
-            double(JIRA::Resource::Sprint,
-                   id: 40_820,
-                   name: "Food_Supply_24.4.5",
-                   startDate: "2024-12-27 13:00 UTC", endDate: "2024-12-31 13:00 UTC",
-                   state: "future", originBoardId: 4096,
-                   client: jira_client)
-            # rubocop:enable RSpec/VerifiedDoubles
-          end
-
           let(:sprint) do
             described_class.new(tool, jira_sprint)
           end
@@ -146,14 +143,14 @@ module Jira
             described_class.new(
               tool,
               double(JIRA::Resource::Sprint, name: name, startDate: start_date, endDate: end_date,
-                                             originBoardId: 2048)
+                                             originBoardId: 2048, inspect: name.inspect)
             )
             # rubocop:enable RSpec/VerifiedDoubles
           end
 
           let(:abc_sprint) { new_sprint_named("abc name_24.4.9") }
           let(:sprint_with_missing_date) do
-            new_sprint_named("name that should last_24.4.9",
+            new_sprint_named("name that should not be last_24.4.9",
                              end_date: Sprint::UNDEFINED_DATE.utc.to_s)
           end
 
@@ -168,6 +165,31 @@ module Jira
           it do
             expect(new_sprint_named("foo_bar_24.4.9", end_date: "2025-01-14 13:00 UTC"))
               .to be < new_sprint_named("foo_bar_24.4.9", end_date: "2025-01-15 13:00 UTC")
+          end
+
+          context "when sprint name does not respect the naming convention" do
+            it { expect(abc_sprint).to be > new_sprint_named("1st sprint") }
+            it { expect(abc_sprint).to be < new_sprint_named("name not following the naming conventions") }
+          end
+        end
+
+        describe "#comparison_fields" do
+          let(:sprint) { described_class.new(tool, jira_sprint) }
+
+          before do
+            allow(Sprint::Name).to receive_messages(respects_naming_convention?: respects_naming_convention)
+          end
+
+          context "when respecting the naming convention" do
+            let(:respects_naming_convention) { true }
+
+            it { expect(sprint.send(:comparison_fields, sprint)).to eq(%i[start_date end_date parsed_name]) }
+          end
+
+          context "when not respecting the naming convention" do
+            let(:respects_naming_convention) { false }
+
+            it { expect(sprint.send(:comparison_fields, sprint)).to eq(%i[start_date end_date name]) }
           end
         end
       end

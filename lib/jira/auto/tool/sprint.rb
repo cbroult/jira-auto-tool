@@ -112,7 +112,16 @@ module Jira
         private
 
         def comparison_values(object)
-          %i[start_date end_date parsed_name].collect { |field| object.send(field) }
+          comparison_fields(object).collect { |field| object.send(field) }
+        end
+
+        def comparison_fields(object)
+          %i[start_date end_date] +
+            if Name.respects_naming_convention?(object.name)
+              [:parsed_name]
+            else
+              [:name]
+            end
         end
 
         def parse_date(date)

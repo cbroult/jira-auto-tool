@@ -97,77 +97,50 @@ module Jira
             expect(sprint_controller.sprints).to all be_a(Sprint)
           end
 
-          it "does not return duplicate sprints" do
+          it "eliminates duplicates (e.g., related to a sprint showing up on several boards)" do
             expect(sprint_controller.sprints.collect(&:name)).to eq(%w[
-                                                                      ART-16_E2E-Test_24.4.1
                                                                       ART-16_CRM_24.4.1
+                                                                      ART-16_E2E-Test_24.4.1
                                                                       ART-16_E2E-Test_24.4.2
                                                                       ART-32_Platform_24.4.7
                                                                       ART-32_Sys-Team_24.4.12
                                                                       ART-32_Sys-Team_25.1.1
                                                                     ])
           end
-        end
 
-        # rubocop:disable RSpec / MultipleMemoizedHelpers
-        describe "#jira_sprints" do
-          let(:all_sprints) do
-            %w[
-              ART-16_E2E-Test_24.4.1
-              ART-16_CRM_24.4.1
-              ART-16_E2E-Test_24.4.2
-              ART-32_Platform_24.4.7
-              ART-32_Sys-Team_24.4.12
-              ART-32_Sys-Team_25.1.1
-            ].collect { |name| jira_resource_double(Sprint, name: name) }
-          end
-          let(:art_sprint_regex_defined?) { false }
-          let(:art_sprint_regex) { nil }
-
-          before do
-            allow(tool)
-              .to receive_messages(art_sprint_regex_defined?: art_sprint_regex_defined?,
-                                   art_sprint_regex: art_sprint_regex)
-
-            allow(sprint_controller).to receive_messages(unfiltered_board_sprints: all_sprints)
-          end
-
-          context "when no filter specified" do
-            it { expect(sprint_controller.jira_sprints).to eq(all_sprints) }
-          end
-
-          context "when filter specified" do
-            let(:art_sprint_regex_defined?) { true }
-
-            context "when using a string" do
-              let(:art_sprint_regex) { "ART-16" }
-
-              it do
-                expect(sprint_controller.jira_sprints.collect(&:name))
-                  .to eq(%w[
-                           ART-16_E2E-Test_24.4.1
-                           ART-16_CRM_24.4.1
-                           ART-16_E2E-Test_24.4.2
-                         ])
+          context "when looking at the sprint order" do
+            let(:jira_sprints) do
+              [
+                [16, "ART-32_Sys-Team_24.4.2", 7, "2024-05-15", "2024-05-22"],
+                [32, "1st sprint", 14, "2024-05-01", "2024-05-15"],
+                [64, "2nd sprint", 7, "2024-05-15", "2024-05-22"],
+                [128, "Non compliant sprint name", 7, "2024-05-15", "2024-05-22"],
+                [256, "ART-16_E2E_25.1.2", 7, "2024-05-15", "2024-05-22"]
+              ].collect do |id, name, _length_in_days, start_date, end_date|
+                jira_resource_double(JIRA::Resource::Sprint, id: id, name: name, startDate: start_date,
+                                                             endDate: end_date)
               end
             end
 
-            context "when using a regex" do
-              let(:art_sprint_regex) { "E2E|Sys" }
+            let(:expected_sorted_sprint_names) do
+              [
+                "1st sprint",
+                "2nd sprint",
+                "ART-16_E2E_25.1.2",
+                "ART-32_Sys-Team_24.4.2",
+                "Non compliant sprint name"
+              ]
+            end
 
-              it do
-                expect(sprint_controller.jira_sprints.collect(&:name))
-                  .to eq(%w[
-                           ART-16_E2E-Test_24.4.1
-                           ART-16_E2E-Test_24.4.2
-                           ART-32_Sys-Team_24.4.12
-                           ART-32_Sys-Team_25.1.1
-                         ])
-              end
+            before do
+              allow(sprint_controller).to receive_messages(jira_sprints: jira_sprints)
+            end
+
+            it "returns sorted sprints" do
+              expect(sprint_controller.sprints.collect(&:name)).to eq(expected_sorted_sprint_names)
             end
           end
         end
-        # rubocop:enable RSpec / MultipleMemoizedHelpers
 
         describe "#list_sprints" do
           let(:matching_sprints) do
@@ -262,6 +235,66 @@ module Jira
             sprint_controller.list_sprint_prefixes(without_board_information: true)
           end
         end
+
+        # rubocop:disable RSpec / MultipleMemoizedHelpers
+        describe "#jira_sprints" do
+          let(:all_sprints) do
+            %w[
+              ART-16_E2E-Test_24.4.1
+              ART-16_CRM_24.4.1
+              ART-16_E2E-Test_24.4.2
+              ART-32_Platform_24.4.7
+              ART-32_Sys-Team_24.4.12
+              ART-32_Sys-Team_25.1.1
+            ].collect { |name| jira_resource_double(Sprint, name: name) }
+          end
+          let(:art_sprint_regex_defined?) { false }
+          let(:art_sprint_regex) { nil }
+
+          before do
+            allow(tool)
+              .to receive_messages(art_sprint_regex_defined?: art_sprint_regex_defined?,
+                                   art_sprint_regex: art_sprint_regex)
+
+            allow(sprint_controller).to receive_messages(unfiltered_board_sprints: all_sprints)
+          end
+
+          context "when no filter specified" do
+            it { expect(sprint_controller.jira_sprints).to eq(all_sprints) }
+          end
+
+          context "when filter specified" do
+            let(:art_sprint_regex_defined?) { true }
+
+            context "when using a string" do
+              let(:art_sprint_regex) { "ART-16" }
+
+              it do
+                expect(sprint_controller.jira_sprints.collect(&:name))
+                  .to eq(%w[
+                           ART-16_E2E-Test_24.4.1
+                           ART-16_CRM_24.4.1
+                           ART-16_E2E-Test_24.4.2
+                         ])
+              end
+            end
+
+            context "when using a regex" do
+              let(:art_sprint_regex) { "E2E|Sys" }
+
+              it do
+                expect(sprint_controller.jira_sprints.collect(&:name))
+                  .to eq(%w[
+                           ART-16_E2E-Test_24.4.1
+                           ART-16_E2E-Test_24.4.2
+                           ART-32_Sys-Team_24.4.12
+                           ART-32_Sys-Team_25.1.1
+                         ])
+              end
+            end
+          end
+        end
+        # rubocop:enable RSpec / MultipleMemoizedHelpers
 
         # rubocop:disable RSpec / MultipleMemoizedHelpers
         describe "#unclosed_sprint_prefixes" do
