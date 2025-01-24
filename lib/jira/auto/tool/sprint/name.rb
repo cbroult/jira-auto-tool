@@ -73,6 +73,8 @@ module Jira
           private
 
           def comparison_values(object)
+            return [object] if object.is_a?(String)
+
             FIELDS.collect { |field| object.send(field) }
           end
         end

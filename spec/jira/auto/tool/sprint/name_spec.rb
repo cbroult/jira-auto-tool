@@ -49,6 +49,24 @@ module Jira
             it { expect(parsed_name).to be > described_class.parse("ART_Team_24.4.1") }
             it { expect(parsed_name).to eq described_class.parse("ART_Team_24.4.05") }
             it { expect(parsed_name).to be < described_class.parse("ART_Team_24.4.10") }
+
+            context "when comparing to a sprint name not according to convention" do
+              it { expect(parsed_name).to be > "1st sprint" }
+              it { expect(parsed_name).to be < "name ignoring naming convention" }
+            end
+          end
+
+          describe "#comparison_values" do
+            let(:parsed_name) { described_class.parse("ART_Team_24.4.5") }
+
+            it { expect(parsed_name.send(:comparison_values, parsed_name)).to eq(["ART_Team", 24, 4, 5]) }
+
+            context "when sprint name not according to convention" do
+              it {
+                expect(parsed_name.send(:comparison_values,
+                                        "name not following conventions")).to eq(["name not following conventions"])
+              }
+            end
           end
         end
       end
