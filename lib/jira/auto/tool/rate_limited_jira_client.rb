@@ -11,7 +11,7 @@ module Jira
       class RateLimitedJiraClient < JIRA::Client
         attr_reader :rate_interval, :rate_limit
 
-        def initialize(options, rate_interval: 4, rate_limit: 1)
+        def initialize(options, rate_interval: 1, rate_limit: 1)
           super(options)
           @rate_interval = rate_interval
           @rate_limit = rate_limit
@@ -19,8 +19,12 @@ module Jira
 
         alias original_request request
         def request(*args)
-          rate_limiter.exec_within_threshold(rate_limiter_key, interval: rate_interval, limit: rate_limit) do
-            original_request(*args)
+          rate_limiter.exec_within_threshold(rate_limiter_key, interval: rate_interval, threshold: rate_limit) do
+            response = original_request(*args)
+
+            rate_limiter.add(rate_limiter_key)
+
+            response
           end
         end
 
