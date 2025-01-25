@@ -51,8 +51,18 @@ module Jira
           start_date == UNDEFINED_DATE || end_date == UNDEFINED_DATE
         end
 
+        def rename_to(new_name)
+          return if new_name == name || closed?
+
+          jira_sprint.save!(name: new_name)
+        end
+
         def state
           @jira_sprint.state
+        end
+
+        def closed?
+          state == SprintStateController::SprintState::CLOSED
         end
 
         def origin_board_id

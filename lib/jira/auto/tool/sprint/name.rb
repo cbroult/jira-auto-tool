@@ -66,6 +66,14 @@ module Jira
             ].join
           end
 
+          def planning_interval
+            [year, quarter]
+          end
+
+          def next_in_planning_interval
+            self.class.new(prefix, year, quarter, index_in_quarter + 1)
+          end
+
           def <=>(other)
             comparison_values(self) <=> comparison_values(other)
           end

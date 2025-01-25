@@ -14,12 +14,22 @@ module Jira
             it { expect(parsed_name.year).to eq(24) }
             it { expect(parsed_name.quarter).to eq(4) }
             it { expect(parsed_name.index_in_quarter).to eq(5) }
+            it { expect(parsed_name.planning_interval).to eq([24, 4]) }
 
             it "raise an error if the sprint name is not according to convention" do
               expect { described_class.parse("name ignoring naming convention") }
                 .to raise_error(Name::NameConventionError,
                                 "'name ignoring naming convention': " \
                                 "sprint name not matching #{Name::SPRINT_NAME_REGEX}!")
+            end
+          end
+
+          describe "#next_in_planning_interval" do
+            let(:parsed_name) { described_class.parse("ART_Team_25.2.1") }
+
+            it do
+              expect(parsed_name.next_in_planning_interval)
+                .to eq(described_class.new("ART_Team", 25, 2, 2))
             end
           end
 

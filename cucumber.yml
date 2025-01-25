@@ -1,6 +1,6 @@
 <%
   default_tags = 'not @in-specification'
-  shared_args = "--publish-quiet"
+  shared_args = "--publish-quiet --expand"
 %>
 default: <%= shared_args %> --format pretty --tags ' <%= default_tags %>'
 guard: <%= shared_args %> --format rerun --out rerun_failures.txt --format progress --tags ' <%= default_tags %>'

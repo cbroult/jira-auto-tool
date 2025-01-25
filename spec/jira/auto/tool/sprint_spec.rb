@@ -11,9 +11,11 @@ module Jira
                                id: 40_820,
                                name: "Food_Supply_24.4.5",
                                startDate: "2024-12-27 13:00 UTC", endDate: "2024-12-31 13:00 UTC",
-                               state: "future", originBoardId: 4096,
+                               state: state, originBoardId: 4096,
                                client: jira_client)
         end
+
+        let(:state) { "future" }
 
         context "when using its attributes" do
           let(:sprint) do
@@ -76,6 +78,26 @@ module Jira
             it { expect(sprint.state).to eq("future") }
           end
 
+          describe "#closed?" do
+            context "when the sprint state is closed" do
+              let(:state) { "closed" }
+
+              it { expect(sprint).to be_closed }
+            end
+
+            context "when the sprint state is active" do
+              let(:state) { "active" }
+
+              it { expect(sprint).not_to be_closed }
+            end
+
+            context "when the sprint state is future" do
+              let(:state) { "future" }
+
+              it { expect(sprint).not_to be_closed }
+            end
+          end
+
           describe "#origin_board_id" do
             it { expect(sprint.origin_board_id).to eq(4096) }
           end
@@ -90,6 +112,37 @@ module Jira
             end
 
             it { expect(sprint.board).to eq(expected_board) }
+          end
+
+          describe "#renamed_to" do
+            let(:jira_sprint) { jira_resource_double(JIRA::Resource::Sprint, name: "Food_Supply_24.4.5", state: state) }
+            let(:state) { "future" }
+
+            before do
+              allow(jira_sprint).to receive_messages(save!: nil)
+            end
+
+            it "saves the sprint with the new name" do
+              sprint.rename_to("Food_Supply_25.4.1")
+
+              expect(jira_sprint).to have_received(:save!).with(name: "Food_Supply_25.4.1")
+            end
+
+            it "ignores renaming to the same name" do
+              sprint.rename_to("Food_Supply_24.4.5")
+
+              expect(jira_sprint).not_to have_received(:save!)
+            end
+
+            context "when the sprint is closed" do
+              let(:state) { "closed" }
+
+              it "ignores renaming a closed sprint" do
+                sprint.rename_to("Food_Supply_25.4.1")
+
+                expect(jira_sprint).not_to have_received(:save!)
+              end
+            end
           end
 
           describe "#to_table_row" do

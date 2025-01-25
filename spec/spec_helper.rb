@@ -2,9 +2,12 @@
 
 require "simplecov"
 
-require "jira/auto/tool"
+SimpleCov.start do
+  minimum_coverage 90
+  minimum_coverage_by_file 80
+end
 
-SimpleCov.start
+require "jira/auto/tool"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -13,9 +16,9 @@ RSpec.configure do |config|
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!
 
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
-    c.max_formatted_output_length = nil
+  config.expect_with :rspec do |expectations|
+    expectations.syntax = :expect
+    expectations.max_formatted_output_length = nil
   end
 
   config.mock_with :rspec do |mocks|

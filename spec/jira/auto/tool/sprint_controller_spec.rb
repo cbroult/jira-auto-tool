@@ -334,8 +334,8 @@ module Jira
           end
 
           it "provides the sprint prefixes sorted by their name" do
-            allow(sprint_controller).
-              to receive_messages(calculate_unclosed_sprint_prefixes: [art_sys_prefix, art_e2e_prefix])
+            allow(sprint_controller)
+              .to receive_messages(calculate_unclosed_sprint_prefixes: [art_sys_prefix, art_e2e_prefix])
 
             expect(sprint_controller.unclosed_sprint_prefixes.collect(&:name)).to eq(%w[art_e2e art_sys])
           end
