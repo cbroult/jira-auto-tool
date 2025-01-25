@@ -3,6 +3,7 @@
 require "rspec"
 require "jira/auto/tool/performer/sprint_renamer"
 
+# rubocop:disable RSpec/MultipleMemoizedHelpers
 RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
   let(:sprint_renamer) { described_class.new(tool, from_string, to_string) }
   let(:tool) { instance_double(Jira::Auto::Tool) }
@@ -198,6 +199,7 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
     end
   end
 
+  # rubocop:disable RSpec/AnyInstance
   describe "#initial_next_sprint_parsed_name" do
     subject(:result) do
       described_class.new(nil, "", "").initial_next_sprint_parsed_name(sprint_name, sprint_new_name)
@@ -230,14 +232,15 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
       end
     end
   end
+  # rubocop:enable RSpec/AnyInstance
 
   describe "#pushing_sprint_to_next_planning_interval?" do
     let(:sprint_renamer) { described_class.new(nil, "", "") }
 
     context "when current sprint name is less than new sprint name" do
       it "returns true" do
-        sprint_parsed_name = double("Sprint::Name", :< => true)
-        sprint_parsed_new_name = double("Sprint::Name")
+        sprint_parsed_name = instance_double(Jira::Auto::Tool::Sprint::Name, :< => true)
+        sprint_parsed_new_name = instance_double(Jira::Auto::Tool::Sprint::Name)
 
         expect(sprint_renamer.pushing_sprint_to_next_planning_interval?(sprint_parsed_name,
                                                                         sprint_parsed_new_name)).to be true
@@ -246,8 +249,8 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
 
     context "when current sprint name is not less than new sprint name" do
       it "returns false" do
-        sprint_parsed_name = double("Sprint::Name", :< => false)
-        sprint_parsed_new_name = double("Sprint::Name")
+        sprint_parsed_name = instance_double(Jira::Auto::Tool::Sprint::Name, :< => false)
+        sprint_parsed_new_name = instance_double(Jira::Auto::Tool::Sprint::Name)
 
         expect(sprint_renamer.pushing_sprint_to_next_planning_interval?(sprint_parsed_name,
                                                                         sprint_parsed_new_name)).to be false
@@ -255,3 +258,4 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
     end
   end
 end
+# rubocop:enable RSpec/MultipleMemoizedHelpers

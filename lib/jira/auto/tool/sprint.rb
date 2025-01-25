@@ -54,7 +54,14 @@ module Jira
         def rename_to(new_name)
           return if new_name == name || closed?
 
-          jira_sprint.save!(name: new_name)
+          remove_attributes_that_causes_errors_on_save
+
+          jira_sprint.attrs["name"] = new_name
+          jira_sprint.save!
+        end
+
+        def remove_attributes_that_causes_errors_on_save
+          jira_sprint.attrs.delete("rapidview_id")
         end
 
         def state

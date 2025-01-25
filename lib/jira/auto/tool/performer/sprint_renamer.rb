@@ -31,6 +31,9 @@ module Jira
             end
           end
 
+          # TODO: - Extract NewNameCalculator to reduce complexity
+          # rubocop:disable Metrics/AbcSize
+          # rubocop:disable Metrics/MethodLength
           def calculate_sprint_new_names(sprint_names)
             parsed_name_of_first_sprint_to_rename = nil
             parsed_name_of_sprint_next_to_initially_renamed_sprint = nil
@@ -50,22 +53,22 @@ module Jira
                   sprint_new_name = next_sprint_parsed_name.to_s
 
                   next_sprint_parsed_name = next_sprint_parsed_name.next_in_planning_interval
-
-                  sprint_new_name
                 else
                   sprint_new_name = sprint_name.sub(from_string_regex, to_string)
 
                   next_sprint_parsed_name =
                     parsed_name_of_sprint_next_to_initially_renamed_sprint =
                       initial_next_sprint_parsed_name(sprint_name, sprint_new_name)
-
-                  sprint_new_name
                 end
+
+                sprint_new_name
               else
                 sprint_name
               end
             end
           end
+          # rubocop:enable Metrics/MethodLength
+          # rubocop:enable Metrics/AbcSize
 
           def beyond_planning_interval_of_sprint_next_to_initially_renamed_sprint(
             sprint_name, parsed_name_of_sprint_next_to_initially_renamed_sprint

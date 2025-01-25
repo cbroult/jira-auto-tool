@@ -2,7 +2,10 @@
 
 module Jira
   module Auto
+    # rubocop:disable Metrics/ClassLength
     class Tool
+      # rubocop:disable RSpec/MultipleMemoizedHelpers
+      # rubocop:disable RSpec/NestedGroups:
       RSpec.describe Sprint do
         let(:jira_client) { instance_double(JIRA::Client) }
         let(:tool) { instance_double(Tool, jira_client: jira_client) }
@@ -123,9 +126,14 @@ module Jira
             end
 
             it "saves the sprint with the new name" do
+              allow(sprint).to receive_messages(jira_sprint: jira_sprint)
+              attrs = { name: "Food_Supply_25.4.1" }
+              allow(jira_sprint).to receive_messages(attrs: attrs, save!: nil)
+              allow(attrs).to receive(:[]=).with("name", "Food_Supply_25.4.1")
+
               sprint.rename_to("Food_Supply_25.4.1")
 
-              expect(jira_sprint).to have_received(:save!).with(name: "Food_Supply_25.4.1")
+              expect(jira_sprint).to have_received(:save!)
             end
 
             it "ignores renaming to the same name" do
@@ -246,6 +254,9 @@ module Jira
           end
         end
       end
+      # rubocop:enable RSpec/NestedGroups:
+      # rubocop:enable RSpec/MultipleMemoizedHelpers
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
