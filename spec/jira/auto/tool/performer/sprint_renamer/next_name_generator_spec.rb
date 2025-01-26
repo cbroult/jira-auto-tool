@@ -38,7 +38,6 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
     end
   end
 
-  # TODO: invert name so the logic makes sense
   describe "#pulling_sprint_into_previous_planning_interval?" do
     let(:next_name_generator) do
       described_class.new(original_name_of_first_renamed_sprint, name_of_first_renamed_sprint)
