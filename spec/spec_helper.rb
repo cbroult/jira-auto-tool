@@ -2,9 +2,13 @@
 
 require "simplecov"
 
+DISABLE_COVERAGE = ENV["DISABLE_COVERAGE"] == "true"
+
 SimpleCov.start do
-  minimum_coverage 90
-  minimum_coverage_by_file 80
+  unless DISABLE_COVERAGE
+    minimum_coverage 90
+    minimum_coverage_by_file 80
+  end
 end
 
 require "jira/auto/tool"

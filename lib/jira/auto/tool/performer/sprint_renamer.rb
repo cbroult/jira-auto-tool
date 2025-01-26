@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "sprint_renamer/next_name_generator"
+
 module Jira
   module Auto
     class Tool
@@ -31,77 +33,28 @@ module Jira
             end
           end
 
-          # TODO: - Extract NewNameCalculator to reduce complexity
-          # rubocop:disable Metrics/AbcSize
-          # rubocop:disable Metrics/MethodLength
           def calculate_sprint_new_names(sprint_names)
-            parsed_name_of_first_sprint_to_rename = nil
-            parsed_name_of_sprint_next_to_initially_renamed_sprint = nil
-            next_sprint_parsed_name = nil
+            name_generator = nil
 
             sprint_names.collect do |sprint_name|
-              if sprint_name =~ from_string_regex
-                parsed_name_of_first_sprint_to_rename = Sprint::Name.parse(sprint_name)
-              end
+              if first_sprint_to_rename?(sprint_name)
+                sprint_new_name = sprint_name.sub(from_string_regex, to_string)
 
-              if parsed_name_of_first_sprint_to_rename &&
-                 !beyond_planning_interval_of_sprint_next_to_initially_renamed_sprint(
-                   sprint_name, parsed_name_of_sprint_next_to_initially_renamed_sprint
-                 )
-
-                if next_sprint_parsed_name
-                  sprint_new_name = next_sprint_parsed_name.to_s
-
-                  next_sprint_parsed_name = next_sprint_parsed_name.next_in_planning_interval
-                else
-                  sprint_new_name = sprint_name.sub(from_string_regex, to_string)
-
-                  next_sprint_parsed_name =
-                    parsed_name_of_sprint_next_to_initially_renamed_sprint =
-                      initial_next_sprint_parsed_name(sprint_name, sprint_new_name)
-                end
+                name_generator = NextNameGenerator.new(sprint_name, sprint_new_name)
 
                 sprint_new_name
+              elsif name_generator &&
+                    !name_generator.outside_planning_interval_of_sprint_next_to_first_renamed_sprint?(sprint_name)
+
+                name_generator.next_name_in_planning_interval
               else
                 sprint_name
               end
             end
           end
-          # rubocop:enable Metrics/MethodLength
-          # rubocop:enable Metrics/AbcSize
 
-          def beyond_planning_interval_of_sprint_next_to_initially_renamed_sprint(
-            sprint_name, parsed_name_of_sprint_next_to_initially_renamed_sprint
-          )
-            parsed_name_of_sprint_next_to_initially_renamed_sprint &&
-              parsed_name_of_sprint_next_to_initially_renamed_sprint.planning_interval !=
-                Sprint::Name.parse(sprint_name).planning_interval
-          end
-
-          def calculate_sprint_new_name(sprint_name, next_sprint_parsed_name)
-            if next_sprint_parsed_name
-              [next_sprint_parsed_name.to_s, next_sprint_parsed_name.next_in_planning_interval]
-            else
-              sprint_new_name = sprint_name.sub(from_string_regex, to_string)
-
-              [sprint_new_name, initial_next_sprint_parsed_name(sprint_name, sprint_new_name)]
-            end
-          end
-
-          def initial_next_sprint_parsed_name(initial_sprint_name, initial_sprint_new_name)
-            initial_sprint_parsed_name = Sprint::Name.parse(initial_sprint_name)
-
-            initial_sprint_parsed_new_name = Sprint::Name.parse(initial_sprint_new_name)
-
-            if pushing_sprint_to_next_planning_interval?(initial_sprint_parsed_name, initial_sprint_parsed_new_name)
-              initial_sprint_parsed_new_name.next_in_planning_interval
-            else
-              initial_sprint_parsed_name
-            end
-          end
-
-          def pushing_sprint_to_next_planning_interval?(sprint_parsed_name, sprint_parsed_new_name)
-            sprint_parsed_name < sprint_parsed_new_name
+          def first_sprint_to_rename?(sprint_name)
+            sprint_name =~ from_string_regex
           end
         end
       end

@@ -76,28 +76,6 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
       ]
     end
 
-    context "when pushing a sprint to the next planning interval" do
-      let(:expected_new_sprint_names) do
-        %w[
-          Food_Delivery_25.1.2
-          Food_Delivery_25.1.3
-          Food_Delivery_25.1.4
-          Food_Delivery_25.2.1
-          Food_Delivery_25.2.2
-          Food_Delivery_25.2.3
-          Food_Delivery_25.2.4
-          Food_Delivery_25.2.5
-          Food_Delivery_25.2.6
-        ]
-      end
-
-      it do
-        expect(sprint_renamer.calculate_sprint_new_names(["Food_Delivery_25.1.5"])).to eq(["Food_Delivery_25.2.1"])
-      end
-
-      it { expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names) }
-    end
-
     context "when pulling a sprint into the previous planning interval" do
       let(:from_string) { "25.2.1" }
       let(:to_string) { "25.1.6" }
@@ -119,15 +97,58 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
       it { expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names) }
     end
 
+    context "when renaming sprint inside planning interval" do
+      let(:from_string) { "25.2.1" }
+      let(:to_string) { "25.2.10" }
+
+      let(:expected_new_sprint_names) do
+        %w[
+          Food_Delivery_25.1.2
+          Food_Delivery_25.1.3
+          Food_Delivery_25.1.4
+          Food_Delivery_25.1.5
+          Food_Delivery_25.2.10
+          Food_Delivery_25.2.11
+          Food_Delivery_25.2.12
+          Food_Delivery_25.2.13
+          Food_Delivery_25.2.14
+        ]
+      end
+
+      it do
+        expect(sprint_renamer.calculate_sprint_new_names(["Food_Delivery_25.1.5"]))
+          .to eq(["Food_Delivery_25.1.5"])
+      end
+
+      it { expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names) }
+    end
+
+    context "when pushing a sprint to the next planning interval" do
+      let(:expected_new_sprint_names) do
+        %w[
+          Food_Delivery_25.1.2
+          Food_Delivery_25.1.3
+          Food_Delivery_25.1.4
+          Food_Delivery_25.2.1
+          Food_Delivery_25.2.2
+          Food_Delivery_25.2.3
+          Food_Delivery_25.2.4
+          Food_Delivery_25.2.5
+          Food_Delivery_25.2.6
+        ]
+      end
+
+      it { expect(sprint_renamer.calculate_sprint_new_names(["Food_Delivery_25.1.5"])).to eq(["Food_Delivery_25.2.1"]) }
+
+      it { expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names) }
+    end
+
     context "when sprints exist beyond the immediate planning interval of the sprint" do
       let(:from_string) { "25.2.1" }
       let(:to_string) { "25.1.6" }
 
       let(:sprint_names) do
         %w[
-          Food_Delivery_25.1.2
-          Food_Delivery_25.1.3
-          Food_Delivery_25.1.4
           Food_Delivery_25.1.5
           Food_Delivery_25.2.1
           Food_Delivery_25.2.2
@@ -139,9 +160,6 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
 
       let(:expected_new_sprint_names) do
         %w[
-          Food_Delivery_25.1.2
-          Food_Delivery_25.1.3
-          Food_Delivery_25.1.4
           Food_Delivery_25.1.5
           Food_Delivery_25.1.6
           Food_Delivery_25.2.1
@@ -157,105 +175,18 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
     end
   end
 
-  def get_parsed_name(sprint_name)
-    Jira::Auto::Tool::Sprint::Name.parse(sprint_name)
-  end
+  describe "#first_sprint_to_rename?" do
+    let(:sprint_renamer) { described_class.new(nil, "25.1.5", "25.2.1") }
 
-  describe "#beyond_planning_interval_of_sprint_next_to_initially_renamed_sprint" do
-    def beyond?(sprint_name)
-      described_class.new(nil, "", "")
-                     .beyond_planning_interval_of_sprint_next_to_initially_renamed_sprint(
-                       sprint_name, parsed_name_of_sprint_next_to_initially_renamed_sprint
-                     )
+    def first_to_rename?(sprint_name)
+      sprint_renamer.first_sprint_to_rename?(sprint_name)
     end
 
-    context "when parsed_name_of_sprint_next_to_initially_renamed_sprint not defined" do
-      let(:parsed_name_of_sprint_next_to_initially_renamed_sprint) { nil }
-
-      it { expect(beyond?("prefix_25.2.1")).not_to be_truthy }
-      it { expect(beyond?("prefix_25.3.1")).not_to be_truthy }
-    end
-
-    context "when pushing_sprint_to_next_planning_interval? returns true" do
-      let(:parsed_name_of_sprint_next_to_initially_renamed_sprint) { get_parsed_name("prefix_25.2.2") }
-
-      it { expect(beyond?("prefix_25.2.1")).not_to be_truthy }
-      it { expect(beyond?("prefix_25.2.3")).not_to be_truthy }
-      it { expect(beyond?("prefix_25.3.1")).to be_truthy }
-      it { expect(beyond?("prefix_25.3.2")).to be_truthy }
-      it { expect(beyond?("prefix_25.4.2")).to be_truthy }
-      it { expect(beyond?("prefix_26.1.1")).to be_truthy }
-    end
-
-    context "when pushing_sprint_to_next_planning_interval? returns false" do
-      let(:parsed_name_of_sprint_next_to_initially_renamed_sprint) { get_parsed_name("prefix_25.2.1") }
-
-      it { expect(beyond?("prefix_25.2.1")).not_to be_truthy }
-      it { expect(beyond?("prefix_25.2.3")).not_to be_truthy }
-      it { expect(beyond?("prefix_25.3.1")).to be_truthy }
-      it { expect(beyond?("prefix_25.3.2")).to be_truthy }
-      it { expect(beyond?("prefix_25.4.2")).to be_truthy }
-      it { expect(beyond?("prefix_26.1.1")).to be_truthy }
-    end
-  end
-
-  # rubocop:disable RSpec/AnyInstance
-  describe "#initial_next_sprint_parsed_name" do
-    subject(:result) do
-      described_class.new(nil, "", "").initial_next_sprint_parsed_name(sprint_name, sprint_new_name)
-    end
-
-    let(:sprint_name) { "prefix_23.2.1" } # Valid sprint name format based on Name class regex
-    let(:sprint_new_name) { "prefix_23.2.2" } # Next sprint name
-    let(:parsed_sprint_name) { get_parsed_name(sprint_name) }
-    let(:parsed_sprint_new_name) { get_parsed_name(sprint_new_name) }
-
-    context "when pushing_sprint_to_next_planning_interval? returns true" do
-      before do
-        allow_any_instance_of(described_class).to receive(:pushing_sprint_to_next_planning_interval?)
-          .with(parsed_sprint_name, parsed_sprint_new_name).and_return(true)
-      end
-
-      it "returns the next sprint in the planning interval" do
-        expect(result).to eq(parsed_sprint_new_name.next_in_planning_interval)
-      end
-    end
-
-    context "when pushing_sprint_to_next_planning_interval? returns false" do
-      before do
-        allow_any_instance_of(described_class).to receive(:pushing_sprint_to_next_planning_interval?)
-          .with(parsed_sprint_name, parsed_sprint_new_name).and_return(false)
-      end
-
-      it "returns the original sprint parsed name" do
-        expect(result).to eq(parsed_sprint_name)
-      end
-    end
-  end
-  # rubocop:enable RSpec/AnyInstance
-
-  describe "#pushing_sprint_to_next_planning_interval?" do
-    let(:sprint_renamer) { described_class.new(nil, "", "") }
-
-    context "when current sprint name is less than new sprint name" do
-      it "returns true" do
-        sprint_parsed_name = instance_double(Jira::Auto::Tool::Sprint::Name, :< => true)
-        sprint_parsed_new_name = instance_double(Jira::Auto::Tool::Sprint::Name)
-
-        expect(sprint_renamer.pushing_sprint_to_next_planning_interval?(sprint_parsed_name,
-                                                                        sprint_parsed_new_name)).to be true
-      end
-    end
-
-    context "when current sprint name is not less than new sprint name" do
-      it "returns false" do
-        sprint_parsed_name = instance_double(Jira::Auto::Tool::Sprint::Name, :< => false)
-        sprint_parsed_new_name = instance_double(Jira::Auto::Tool::Sprint::Name)
-
-        expect(sprint_renamer.pushing_sprint_to_next_planning_interval?(sprint_parsed_name,
-                                                                        sprint_parsed_new_name)).to be false
-      end
-    end
+    it { expect(first_to_rename?("prefix_25.1.4")).not_to be_truthy }
+    it { expect(first_to_rename?("prefix_25.1.5")).to be_truthy }
+    it { expect(first_to_rename?("prefix_24.1.5")).not_to be_truthy }
+    it { expect(first_to_rename?("prefix_25.2.1")).not_to be_truthy }
+    it { expect(first_to_rename?("prefix_26.1.6")).not_to be_truthy }
   end
 end
 # rubocop:enable RSpec/MultipleMemoizedHelpers
