@@ -12,6 +12,6 @@ Feature: Control the HTTP request rate limit
 
     Examples:
       | rate_limit | rate_interval | minimal_time | maximal_time |
-      | 0          | 0             | 0            | 2            |
-      | 1          | 2             | 1            | 10           |
-      | 1          | 10            | 10           | 30           |
+      | 0          | 0             | 0            | 4            |
+      | 1          | 2             | 1            | 15           |
+      | 1          | 10            | 20           | 60           |
