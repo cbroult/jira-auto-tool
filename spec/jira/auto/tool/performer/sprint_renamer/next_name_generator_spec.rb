@@ -117,6 +117,18 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
       it { expect(outside?("prefix_26.1.1")).to be_truthy }
     end
 
+    context "when sprint renamed inside planning interval" do
+      let(:original_name) { "prefix_25.2.5" }
+      let(:new_name) { "prefix_25.2.16" }
+
+      it { expect(outside?("prefix_25.1.5")).to be_truthy }
+      it { expect(outside?("prefix_25.2.1")).to be_falsy }
+      it { expect(outside?("prefix_25.2.20")).to be_falsy }
+      it { expect(outside?("prefix_25.3.2")).to be_truthy }
+      it { expect(outside?("prefix_25.4.2")).to be_truthy }
+      it { expect(outside?("prefix_26.1.1")).to be_truthy }
+    end
+
     context "when pushing sprint into next planning interval" do
       let(:original_name) { "prefix_25.1.5" }
       let(:new_name) { "prefix_25.2.1" }
