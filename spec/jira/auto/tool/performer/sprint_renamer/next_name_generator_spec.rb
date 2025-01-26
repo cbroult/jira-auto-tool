@@ -107,7 +107,7 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
         allow(name_generator).to receive_messages(next_name_in_planning_interval: "next_name_in_planning_interval")
       end
 
-      it { expect(name_generator.name_for("prefix_25.2.2")).to eq('next_name_in_planning_interval') }
+      it { expect(name_generator.name_for("prefix_25.2.2")).to eq("next_name_in_planning_interval") }
     end
 
     context "when sprint name outside planning interval" do

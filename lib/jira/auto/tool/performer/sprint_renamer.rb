@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "sprint_renamer/keep_same_name_generator"
 require_relative "sprint_renamer/next_name_generator"
 
 module Jira
@@ -34,7 +35,7 @@ module Jira
           end
 
           def calculate_sprint_new_names(sprint_names)
-            name_generator = nil
+            name_generator = KeepSameNameGenerator.new
 
             sprint_names.collect do |sprint_name|
               if first_sprint_to_rename?(sprint_name)
@@ -43,10 +44,8 @@ module Jira
                 name_generator = NextNameGenerator.new(sprint_name, sprint_new_name)
 
                 sprint_new_name
-              elsif name_generator
-                name_generator.name_for(sprint_name)
               else
-                sprint_name
+                name_generator.name_for(sprint_name)
               end
             end
           end
