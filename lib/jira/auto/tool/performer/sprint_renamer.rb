@@ -43,10 +43,8 @@ module Jira
                 name_generator = NextNameGenerator.new(sprint_name, sprint_new_name)
 
                 sprint_new_name
-              elsif name_generator &&
-                    !name_generator.outside_planning_interval_of_sprint_next_to_first_renamed_sprint?(sprint_name)
-
-                name_generator.next_name_in_planning_interval
+              elsif name_generator
+                name_generator.name_for(sprint_name)
               else
                 sprint_name
               end

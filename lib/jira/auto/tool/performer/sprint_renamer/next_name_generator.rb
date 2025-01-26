@@ -15,6 +15,14 @@ module Jira
               @name_of_first_renamed_sprint = Sprint::Name.parse(name_of_first_renamed_sprint)
             end
 
+            def name_for(sprint_name)
+              if outside_planning_interval_of_sprint_next_to_first_renamed_sprint?(sprint_name)
+                sprint_name
+              else
+                next_name_in_planning_interval
+              end
+            end
+
             def new_name_of_sprint_next_to_first_renamed_sprint
               @new_name_of_sprint_next_to_first_renamed_sprint ||=
                 if pulling_sprint_into_previous_planning_interval?

@@ -97,6 +97,29 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
     end
   end
 
+  describe "#name_for" do
+    let(:name_generator) { described_class.new(original_name_of_first_renamed_sprint, name_of_first_renamed_sprint) }
+    let(:original_name_of_first_renamed_sprint) { "prefix_25.2.1" }
+    let(:name_of_first_renamed_sprint) { "prefix_25.1.8" }
+
+    context "when sprint name inside the planning interval" do
+      before do
+        allow(name_generator).to receive_messages(next_name_in_planning_interval: "next_name_in_planning_interval")
+      end
+
+      it { expect(name_generator.name_for("prefix_25.2.2")).to eq('next_name_in_planning_interval') }
+    end
+
+    context "when sprint name outside planning interval" do
+      let(:original_name_of_first_renamed_sprint) { "prefix_25.1.5" }
+      let(:name_of_first_renamed_sprint) { "prefix_25.1.20" }
+
+      it "generates a new name consecutive to the previous one in the planning interval" do
+        expect(name_generator.name_for("prefix_25.3.2")).to eq("prefix_25.3.2")
+      end
+    end
+  end
+
   describe "#outside_planning_interval_of_sprint_next_to_first_renamed_sprint?" do
     let(:name_generator) { described_class.new(original_name, new_name) }
 
