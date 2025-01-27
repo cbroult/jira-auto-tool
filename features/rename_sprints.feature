@@ -127,7 +127,7 @@ Feature: Rename sprints
       | Food_Delivery_25.3.4 | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_26.1.1 | 2024-12-01 11:00:00 UTC | future |
 
-  Scenario: Rename a sprint in the middle of a planning interval
+  Scenario: Rename a sprint forward in a planning interval
     Given the board only has the following sprints:
       | name                 | length | start                   | state  |
       | Food_Delivery_25.1.5 | 2-week | 2024-12-01 11:00:00 UTC | future |
@@ -148,6 +148,31 @@ Feature: Rename sprints
       | Food_Delivery_25.2.11 | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.2.12 | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.2.13 | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.3.1  | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.3.4  | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_26.1.1  | 2024-12-01 11:00:00 UTC | future |
+
+  Scenario: Rename a sprint backward in a planning interval
+    Given the board only has the following sprints:
+      | name                 | length | start                   | state  |
+      | Food_Delivery_25.1.5 | 2-week | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.1 | 2-week | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.10 | 2-week | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.11 | 2-week | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.12 | 2-week | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.13 | 2-week | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.3.1  | 2-week | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.3.4  | 2-week | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_26.1.1  | 2-week | 2024-12-01 11:00:00 UTC | future |
+    When I successfully run `jira-auto-tool --sprint-rename=25.2.10,25.2.2`
+    Then afterwards the board only has the following sprints:
+      | name                  | expected_start          | state  |
+      | Food_Delivery_25.1.5  | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.1  | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.2  | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.3  | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.4  | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.5  | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.3.1  | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.3.4  | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_26.1.1  | 2024-12-01 11:00:00 UTC | future |

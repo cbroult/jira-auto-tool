@@ -43,7 +43,9 @@ module Jira
             end
 
             def pulling_sprint_into_previous_planning_interval?
-              original_name_of_first_renamed_sprint > name_of_first_renamed_sprint
+              (name_of_first_renamed_sprint.planning_interval <=>
+                original_name_of_first_renamed_sprint.planning_interval)
+                .negative?
             end
 
             def outside_planning_interval_of_sprint_next_to_first_renamed_sprint?(sprint_name)

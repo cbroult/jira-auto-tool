@@ -97,7 +97,7 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
       it { expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names) }
     end
 
-    context "when renaming sprint inside planning interval" do
+    context "when renaming sprint forward inside planning interval" do
       let(:from_string) { "25.2.1" }
       let(:to_string) { "25.2.10" }
 
@@ -112,6 +112,46 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
           Food_Delivery_25.2.12
           Food_Delivery_25.2.13
           Food_Delivery_25.2.14
+        ]
+      end
+
+      it do
+        expect(sprint_renamer.calculate_sprint_new_names(["Food_Delivery_25.1.5"]))
+          .to eq(["Food_Delivery_25.1.5"])
+      end
+
+      it { expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names) }
+    end
+
+    context "when renaming sprint backward inside planning interval" do
+      let(:from_string) { "25.2.10" }
+      let(:to_string) { "25.2.1" }
+
+      let(:sprint_names) do
+        %w[
+          Food_Delivery_25.1.2
+          Food_Delivery_25.1.3
+          Food_Delivery_25.1.4
+          Food_Delivery_25.1.5
+          Food_Delivery_25.2.10
+          Food_Delivery_25.2.11
+          Food_Delivery_25.2.12
+          Food_Delivery_25.2.13
+          Food_Delivery_25.2.14
+        ]
+      end
+
+      let(:expected_new_sprint_names) do
+        %w[
+          Food_Delivery_25.1.2
+          Food_Delivery_25.1.3
+          Food_Delivery_25.1.4
+          Food_Delivery_25.1.5
+          Food_Delivery_25.2.1
+          Food_Delivery_25.2.2
+          Food_Delivery_25.2.3
+          Food_Delivery_25.2.4
+          Food_Delivery_25.2.5
         ]
       end
 

@@ -5,7 +5,7 @@ Feature: List Project Ticket Fields
 
   Scenario: List Project Ticket Fields
     Given a Jira project
-    When I run `jira-auto-tool --project-field-list`
+    When I succesfully run `jira-auto-tool --project-field-list`
     Then the output should match:
       """
       \| Project Key \| Ticket Type \| Field Name \| Field Type \|

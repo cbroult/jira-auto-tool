@@ -50,7 +50,14 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
       it { expect(next_name_generator).to be_pulling_sprint_into_previous_planning_interval }
     end
 
-    context "when sprint is renamed inside the current preceding planning interval" do
+    context "when sprint is renamed backward inside the current preceding planning interval" do
+      let(:original_name_of_first_renamed_sprint) { "prefix_26.1.4" }
+      let(:name_of_first_renamed_sprint) { "prefix_26.1.1" }
+
+      it { expect(next_name_generator).not_to be_pulling_sprint_into_previous_planning_interval }
+    end
+
+    context "when sprint is renamed forward inside the current preceding planning interval" do
       let(:original_name_of_first_renamed_sprint) { "prefix_26.1.1" }
       let(:name_of_first_renamed_sprint) { "prefix_26.1.4" }
 
