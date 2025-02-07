@@ -19,6 +19,7 @@ require "active_support/core_ext/object/blank"
 require "jira/auto/tool"
 require "jira/auto/tool/board_controller/options"
 require "jira/auto/tool/performer/options"
+require "jira/auto/tool/project/options"
 require "jira/auto/tool/sprint_controller/options"
 require "jira/auto/tool/team_sprint_prefix_mapper/options"
 
@@ -52,8 +53,21 @@ option_parser = OptionParser.new do |parser|
 
   Jira::Auto::Tool::BoardController::Options.add(tool, parser)
   Jira::Auto::Tool::Performer::Options.add(tool, parser)
+  Jira::Auto::Tool::Project::Options.add(tool, parser)
   Jira::Auto::Tool::SprintController::Options.add(tool, parser)
   Jira::Auto::Tool::TeamSprintPrefixMapper::Options.add(tool, parser)
 end
 
-option_parser.parse!
+begin
+  option_parser.parse!
+rescue StandardError => e
+  error_message = <<~EOERROR_MESSAGE
+    #{e.class}: #{e.message}
+    #{e.backtrace.join("\n")}
+  EOERROR_MESSAGE
+
+  log.error { error_message }
+  warn error_message
+
+  exit 1
+end

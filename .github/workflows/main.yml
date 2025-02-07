@@ -11,12 +11,15 @@ env:
   JIRA_API_TOKEN: "${{secrets.JIRA_API_TOKEN}}"
   JIRA_BOARD_NAME:  "JATCIGHALX - Delivery"
   JIRA_BOARD_NAME_REGEX: "JATCIGHALX"
-  SPRINT_FIELD_NAME: "Sprint"
+  JIRA_SPRINT_FIELD_NAME: "Sprint"
   REDIS_PORT: 6379
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL: "project = ${{env.JIRA_PROJECT_KEY}} AND ${{env.JIRA_SPRINT_FIELD_NAME}} IS EMPTY"
+
     name: Ruby ${{ matrix.ruby }}
     strategy:
       fail-fast: false

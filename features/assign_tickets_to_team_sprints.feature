@@ -25,11 +25,11 @@ Feature: Assign tickets to team sprints as per an expected start date
       | ART-16_Sys-Team_24.4.13 | 1-week | 2024-12-31 11:00:00 UTC | future |
       | ART-16_Sys-Team_25.1.1  | 1-week | 2025-01-07 11:00:00 UTC | future |
     And the following environment variables are set:
-      | name                             | value                                                |
-      | IMPLEMENTATION_TEAM_FIELD_NAME   | Implementation Team                                  |
-      | EXPECTED_START_DATE_FIELD_NAME   | Expected Start                                       |
-      | JIRA_SPRINT_FIELD_NAME           | Sprint                                               |
-      | JIRA_TICKETS_FOR_TEAM_SPRINT_JQL | <%= project_key %> - Filter Tickets For Team Sprints |
+      | name                                              | value                                                |
+      | IMPLEMENTATION_TEAM_FIELD_NAME                    | Implementation Team                                  |
+      | EXPECTED_START_DATE_FIELD_NAME                    | Expected Start                                       |
+      | JIRA_SPRINT_FIELD_NAME                            | Sprint                                               |
+    And JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL has been defined as an environment variable
 
   Scenario: List team to sprint prefix mappings
     When I successfully run `jira-auto-tool --team-sprint-mapping-list`

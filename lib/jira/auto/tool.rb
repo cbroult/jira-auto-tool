@@ -8,7 +8,7 @@ require "jira-ruby"
 
 require_relative "tool/board_controller"
 require_relative "tool/helpers/environment_based_value"
-require_relative "tool/project_controller"
+require_relative "tool/project"
 require_relative "tool/rate_limited_jira_client"
 require_relative "tool/request_builder"
 require_relative "tool/setup_logging"
@@ -106,6 +106,7 @@ module Jira
         implementation_team_field_name
         jat_rate_limit_in_seconds
         jat_rate_interval_in_seconds
+        jat_tickets_for_team_sprint_ticket_dispatcher_jql
         jira_api_token
         jira_board_name
         jira_board_name_regex
@@ -115,7 +116,6 @@ module Jira
         jira_site_url
         jira_username
         jira_sprint_field_name
-        jira_tickets_for_team_sprint_jql
       ].each do |method_name|
         define_overridable_environment_based_value(method_name)
       end
@@ -129,12 +129,11 @@ module Jira
       end
 
       def project_ticket_fields
-        # TODO: - should include project reference
-        project_controller.ticket_fields
+        project.ticket_fields
       end
 
-      def project_controller
-        ProjectController.new(jira_client)
+      def project
+        @project ||= Project.find(self, jira_project_key)
       end
 
       def expected_start_date_field(field_name = expected_start_date_field_name)
@@ -169,18 +168,23 @@ module Jira
         implementation_team_field.values.collect { |value| Team.new(value) }
       end
 
-      def project
-        board_project_key = board.project_key
-
-        jira_client.Project.all.find { |project| project.key == board_project_key }
-      end
-
-      def tickets
-        jira_client.Issue.jql("project = #{project.key}").collect { |jira_ticket| Ticket.new(self, jira_ticket) }
+      def tickets(jql = "project = #{project.key}")
+        jira_client.Issue.jql(jql).collect { |jira_ticket| Ticket.new(self, jira_ticket) }
+      rescue StandardError => e
+        raise <<~EOEM
+          Error fetching project tickets: Something went wrong:
+          __________ Please check your Jira configuration and your query ______
+          jql = #{jql}
+          #{e.class}: #{e.message}
+        EOEM
       end
 
       def team_sprint_ticket_dispatcher
-        TeamSprintTicketDispatcher.new(jira_client, teams, tickets, unclosed_sprint_prefixes, team_sprint_prefix_mapper)
+        TeamSprintTicketDispatcher.new(jira_client,
+                                       teams,
+                                       tickets(jat_tickets_for_team_sprint_ticket_dispatcher_jql),
+                                       unclosed_sprint_prefixes,
+                                       team_sprint_prefix_mapper)
       end
 
       private

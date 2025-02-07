@@ -55,8 +55,8 @@ module Jira
         end
 
         ActiveSupport::Inflector.inflections(:en) do |inflect|
-          inflect.acronym "UI" # Protects 'UI'
-          inflect.acronym "URL" # Protects 'URL'
+          inflect.acronym "UI"
+          inflect.acronym "URL"
         end
 
         def self.to_table_row_header

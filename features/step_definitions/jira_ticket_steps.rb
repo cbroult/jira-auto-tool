@@ -53,3 +53,11 @@ Then(/^the tickets should have been assigned to sprints as follows:$/) do |ticke
 
   expect(actual_ticket_values.sort).to eq(ticket_expectations.sort)
 end
+
+Given(/^a Jira project$/) do
+  @project = @jira_auto_tool.project
+end
+
+And(/^JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL has been defined as an environment variable$/) do
+  expect(ENV).to have_key("JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL")
+end

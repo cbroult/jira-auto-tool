@@ -89,22 +89,7 @@ module Jira
         end
 
         describe "#project" do
-          let(:board) { instance_double(Board, project_key: "board_project_key") }
-
-          before do
-            allow(tool)
-              .to receive_messages(board: board,
-                                   jira_client:
-                                     jira_resource_double(
-                                       JIRA::Client,
-                                       Project: jira_resource_double(
-                                         "project_query",
-                                         all: [jira_resource_double(JIRA::Resource::Project, key: "board_project_key")]
-                                       )
-                                     ))
-          end
-
-          it { expect(tool.project.key).to eq("board_project_key") }
+          it { expect(tool.project).to be_a(Project) }
         end
 
         # TODO: move that to environment_based_value_spec
@@ -175,6 +160,7 @@ module Jira
         %i[
           expected_start_date_field_name
           implementation_team_field_name
+          jat_tickets_for_team_sprint_ticket_dispatcher_jql
           jat_rate_limit_in_seconds
           jat_rate_interval_in_seconds
           jira_api_token
@@ -185,7 +171,6 @@ module Jira
           jira_project_key
           jira_site_url jira_username
           jira_sprint_field_name
-          jira_tickets_for_team_sprint_jql
         ].each do |method_name|
           describe "environment based values" do
             let(:object_with_overridable_value) { tool }
@@ -290,22 +275,14 @@ module Jira
           end
         end
 
-        describe "#project_controller" do
-          before do
-            allow(tool).to receive_messages(jira_client: instance_double(RateLimitedJiraClient))
-          end
-
-          it { expect(tool.project_controller).to be_a(ProjectController) }
-        end
-
         context "when dealing with ticket fields" do
           let(:ticket_field) { instance_double(JIRA::Resource::Field) }
 
           describe "#project_ticket_fields" do
-            let(:project_controller) { instance_double(ProjectController, ticket_fields: [ticket_field]) }
+            let(:project) { instance_double(Project, ticket_fields: [ticket_field]) }
 
             before do
-              allow(tool).to receive_messages(project_controller: project_controller)
+              allow(tool).to receive_messages(project: project)
             end
 
             it { expect(tool.project_ticket_fields).not_to be_empty }
@@ -361,8 +338,12 @@ module Jira
         context "when dealing with mapping team tickets to sprints" do
           describe "#team_sprint_ticket_dispatcher" do
             before do
-              allow(tool).to receive_messages(jira_client: nil, teams: nil, tickets: nil,
-                                              unclosed_sprint_prefixes: nil, team_sprint_prefix_mapper: nil)
+              allow(tool).to receive_messages(jira_client: nil, teams: nil,
+                                              unclosed_sprint_prefixes: nil, team_sprint_prefix_mapper: nil,
+                                              jat_tickets_for_team_sprint_ticket_dispatcher_jql: :jql_for_tickets)
+
+              allow(tool).to receive(:tickets).with(:jql_for_tickets)
+                                              .and_return([instance_double(JIRA::Resource::Issue)])
             end
 
             it { expect(tool.team_sprint_ticket_dispatcher).to be_a(TeamSprintTicketDispatcher) }
@@ -378,16 +359,29 @@ module Jira
           end
 
           describe "#tickets" do
-            let(:query) { jira_resource_double("query", jql: [instance_double(JIRA::Resource::Issue)]) }
+            let(:query) { jira_resource_double("query") }
             let(:jira_client) { instance_double(RateLimitedJiraClient, Issue: query) }
 
             before do
               allow(tool).to receive_messages(jira_client: jira_client)
+
               allow(tool)
                 .to receive_messages(project: jira_resource_double(JIRA::Resource::Project, key: "project_key"))
+
+              allow(query).to receive(:jql).with(expected_jql).and_return([instance_double(JIRA::Resource::Issue)])
             end
 
-            it { expect(tool.tickets).to all be_a(Ticket) }
+            context "without arguments" do
+              let(:expected_jql) { "project = project_key" }
+
+              it { expect(tool.tickets).to all be_a(Ticket) }
+            end
+
+            context "with a jql" do
+              let(:expected_jql) { "a jql" }
+
+              it { expect(tool.tickets(expected_jql)).to all be_a(Ticket) }
+            end
           end
 
           describe "#teams" do
