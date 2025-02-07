@@ -17,8 +17,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL: "project = ${{env.JIRA_PROJECT_KEY}} AND ${{env.JIRA_SPRINT_FIELD_NAME}} IS EMPTY"
 
     name: Ruby ${{ matrix.ruby }}
     strategy:
@@ -34,7 +32,12 @@ jobs:
           - "6379:6379"
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Dynamically set additional variables
+        run: |
+          export JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL="project = ${{env.JIRA_PROJECT_KEY}} AND ${{env.JIRA_SPRINT_FIELD_NAME}} IS EMPTY"
+          echo "JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL=$JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL" >> $GITHUB_ENV
 
     - name: Install Redis CLI
       run: |
