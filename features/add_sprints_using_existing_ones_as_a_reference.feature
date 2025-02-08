@@ -38,14 +38,14 @@ Feature: Add sprints using existing ones as a reference
 
   Scenario: Sprint is created for each sprint prefix
     Given the board only has the following sprints:
-      | expecting_added_sprint    | name                 | length | start                   | state  |
-      | no                        | art_crm_24.4.6       | 2-week | 2024-12-14 11:00:00 UTC | closed |
-      | yes                       | art_e2e-test_24.4.12 | 3-week | 2024-12-14 11:00:00 UTC | future |
-      | yes                       | art_people_24.4.6    | 2-week | 2024-12-14 11:00:00 UTC | active |
-      | yes                       | art_sys-team_24.4.12 | 1-week | 2024-12-21 11:00:00 UTC | future |
+      | expecting_added_sprint | name                 | length | start                   | state  |
+      | no                     | art_crm_24.4.6       | 2-week | 2024-12-14 11:00:00 UTC | closed |
+      | yes                    | art_e2e-test_24.4.12 | 3-week | 2024-12-14 11:00:00 UTC | future |
+      | yes                    | art_people_24.4.6    | 2-week | 2024-12-14 11:00:00 UTC | active |
+      | yes                    | art_sys-team_24.4.12 | 1-week | 2024-12-21 11:00:00 UTC | future |
     When I successfully run `jira-auto-tool --sprint-add-one`
     Then afterwards the board only has the following sprints:
-      | name                 | expected_start          | state  |
+      | name                 | start_date              | state  |
       | art_crm_24.4.6       | 2024-12-14 11:00:00 UTC | closed |
       | art_e2e-test_24.4.12 | 2024-12-14 11:00:00 UTC | future |
       | art_e2e-test_25.1.1  | 2025-01-04 11:00:00 UTC | future |
@@ -56,14 +56,14 @@ Feature: Add sprints using existing ones as a reference
 
   Scenario: Sprint is created using the last sprint of a sprint prefix
     Given the board only has the following sprints:
-      | expecting_added_sprint                  | name                 | length | start                   | state  |
-      | ignored since not last existing sprint  | art_sys-team_24.4.10 | 1-week | 2024-12-01 11:00:00 UTC | future |
-      | ignored since not last existing sprint  | art_sys-team_24.4.11 | 1-week | 2024-12-05 11:00:00 UTC | future |
-      | yes                                     | art_sys-team_24.4.12 | 2-week | 2024-12-14 11:00:00 UTC | future |
+      | expecting_added_sprint                 | name                 | length | start                   | state  |
+      | ignored since not last existing sprint | art_sys-team_24.4.10 | 1-week | 2024-12-01 11:00:00 UTC | future |
+      | ignored since not last existing sprint | art_sys-team_24.4.11 | 1-week | 2024-12-05 11:00:00 UTC | future |
+      | yes                                    | art_sys-team_24.4.12 | 2-week | 2024-12-14 11:00:00 UTC | future |
 
     When I successfully run `jira-auto-tool --sprint-add-one`
     Then afterwards the board only has the following sprints:
-      | name                 | expected_start          | state  |
+      | name                 | start_date              | state  |
       | art_sys-team_24.4.10 | 2024-12-01 11:00:00 UTC | future |
       | art_sys-team_24.4.11 | 2024-12-05 11:00:00 UTC | future |
       | art_sys-team_24.4.12 | 2024-12-14 11:00:00 UTC | future |

@@ -17,6 +17,7 @@ Given(/^the board has only closed sprints$/) do
 end
 
 DAYS_IN_A_WEEK = 7
+
 def parse_length_in_days(length_string)
   case length_string
   when /(\d+)-week/
@@ -59,9 +60,18 @@ Given(/^the board only has the following sprints:$/) do |table|
 end
 
 Then(/^afterwards the board only has the following sprints:$/) do |table|
+  expected_value_keys = table.raw.first
+
   expected_sprints = table.hashes.collect(&:values).collect(&:flatten)
+
   actual_sprints = @jira_auto_tool.sprint_controller.sprints.collect do |sprint|
-    [sprint.name, sprint.start_date.utc.to_s, sprint.state]
+    expected_value_keys.collect do |key|
+      unavailable_date = key =~ /date/ && !sprint.send("#{key}?")
+
+      value = unavailable_date ? "" : sprint.send(key)
+
+      value.is_a?(Time) ? value.utc.to_s : value
+    end
   end
 
   expect(actual_sprints).to contain_exactly(*expected_sprints)

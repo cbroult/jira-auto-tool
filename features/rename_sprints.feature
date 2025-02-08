@@ -30,7 +30,7 @@ Feature: Rename sprints
       | Food_Market_25.3.2     | 4-day  | 2024-12-01 11:00:00 UTC | future |
     When I successfully run `jira-auto-tool --sprint-rename=25.1.5,25.2.1`
     Then afterwards the board only has the following sprints:
-      | name                   | expected_start          | state  |
+      | name                   | start_date              | state  |
       | Food_Supply_25.1.2     | 2024-12-01 11:00:00 UTC | closed |
       | Food_Supply_25.1.3     | 2024-12-01 11:00:00 UTC | closed |
       | Food_Supply_25.1.4     | 2024-12-01 11:00:00 UTC | closed |
@@ -75,7 +75,7 @@ Feature: Rename sprints
       | Food_Market_25.3.2     | 4-day  | 2024-12-01 11:00:00 UTC | future |
     When I successfully run `jira-auto-tool --sprint-rename=25.2.1,25.1.6`
     Then afterwards the board only has the following sprints:
-      | name                   | expected_start          | state  |
+      | name                   | start_date              | state  |
       | Food_Supply_25.1.2     | 2024-12-01 11:00:00 UTC | closed |
       | Food_Supply_25.1.3     | 2024-12-01 11:00:00 UTC | closed |
       | Food_Supply_25.1.4     | 2024-12-01 11:00:00 UTC | closed |
@@ -113,7 +113,7 @@ Feature: Rename sprints
       | Food_Delivery_26.1.1 | 2-week | 2024-12-01 11:00:00 UTC | future |
     When I successfully run `jira-auto-tool --sprint-rename=25.1.5,25.2.1`
     Then afterwards the board only has the following sprints:
-      | name                 | expected_start          | state  |
+      | name                 | start_date              | state  |
       | Food_Delivery_25.1.2 | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.1.3 | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.1.4 | 2024-12-01 11:00:00 UTC | future |
@@ -141,7 +141,7 @@ Feature: Rename sprints
       | Food_Delivery_26.1.1 | 2-week | 2024-12-01 11:00:00 UTC | future |
     When I successfully run `jira-auto-tool --sprint-rename=25.2.2,25.2.10`
     Then afterwards the board only has the following sprints:
-      | name                  | expected_start          | state  |
+      | name                  | start_date              | state  |
       | Food_Delivery_25.1.5  | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.2.1  | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.2.10 | 2024-12-01 11:00:00 UTC | future |
@@ -154,9 +154,9 @@ Feature: Rename sprints
 
   Scenario: Rename a sprint backward in a planning interval
     Given the board only has the following sprints:
-      | name                 | length | start                   | state  |
-      | Food_Delivery_25.1.5 | 2-week | 2024-12-01 11:00:00 UTC | future |
-      | Food_Delivery_25.2.1 | 2-week | 2024-12-01 11:00:00 UTC | future |
+      | name                  | length | start                   | state  |
+      | Food_Delivery_25.1.5  | 2-week | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.1  | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.2.10 | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.2.11 | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.2.12 | 2-week | 2024-12-01 11:00:00 UTC | future |
@@ -166,14 +166,14 @@ Feature: Rename sprints
       | Food_Delivery_26.1.1  | 2-week | 2024-12-01 11:00:00 UTC | future |
     When I successfully run `jira-auto-tool --sprint-rename=25.2.10,25.2.2`
     Then afterwards the board only has the following sprints:
-      | name                  | expected_start          | state  |
-      | Food_Delivery_25.1.5  | 2024-12-01 11:00:00 UTC | future |
-      | Food_Delivery_25.2.1  | 2024-12-01 11:00:00 UTC | future |
-      | Food_Delivery_25.2.2  | 2024-12-01 11:00:00 UTC | future |
-      | Food_Delivery_25.2.3  | 2024-12-01 11:00:00 UTC | future |
-      | Food_Delivery_25.2.4  | 2024-12-01 11:00:00 UTC | future |
-      | Food_Delivery_25.2.5  | 2024-12-01 11:00:00 UTC | future |
-      | Food_Delivery_25.3.1  | 2024-12-01 11:00:00 UTC | future |
-      | Food_Delivery_25.3.4  | 2024-12-01 11:00:00 UTC | future |
-      | Food_Delivery_26.1.1  | 2024-12-01 11:00:00 UTC | future |
+      | name                 | start_date              | state  |
+      | Food_Delivery_25.1.5 | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.1 | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.2 | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.3 | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.4 | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.2.5 | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.3.1 | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_25.3.4 | 2024-12-01 11:00:00 UTC | future |
+      | Food_Delivery_26.1.1 | 2024-12-01 11:00:00 UTC | future |
 

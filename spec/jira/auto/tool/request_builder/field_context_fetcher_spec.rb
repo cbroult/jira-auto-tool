@@ -15,14 +15,15 @@ module Jira
                                    id: "customfield_10000")
           end
 
-          let(:jira_client) { instance_spy(JIRA::Client, options: { context_path: :a_context_path }).as_null_object }
+          let(:jira_client) do
+            instance_spy(JIRA::Client, options: { context_path: :a_context_path }).as_null_object
+          end
 
           it do
             expect(field_context_fetcher.send(:request_path))
               .to eq("/rest/api/3/field/#{field.id}/context")
           end
 
-          # rubocop:disable RSpec/MultipleMemoizedHelpers
           describe ".fetch_field_contexts" do
             let(:id_name_pairs) do
               [
@@ -46,7 +47,6 @@ module Jira
               expect(described_class.fetch_field_contexts(field)).to eq(actual_field_contexts)
             end
           end
-          # rubocop:enable RSpec/MultipleMemoizedHelpers
         end
       end
     end

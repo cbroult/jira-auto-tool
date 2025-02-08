@@ -8,7 +8,6 @@ module Jira
   module Auto
     class Tool
       class Ticket
-        # rubocop:disable RSpec/MultipleMemoizedHelpers
         RSpec.describe Ticket do
           let(:jira_client) { instance_double(JIRA::Client) }
           let(:tool) { instance_double(Tool, jira_client: jira_client) }
@@ -74,7 +73,6 @@ module Jira
             end
           end
         end
-        # rubocop:enable RSpec/MultipleMemoizedHelpers
       end
     end
   end

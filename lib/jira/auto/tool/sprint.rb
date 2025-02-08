@@ -11,6 +11,18 @@ module Jira
       class Sprint < SimpleDelegator
         include Comparable
 
+        def self.date_for_save(date)
+          case date
+          when Time, Date, DateTime
+            date
+          when String
+            Time.parse(date)
+          else
+            raise ArgumentError, "#{date.inspect} (#{date.class}), date must be a Time, Date, DateTime or a String"
+          end
+            .utc.iso8601
+        end
+
         attr_reader :jira_sprint, :tool
 
         def initialize(tool, jira_sprint)
@@ -35,8 +47,24 @@ module Jira
           get_optional_date :startDate
         end
 
+        def start_date=(date)
+          jira_sprint.attrs["startDate"] = self.class.date_for_save(date)
+        end
+
+        def start_date?
+          start_date != UNDEFINED_DATE
+        end
+
         def end_date
           get_optional_date :endDate
+        end
+
+        def end_date=(date)
+          jira_sprint.attrs["endDate"] = self.class.date_for_save(date)
+        end
+
+        def end_date?
+          end_date != UNDEFINED_DATE
         end
 
         UNDEFINED_DATE = Time.new(1970, 1, 1, 0, 0, 0, "UTC")
@@ -54,9 +82,14 @@ module Jira
         def rename_to(new_name)
           return if new_name == name || closed?
 
+          jira_sprint.attrs["name"] = new_name
+
+          save
+        end
+
+        def save
           remove_attributes_that_causes_errors_on_save
 
-          jira_sprint.attrs["name"] = new_name
           jira_sprint.save!
         end
 

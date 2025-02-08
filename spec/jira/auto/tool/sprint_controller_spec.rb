@@ -179,9 +179,7 @@ module Jira
           it "can be called so that the board information is excluded" do
             allow(Sprint).to receive(:to_table_row_header).with(without_board_information: true).and_return([:name])
 
-            # rubocop:disable RSpec / MessageExpectation
-            expect(matching_sprints).to all receive(:to_table_row).with(without_board_information: true) # rubocop:disable RSpec/MessageSpies
-            # rubocop:enable RSpec / MessageExpectation
+            expect(matching_sprints).to all receive(:to_table_row).with(without_board_information: true)
 
             allow($stdout).to receive_messages(puts: nil)
 
@@ -226,9 +224,7 @@ module Jira
             allow(Sprint::Prefix)
               .to receive(:to_table_row_header).with(without_board_information: true).and_return([:name])
 
-            # rubocop:disable RSpec / MessageExpectation
-            expect(sprint_prefixes).to all receive(:to_table_row).with(without_board_information: true) # rubocop:disable RSpec/MessageSpies
-            # rubocop:enable RSpec / MessageExpectation
+            expect(sprint_prefixes).to all receive(:to_table_row).with(without_board_information: true)
 
             allow($stdout).to receive_messages(puts: nil)
 
@@ -236,7 +232,6 @@ module Jira
           end
         end
 
-        # rubocop:disable RSpec / MultipleMemoizedHelpers
         describe "#jira_sprints" do
           let(:all_sprints) do
             %w[
@@ -294,9 +289,7 @@ module Jira
             end
           end
         end
-        # rubocop:enable RSpec / MultipleMemoizedHelpers
 
-        # rubocop:disable RSpec / MultipleMemoizedHelpers
         describe "#unclosed_sprint_prefixes" do
           def new_jira_sprints(name_start_end_trios)
             name_start_end_trios.collect do |id, name, start_data, end_date|
@@ -340,7 +333,6 @@ module Jira
             expect(sprint_controller.unclosed_sprint_prefixes.collect(&:name)).to eq(%w[art_e2e art_sys])
           end
         end
-        # rubocop:enable RSpec / MultipleMemoizedHelpers
 
         describe "#sprint_exist?" do
           let(:examples) do

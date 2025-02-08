@@ -4,7 +4,6 @@ module Jira
   module Auto
     # rubocop:disable Metrics/ClassLength
     class Tool
-      # rubocop:disable RSpec/MultipleMemoizedHelpers
       # rubocop:disable RSpec/NestedGroups:
       RSpec.describe Sprint do
         let(:jira_client) { instance_double(JIRA::Client) }
@@ -15,7 +14,8 @@ module Jira
                                name: "Food_Supply_24.4.5",
                                startDate: "2024-12-27 13:00 UTC", endDate: "2024-12-31 13:00 UTC",
                                state: state, originBoardId: 4096,
-                               client: jira_client)
+                               client: jira_client,
+                               attrs: {})
         end
 
         let(:state) { "future" }
@@ -43,19 +43,38 @@ module Jira
 
           shared_examples "an optional date" do |date_method, jira_field:, expected_value:|
             it { expect(sprint.send(date_method)).to eq(Time.parse(expected_value).utc) }
+            it { expect(sprint.send("#{date_method}?")).to be_truthy }
 
-            context "when the date fieldsprint has no start date" do
+            context "when the sprint has no date" do
               before do
                 allow(jira_sprint).to receive(:respond_to?).with(jira_field).and_return(false)
               end
 
               it("handles missing date information") { expect(sprint.send(date_method)).to eq(Sprint::UNDEFINED_DATE) }
+
+              it { expect(sprint.send("#{date_method}?")).to be_falsy }
             end
           end
 
           describe "#start_date" do
             it_behaves_like "an optional date",
                             :start_date, jira_field: :startDate, expected_value: "2024-12-27 13:00 UTC"
+          end
+
+          describe "#start_date=" do
+            it "can set the date attribute" do
+              sprint.start_date = "2025-02-08 12:45 +0100"
+
+              expect(jira_sprint.attrs["startDate"]).to eq("2025-02-08T11:45:00Z")
+            end
+          end
+
+          describe "#end_date=" do
+            it "can set the date attribute" do
+              sprint.end_date = "2025-02-08 12:45 +0100"
+
+              expect(jira_sprint.attrs["endDate"]).to eq("2025-02-08T11:45:00Z")
+            end
           end
 
           describe "#end_date" do
@@ -150,6 +169,18 @@ module Jira
 
                 expect(jira_sprint).not_to have_received(:save!)
               end
+            end
+          end
+
+          describe "#save" do
+            it "saves the sprint" do
+              allow(jira_sprint).to receive_messages(save!: nil, attrs: { "name" => "Food_Supply_25.4.1" })
+
+              # allow(sprint).to receive_messages()
+
+              sprint.save
+
+              expect(jira_sprint).to have_received(:save!)
             end
           end
 
@@ -253,10 +284,22 @@ module Jira
             it { expect(sprint.send(:comparison_fields, sprint)).to eq(%i[start_date end_date name]) }
           end
         end
+
+        describe ".date_for_save" do
+          let(:now) { Time.now }
+
+          it { expect(described_class.date_for_save(now)).to eq(now.utc.iso8601) }
+          it { expect(described_class.date_for_save("2025-02-08 15:15:15 UTC+1")).to eq("2025-02-08T14:15:15Z") }
+
+          it do
+            expect { described_class.date_for_save(nil) }
+              .to raise_error(ArgumentError, "nil (NilClass), date must be a Time, Date, DateTime or a String")
+          end
+        end
       end
       # rubocop:enable RSpec/NestedGroups:
-      # rubocop:enable RSpec/MultipleMemoizedHelpers
     end
+
     # rubocop:enable Metrics/ClassLength
   end
 end

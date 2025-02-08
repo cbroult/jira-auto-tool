@@ -36,8 +36,8 @@ module Jira
             {
               originBoardId: origin_board_id,
               name: name,
-              startDate: start_date.utc.iso8601,
-              endDate: end_date.utc.iso8601
+              startDate: Sprint.date_for_save(start_date),
+              endDate: Sprint.date_for_save(end_date)
             }
           end
 

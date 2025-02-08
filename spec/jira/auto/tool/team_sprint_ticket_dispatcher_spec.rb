@@ -80,8 +80,6 @@ module Jira
             end
 
             describe "#dispatch_tickets_to_prefix_sprints" do
-              # rubocop:disable RSpec/MultipleExpectations
-
               before do
                 allow(ticket_for_1st_team).to receive_messages(:sprint= => nil)
                 allow(another_ticket_for_1st_team).to receive_messages(:sprint= => nil)
@@ -97,7 +95,8 @@ module Jira
                   .with(sprint_prefix_for_1st_team, another_ticket_for_1st_team).and_return(:second_sprint)
 
                 dispatcher.dispatch_tickets_to_prefix_sprints("ART_Team1",
-                                                              [ticket_for_1st_team, another_ticket_for_1st_team])
+                                                              [ticket_for_1st_team,
+                                                               another_ticket_for_1st_team])
 
                 expect(ticket_for_1st_team).to have_received(:sprint=).with(:first_sprint)
                 expect(another_ticket_for_1st_team).to have_received(:sprint=).with(:second_sprint)
@@ -115,7 +114,6 @@ module Jira
 
                 expect(ticket_planned_after_last_available_sprint).not_to have_received(:sprint=)
               end
-              # rubocop:enable RSpec/MultipleExpectations
             end
           end
 

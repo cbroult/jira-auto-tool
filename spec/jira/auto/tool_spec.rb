@@ -146,7 +146,6 @@ module Jira
             expect(object_with_overridable_value.send(method_name)).to eq(override_value)
           end
 
-          # rubocop:disable RSpec/MultipleExpectations
           it "defines a constant with the same name" do
             const_name = method_name.to_s.upcase
             fully_qualified_const_name = "#{described_class}::Environment::#{const_name}"
@@ -154,7 +153,6 @@ module Jira
             expect(described_class.const_defined?(fully_qualified_const_name)).to be true
             expect(described_class.const_get(fully_qualified_const_name)).to eq(const_name)
           end
-          # rubocop:enable RSpec/MultipleExpectations
         end
 
         %i[

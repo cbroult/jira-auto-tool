@@ -53,7 +53,6 @@ module Jira
               }
             end
 
-            # rubocop:disable RSpec/MultipleMemoizedHelpers
             describe "#table_rows" do
               let(:jira_client) { jira_resource_double(JIRA::Client) }
               let(:createmeta) { jira_resource_double(JIRA::Resource::Createmeta, all: all_createmeta) }
@@ -382,7 +381,6 @@ module Jira
 
               it { expect(ticket_fields.table_rows).to eq(expected_table_rows) }
             end
-            # rubocop:enable RSpec/MultipleMemoizedHelpers
           end
         end
         # rubocop:enable Metrics/ClassLength
