@@ -40,21 +40,35 @@ module Jira
           end
         end
 
+        # rubocop:disable RSpec/StubbedMock
         describe "#create_sprint" do
           it "creates a future sprint and transitions it to the desired state" do
-            allow(tool).to receive_messages(create_future_sprint: nil, transition_sprint_state: nil)
+            expect(tool).to receive(:transition_sprint_state).with(:created_sprint, desired_state: "a state")
 
-            allow(tool).to receive(:create_future_sprint)
-              .with("sprint_name_24.4.2", "2024-12-16 11:00 UTC", 14)
+            expect(tool).to receive(:create_future_sprint)
+              .with({ name: "sprint_name_24.4.2", start_date: "2024-12-16 11:00 UTC", length_in_days: 14 })
               .and_return(:created_sprint)
 
-            tool.create_sprint(name: "sprint_name_24.4.2", start: "2024-12-16 11:00 UTC", length_in_days: 14,
-                               state: "a state")
+            tool.create_sprint({ name: "sprint_name_24.4.2", start_date: "2024-12-16 11:00 UTC", length_in_days: 14,
+                                 state: "a state" })
+          end
 
-            expect(tool).to have_received(:transition_sprint_state).with(:created_sprint,
-                                                                         desired_state: "a state")
+          context "when specifying end_date" do
+            it "overrides the length_in_days" do
+              expect(tool).to receive(:transition_sprint_state).with(:created_sprint, desired_state: "a state")
+
+              expect(tool).to receive(:create_future_sprint)
+                .with({ name: "sprint_name_24.4.2", start_date: "2024-12-16 11:00 UTC",
+                        end_date: "2024-12-23 11:00 UTC" })
+                .and_return(:created_sprint)
+
+              tool.create_sprint({ name: "sprint_name_24.4.2", start_date: "2024-12-16 11:00 UTC",
+                                   end_date: "2024-12-23 11:00 UTC",
+                                   state: "a state" })
+            end
           end
         end
+        # rubocop:enable RSpec/StubbedMock
 
         describe "#fetch_sprint" do
           def build_sprint(name)

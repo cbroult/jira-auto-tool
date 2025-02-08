@@ -9,10 +9,10 @@ Feature: Add sprints until a specific date
 
   Scenario: Add sprints until specific date
     Given the board only has the following sprints:
-      | expecting_added_sprints       | name                 | length | start                   | state  |
-      | no since closed               | art_crm_24.4.1       | 2-week | 2024-12-01 11:00:00 UTC | closed |
-      | yes                           | art_e2e-test_24.4.1  | 4-day  | 2024-12-01 11:00:00 UTC | future |
-      | yes                           | art_people_24.4.6    | 3-week | 2024-10-07 11:00:00 UTC | active |
+      | comment                       | name                 | length | start_date              | state  |
+      | no added since closed         | art_crm_24.4.1       | 2-week | 2024-12-01 11:00:00 UTC | closed |
+      |                               | art_e2e-test_24.4.1  | 4-day  | 2024-12-01 11:00:00 UTC | future |
+      |                               | art_people_24.4.6    | 3-week | 2024-10-07 11:00:00 UTC | active |
       | no since after specified date | art_sys-team_24.4.12 | 1-week | 2024-12-24 11:00:00 UTC | future |
     When I successfully run `jira-auto-tool --sprint-add-until=2024-12-15`
     Then afterwards the board only has the following sprints:
@@ -30,10 +30,10 @@ Feature: Add sprints until a specific date
 
   Scenario: Add sprints until current quarter end
     Given the board only has the following sprints:
-      | expecting_added_sprints                               | name                 | length | start                   | state  |
-      | no since closed                                       | art_crm_24.4.1       | 2-week | 2024-12-01 11:00:00 UTC | closed |
-      | yes                                                   | art_e2e-test_24.4.1  | 4-day  | 2024-12-01 11:00:00 UTC | future |
-      | yes                                                   | art_people_24.4.6    | 3-week | 2024-10-07 11:00:00 UTC | active |
+      | comment                                               | name                 | length | start_date              | state  |
+      | none added since closed                               | art_crm_24.4.1       | 2-week | 2024-12-01 11:00:00 UTC | closed |
+      |                                                       | art_e2e-test_24.4.1  | 4-day  | 2024-12-01 11:00:00 UTC | future |
+      |                                                       | art_people_24.4.6    | 3-week | 2024-10-07 11:00:00 UTC | active |
       | yes since finishes before midnight at the quarter end | art_sys-team_24.4.12 | 1-week | 2024-12-24 11:00:00 UTC | future |
     When I successfully run `jira-auto-tool --sprint-add-until=current_quarter`
     Then afterwards the board only has the following sprints:
@@ -57,10 +57,10 @@ Feature: Add sprints until a specific date
 
   Scenario: Add sprints until the coming quarter end
     Given the board only has the following sprints:
-      | expecting_added_sprints               | name                | length | start                   | state  |
-      | no since closed                       | art_crm_24.4.1      | 2-week | 2024-12-01 11:00:00 UTC | closed |
-      | no since goes over coming quarter end | art_e2e-test_25.1.9 | 4-day  | 2025-03-30 11:00:00 UTC | future |
-      | yes                                   | art_people_24.4.6   | 6-week | 2024-10-07 11:00:00 UTC | active |
+      | comment                                       | name                | length | start_date              | state  |
+      | none added since closed                       | art_crm_24.4.1      | 2-week | 2024-12-01 11:00:00 UTC | closed |
+      | none added since goes over coming quarter end | art_e2e-test_25.1.9 | 4-day  | 2025-03-30 11:00:00 UTC | future |
+      |                                               | art_people_24.4.6   | 6-week | 2024-10-07 11:00:00 UTC | active |
     When I successfully run `jira-auto-tool --sprint-add-until=coming_quarter`
     Then afterwards the board only has the following sprints:
       | name                | start_date              | state  |

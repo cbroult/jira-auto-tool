@@ -8,7 +8,7 @@ Feature: Rename sprints
 
   Scenario: Push a sprint to the next planning interval and rename followers
     Given the board only has the following sprints:
-      | name                   | length | start                   | state  |
+      | name                   | length | start_date              | state  |
       | Food_Supply_25.1.2     | 2-week | 2024-12-01 11:00:00 UTC | closed |
       | Food_Supply_25.1.3     | 2-week | 2024-12-01 11:00:00 UTC | closed |
       | Food_Supply_25.1.4     | 2-week | 2024-12-01 11:00:00 UTC | closed |
@@ -53,7 +53,7 @@ Feature: Rename sprints
 
   Scenario: Pull a sprint into the previous planning interval and rename followers
     Given the board only has the following sprints:
-      | name                   | length | start                   | state  |
+      | name                   | length | start_date              | state  |
       | Food_Supply_25.1.2     | 2-week | 2024-12-01 11:00:00 UTC | closed |
       | Food_Supply_25.1.3     | 2-week | 2024-12-01 11:00:00 UTC | closed |
       | Food_Supply_25.1.4     | 2-week | 2024-12-01 11:00:00 UTC | closed |
@@ -98,7 +98,7 @@ Feature: Rename sprints
 
   Scenario: Sprints beyond the planning interval of the sprint next to the first sprint to rename are left untouched
     Given the board only has the following sprints:
-      | name                 | length | start                   | state  |
+      | name                 | length | start_date              | state  |
       | Food_Delivery_25.1.2 | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.1.3 | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.1.4 | 2-week | 2024-12-01 11:00:00 UTC | future |
@@ -129,7 +129,7 @@ Feature: Rename sprints
 
   Scenario: Rename a sprint forward in a planning interval
     Given the board only has the following sprints:
-      | name                 | length | start                   | state  |
+      | name                 | length | start_date              | state  |
       | Food_Delivery_25.1.5 | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.2.1 | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.2.2 | 2-week | 2024-12-01 11:00:00 UTC | future |
@@ -154,7 +154,7 @@ Feature: Rename sprints
 
   Scenario: Rename a sprint backward in a planning interval
     Given the board only has the following sprints:
-      | name                  | length | start                   | state  |
+      | name                  | length | start_date              | state  |
       | Food_Delivery_25.1.5  | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.2.1  | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.2.10 | 2-week | 2024-12-01 11:00:00 UTC | future |

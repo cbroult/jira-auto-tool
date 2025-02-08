@@ -10,7 +10,7 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
   end
 
   describe "#new_name_of_sprint_next_to_first_renamed_sprint" do
-    subject(:result) { next_name_generator.new_name_of_sprint_next_to_first_renamed_sprint }
+    subject(:new_name) { next_name_generator.new_name_of_sprint_next_to_first_renamed_sprint }
 
     let(:next_name_generator) do
       described_class.new(original_name_of_first_renamed_sprint, name_of_first_renamed_sprint)
@@ -20,21 +20,21 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
       let(:original_name_of_first_renamed_sprint) { "prefix_23.2.1" }
       let(:name_of_first_renamed_sprint) { "prefix_23.1.6" }
 
-      it("returns the original sprint name") { expect(result).to eq(parsed_name("prefix_23.2.1")) }
+      it("returns the original sprint name") { expect(new_name).to eq(parsed_name("prefix_23.2.1")) }
     end
 
     context "when renaming inside planning interval" do
       let(:original_name_of_first_renamed_sprint) { "prefix_23.2.1" }
       let(:name_of_first_renamed_sprint) { "prefix_23.2.4" }
 
-      it { expect(result).to eq(parsed_name("prefix_23.2.5")) }
+      it { expect(new_name).to eq(parsed_name("prefix_23.2.5")) }
     end
 
     context "when pushing sprint into next planning interval" do
       let(:original_name_of_first_renamed_sprint) { "prefix_23.1.5" }
       let(:name_of_first_renamed_sprint) { "prefix_23.2.2" }
 
-      it("returns the original sprint parsed name") { expect(result).to eq(parsed_name("prefix_23.2.3")) }
+      it("returns the original sprint parsed name") { expect(new_name).to eq(parsed_name("prefix_23.2.3")) }
     end
   end
 
@@ -74,14 +74,14 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
 
   describe "#next_name_in_planning_interval" do
     let(:name_generator) { described_class.new(original_name_of_first_renamed_sprint, name_of_first_renamed_sprint) }
-    let(:result) { 4.times.collect { name_generator.next_name_in_planning_interval } }
+    let(:next_names) { 4.times.collect { name_generator.next_name_in_planning_interval } }
 
     context "when pulling to the previous planning interval" do
       let(:original_name_of_first_renamed_sprint) { "prefix_25.2.1" }
       let(:name_of_first_renamed_sprint) { "prefix_25.1.8" }
 
       it "generates a new name consecutive to the previous one in the planning interval" do
-        expect(result).to eq(%w[prefix_25.2.1 prefix_25.2.2 prefix_25.2.3 prefix_25.2.4])
+        expect(next_names).to eq(%w[prefix_25.2.1 prefix_25.2.2 prefix_25.2.3 prefix_25.2.4])
       end
     end
 
@@ -90,7 +90,7 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
       let(:name_of_first_renamed_sprint) { "prefix_25.1.20" }
 
       it "generates a new name consecutive to the previous one in the planning interval" do
-        expect(result).to eq(%w[prefix_25.1.21 prefix_25.1.22 prefix_25.1.23 prefix_25.1.24])
+        expect(next_names).to eq(%w[prefix_25.1.21 prefix_25.1.22 prefix_25.1.23 prefix_25.1.24])
       end
     end
 
@@ -99,7 +99,7 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
       let(:name_of_first_renamed_sprint) { "prefix_25.2.1" }
 
       it "generates a new name consecutive to the previous one in the planning interval" do
-        expect(result).to eq(%w[prefix_25.2.2 prefix_25.2.3 prefix_25.2.4 prefix_25.2.5])
+        expect(next_names).to eq(%w[prefix_25.2.2 prefix_25.2.3 prefix_25.2.4 prefix_25.2.5])
       end
     end
   end

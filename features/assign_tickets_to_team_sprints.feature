@@ -14,7 +14,7 @@ Feature: Assign tickets to team sprints as per an expected start date
       | A16 Platform |
       | A16 Sys-Team |
     And the board only has the following sprints:
-      | name                    | length | start                   | state  |
+      | name                    | length | start_date              | state  |
       | ART-16_CRM_24.4.1       | 2-week | 2024-12-01 11:00:00 UTC | closed |
       | ART-16_CRM_24.4.2       | 2-week | 2024-12-15 11:00:00 UTC | active |
       | ART-16_E2E-Test_24.4.1  | 4-day  | 2024-12-01 11:00:00 UTC | future |

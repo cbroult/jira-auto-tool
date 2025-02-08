@@ -28,6 +28,7 @@ Feature: Add sprints using existing ones as a reference
     Then a sprint named <expected_name> should exist
     And it starts on <expected_start>
     And it ends on <expected_end>
+    And its state is future
 
     Examples:
       | sprint_length | start_date_time  | expected_name   | expected_start   | expected_end     |
@@ -38,11 +39,11 @@ Feature: Add sprints using existing ones as a reference
 
   Scenario: Sprint is created for each sprint prefix
     Given the board only has the following sprints:
-      | expecting_added_sprint | name                 | length | start                   | state  |
-      | no                     | art_crm_24.4.6       | 2-week | 2024-12-14 11:00:00 UTC | closed |
-      | yes                    | art_e2e-test_24.4.12 | 3-week | 2024-12-14 11:00:00 UTC | future |
-      | yes                    | art_people_24.4.6    | 2-week | 2024-12-14 11:00:00 UTC | active |
-      | yes                    | art_sys-team_24.4.12 | 1-week | 2024-12-21 11:00:00 UTC | future |
+      | comment                        | name                 | length | start_date             | state  |
+      | no added sprint because closed | art_crm_24.4.6       | 2-week | 2024-12-14 11:00:00 UTC | closed |
+      | yes                            | art_e2e-test_24.4.12 | 3-week | 2024-12-14 11:00:00 UTC | future |
+      | yes                            | art_people_24.4.6    | 2-week | 2024-12-14 11:00:00 UTC | active |
+      | yes                            | art_sys-team_24.4.12 | 1-week | 2024-12-21 11:00:00 UTC | future |
     When I successfully run `jira-auto-tool --sprint-add-one`
     Then afterwards the board only has the following sprints:
       | name                 | start_date              | state  |
@@ -56,7 +57,7 @@ Feature: Add sprints using existing ones as a reference
 
   Scenario: Sprint is created using the last sprint of a sprint prefix
     Given the board only has the following sprints:
-      | expecting_added_sprint                 | name                 | length | start                   | state  |
+      | comment                                | name                 | length | start_date              | state  |
       | ignored since not last existing sprint | art_sys-team_24.4.10 | 1-week | 2024-12-01 11:00:00 UTC | future |
       | ignored since not last existing sprint | art_sys-team_24.4.11 | 1-week | 2024-12-05 11:00:00 UTC | future |
       | yes                                    | art_sys-team_24.4.12 | 2-week | 2024-12-14 11:00:00 UTC | future |

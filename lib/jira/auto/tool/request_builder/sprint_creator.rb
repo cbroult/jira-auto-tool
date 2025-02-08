@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
+require "active_support/core_ext/object/blank"
+
 module Jira
   module Auto
     class Tool
       class RequestBuilder
         class SprintCreator < RequestBuilder
-          def self.create_sprint(tool, original_board_id, name, start, length_in_days)
-            log.debug { "create_sprint(name: #{name}, start: #{start}, length: #{length_in_days})" }
+          def self.create_sprint(tool, original_board_id, attributes)
+            log.debug { "create_sprint(#{attributes.inspect})" }
 
-            creation_response = new(tool.jira_client, original_board_id, name, start, length_in_days)
-                                .run
+            creation_response = new(tool.jira_client, original_board_id, attributes).run
 
             created_sprint = Sprint.new(tool,
                                         tool.jira_client.Sprint.find(JSON.parse(creation_response.body).fetch("id")))
@@ -21,24 +22,57 @@ module Jira
 
           protected
 
-          attr_reader :origin_board_id, :name, :start, :length_in_days
+          attr_reader :origin_board_id, :attributes
 
-          def initialize(jira_client, origin_board_id, name, start, length_in_days)
+          def initialize(jira_client, origin_board_id, attributes)
             super(jira_client)
 
             @origin_board_id = origin_board_id
-            @name = name
-            @start = start
-            @length_in_days = length_in_days
+            @attributes = attributes
           end
 
           def request_payload
-            {
-              originBoardId: origin_board_id,
-              name: name,
-              startDate: Sprint.date_for_save(start_date),
-              endDate: Sprint.date_for_save(end_date)
-            }
+            payload = { originBoardId: origin_board_id, name: attributes.fetch(:name) }
+
+            payload[:startDate] = Sprint.date_for_save(start_date) if start_date
+            payload[:endDate] = Sprint.date_for_save(end_date) if end_date
+
+            payload
+          end
+
+          def start_date
+            @start_date ||= extract_date(attributes[:start_date])
+          end
+
+          def end_date
+            @end_date ||=
+              begin
+                date = extract_date(attributes[:end_date])
+
+                if date
+                  length = attributes[:length_in_days]
+
+                  unless length.blank?
+                    raise ArgumentError,
+                          "Should not provide both :end_date (#{date.inspect}) and :length_in_days (#{length})!"
+                  end
+
+                  date
+                elsif start_date && length_in_days
+                  start_date + length_in_days.days
+                end
+              end
+          end
+
+          def length_in_days
+            @length_in_days ||=
+              begin
+                raise ArgumentError, "Should provide :start_date in order to use :length_in_days!" unless start_date
+
+                length = attributes[:length_in_days]
+
+                length.blank? ? nil : Integer(length)
+              end
           end
 
           def http_verb
@@ -51,12 +85,13 @@ module Jira
 
           private
 
-          def end_date
-            start_date + length_in_days.days
-          end
-
-          def start_date
-            start.is_a?(Time) ? start : Time.parse(start)
+          def extract_date(date)
+            case date
+            when Time
+              date
+            else
+              date.blank? ? nil : Time.parse(date)
+            end
           end
 
           def request_path

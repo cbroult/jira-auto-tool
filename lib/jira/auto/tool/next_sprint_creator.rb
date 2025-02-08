@@ -26,12 +26,11 @@ module Jira
         end
 
         def create
-          RequestBuilder::SprintCreator
-            .create_sprint(sprint.tool,
-                           sprint.origin_board_id,
-                           next_sprint_name,
-                           next_sprint_start_date.utc.to_s,
-                           next_sprint_length_in_days)
+          RequestBuilder::SprintCreator.create_sprint(sprint.tool, sprint.origin_board_id, {
+                                                        name: next_sprint_name,
+                                                        start_date: next_sprint_start_date.utc.to_s,
+                                                        length_in_days: next_sprint_length_in_days
+                                                      })
         end
 
         INDEX_FIRST_SPRINT_IN_QUARTER = 1

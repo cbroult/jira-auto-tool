@@ -14,15 +14,15 @@ module Jira
 
           describe ".find" do
             let(:jira_project) { jira_resource_double(JIRA::Resource::Project, key: "project_key") }
-            let(:result) { described_class.find(tool, "project_key") }
+            let(:actual_end_date) { described_class.find(tool, "project_key") }
 
             before do
               allow(jira_client)
                 .to receive_messages(Project: jira_resource_double("project_query", find: jira_project))
             end
 
-            it { expect(result.key).to eq("project_key") }
-            it { expect(result).to be_a(described_class) }
+            it { expect(actual_end_date.key).to eq("project_key") }
+            it { expect(actual_end_date).to be_a(described_class) }
           end
         end
       end

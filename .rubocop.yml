@@ -9,6 +9,30 @@ RSpec/ExampleLength:
   Enabled: true
   Max: 10
 
+RSpec/MessageExpectation:
+  Description: Checks for consistent message expectation style.
+  Enabled: false
+  EnforcedStyle: allow
+  SupportedStyles:
+    - allow
+    - expect
+    -
+RSpec/MessageSpies:
+  Description: Checks that message expectations are set using spies.
+  Enabled: false
+  EnforcedStyle: receive
+  SupportedStyles:
+    - have_received
+    - receive
+
+RSpec/MultipleExpectations:
+  Description: Checks if examples contain too many `expect` calls.
+  Enabled: true
+  Max: 4
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 8
+
 Metrics/ClassLength:
   Max: 150
 

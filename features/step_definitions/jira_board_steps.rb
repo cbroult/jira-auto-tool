@@ -12,7 +12,8 @@ end
 
 Given(/^the board has only closed sprints$/) do
   4.times do |sprint_index|
-    @jira_auto_tool.create_sprint(name: "sprint_24.1.#{sprint_index}", state: "closed")
+    @jira_auto_tool.create_sprint(name: "sprint_24.1.#{sprint_index}", state: "closed",
+                                  start_date: Time.now + sprint_index.days, length_in_days: 14)
   end
 end
 
@@ -30,8 +31,8 @@ def parse_length_in_days(length_string)
 end
 
 Given(/^an unclosed (.+) sprint named (.+) starting on (.+)$/) do |sprint_length, sprint_name, start_date_time|
-  @jira_auto_tool.create_sprint(name: sprint_name, start: start_date_time,
-                                length_in_days: parse_length_in_days(sprint_length))
+  @jira_auto_tool.create_sprint({ name: sprint_name, start_date: start_date_time,
+                                  length_in_days: parse_length_in_days(sprint_length), state: "future" })
 end
 
 Then(/^a sprint named (.*) should exist$/) do |expected_name|
@@ -48,14 +49,30 @@ And(/^it ends on (.*)$/) do |expected_end|
   expect(@actual_sprint.end_date).to eq(Time.parse(expected_end).utc)
 end
 
+And(/^its state is (.*)$/) do |expected_state|
+  expect(@actual_sprint.state).to eq(expected_state)
+end
+
 Given(/^the board only has the following sprints:$/) do |table|
+  table_value_keys = table.raw.first
+
   table.hashes.each do |sprint_hash|
-    @jira_auto_tool.create_sprint(
-      name: sprint_hash[:name],
-      start: sprint_hash[:start],
-      length_in_days: parse_length_in_days(sprint_hash[:length]),
-      state: sprint_hash[:state]
-    )
+    attributes = {}
+
+    table_value_keys.each do |key|
+      value = sprint_hash[key]
+
+      case key.intern
+      when :length
+        attributes[:length_in_days] = parse_length_in_days(value)
+      when :expecting_added_sprint, :comment
+        next
+      else
+        attributes[key.intern] = value
+      end
+    end
+
+    @jira_auto_tool.create_sprint(attributes)
   end
 end
 

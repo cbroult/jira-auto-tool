@@ -6,7 +6,7 @@ Feature: List Sprint Prefixes
   Background:
     Given a Jira Scrum board
     And the board only has the following sprints:
-      | name                    | length | start                   | state  |
+      | name                    | length | start_date              | state  |
       | ART-16_CRM_24.4.1       | 2-week | 2024-12-01 11:00:00 UTC | closed |
       | ART-16_E2E-Test_24.4.1  | 4-day  | 2024-12-01 11:00:00 UTC | future |
       | ART-16_E2E-Test_24.4.2  | 4-day  | 2024-12-05 11:00:00 UTC | future |

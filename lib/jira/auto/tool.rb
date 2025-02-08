@@ -49,12 +49,16 @@ module Jira
           raise KeyError, "Sprint '#{sprint_name}' not found for #{board.name}!" # TODO: - test this condition
       end
 
-      def create_sprint(name:, start: Time.now.utc.iso8601, length_in_days: 14, state: "future")
-        created_sprint = create_future_sprint(name, start, length_in_days)
+      ATTRIBUTES_TO_IGNORE_FOR_SPRINT_CREATION = %i[state].freeze
+
+      def create_sprint(attributes)
+        attributes_for_sprint_creation = attributes.except(*ATTRIBUTES_TO_IGNORE_FOR_SPRINT_CREATION)
+
+        created_sprint = create_future_sprint(attributes_for_sprint_creation)
 
         log.debug { created_sprint.inspect }
 
-        transition_sprint_state(created_sprint, desired_state: state)
+        transition_sprint_state(created_sprint, desired_state: attributes.fetch(:state))
       end
 
       def transition_sprint_state(created_sprint, desired_state:)
@@ -189,9 +193,9 @@ module Jira
 
       private
 
-      def create_future_sprint(name, start, length_in_days)
+      def create_future_sprint(attributes)
         RequestBuilder::SprintCreator
-          .create_sprint(self, board.id, name, start, length_in_days)
+          .create_sprint(self, board.id, attributes)
       end
     end
   end

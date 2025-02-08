@@ -38,9 +38,9 @@ module Jira
               expect(RequestBuilder::SprintCreator)
                 .to have_received(:create_sprint)
                 .with(tool, 512,
-                      expected[:next_sprint_name],
-                      Time.parse(expected[:next_sprint_start]).utc.to_s,
-                      4)
+                      { name: expected[:next_sprint_name],
+                        start_date: Time.parse(expected[:next_sprint_start]).utc.to_s,
+                        length_in_days: 4 })
             end
           end
 
