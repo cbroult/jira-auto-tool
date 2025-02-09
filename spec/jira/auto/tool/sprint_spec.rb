@@ -235,7 +235,7 @@ module Jira
             described_class.new(
               tool,
               double(JIRA::Resource::Sprint, name: name, startDate: start_date, endDate: end_date,
-                                             originBoardId: 2048, inspect: name.inspect)
+                     originBoardId: 2048, inspect: name.inspect)
             )
             # rubocop:enable RSpec/VerifiedDoubles
           end
@@ -289,7 +289,10 @@ module Jira
           let(:now) { Time.now }
 
           it { expect(described_class.date_for_save(now)).to eq(now.utc.iso8601) }
-          it { expect(described_class.date_for_save("2025-02-08 15:15:15 UTC+1")).to eq("2025-02-08T14:15:15Z") }
+          it do
+            expect(described_class.date_for_save("2025-02-08 15:15:15 UTC+1").force_encoding("UTF-8")).
+              to eq("2025-02-08T14:15:15Z")
+          end
 
           it do
             expect { described_class.date_for_save(nil) }
