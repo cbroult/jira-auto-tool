@@ -5,6 +5,9 @@ on:
   pull_request:
 
 env:
+  LANG: en_US.UTF-8
+  LC_ALL: en_US.UTF-8
+  LC_CTYPE: en_US.UTF-8
   DISABLE_COVERAGE: "true"
   JIRA_SITE_URL: "http://cbroult.atlassian.net:443/"
   JIRA_USERNAME: "cbroult@yahoo.com"
