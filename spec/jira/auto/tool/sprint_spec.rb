@@ -290,7 +290,7 @@ module Jira
 
           it { expect(described_class.date_for_save(now)).to eq(now.utc.iso8601) }
           it do
-            expect(described_class.date_for_save("2025-02-08 15:15:15 UTC+1").force_encoding("UTF-8")).
+            expect(described_class.date_for_save("2025-02-08 15:15:15 +0100").force_encoding("UTF-8")).
               to eq("2025-02-08T14:15:15Z")
           end
 
