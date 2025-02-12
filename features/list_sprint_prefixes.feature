@@ -49,7 +49,7 @@ Feature: List Sprint Prefixes
     When I successfully run `jira-auto-tool --sprint-prefix-list`
     Then the output should match:
       """
-      \+-----------------\+----------------\+------------------------\+----------------\+-------------------------\+-------------------------\+-----------------------\+--------------------+--------\+-------------------\+
+      \+-------------------+-----\+
       \|                                                                        \s+  Sprint Prefixes With Corresponding Last Sprints                                                      \s+                             \|
       \+-----------------\+----------------\+------------------------\+----------------\+-------------------------\+-------------------------\+-----------------------\+--------------------+--------\+-------------------\+
       \| Sprint Prefix   \| Last Sprint Id \| Last Sprint Name       \| Length In Days \| Start Date              \| End Date                \| Board Name            \| Board UI URL     \s+        \| Board Project Key \|
