@@ -1,0 +1,16 @@
+#!/bin/sh
+
+echo "Running pre-push hook: bundle exec rake"
+
+# Run bundle exec rake
+bundle exec rake
+RESULT=$?
+
+# If the rake command failed, prevent the push
+if [ $RESULT -ne 0 ]; then
+  echo "❌ Rake tasks failed. Push aborted."
+  exit 1
+fi
+
+echo "✅ Rake tasks passed."
+exit 0
