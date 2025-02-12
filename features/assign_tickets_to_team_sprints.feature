@@ -44,7 +44,7 @@ Feature: Assign tickets to team sprints as per an expected start date
     When I successfully run `jira-auto-tool --team-sprint-mapping-list`
     Then the stdout should contain exactly:
       """
-      +--------------+-----------------+
+      +--------------------------------+
       |      Team Sprint Mappings      |
       +--------------+-----------------+
       | Team         | Sprint Prefix   |

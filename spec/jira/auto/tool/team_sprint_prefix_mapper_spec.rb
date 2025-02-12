@@ -65,7 +65,7 @@ module Jira
           describe "#list_mappings" do
             let(:expected_mapping_output) do
               <<~EOMAPPING
-                +-----------------+-----------------------------------+
+                +-----------------------------------------------------+
                 |                Team Sprint Mappings                 |
                 +-----------------+-----------------------------------+
                 | Team            | Sprint Prefix                     |

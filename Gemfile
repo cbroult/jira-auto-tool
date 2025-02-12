@@ -13,7 +13,7 @@ group :development do
   gem "rubocop", "~> 1.21"
 
   gem "aruba"
-  gem "cucumber", git: "https://github.com/cucumber/cucumber-ruby.git"
+  gem "cucumber" # , git: "https://github.com/cucumber/cucumber-ruby.git"
   gem "fiddle", platform: :mswin
   gem "rubocop-rake", require: false
   gem "rubocop-rspec", require: false

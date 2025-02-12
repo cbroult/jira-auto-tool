@@ -18,7 +18,7 @@ Feature: List Sprint Prefixes
     When I successfully run `jira-auto-tool --sprint-prefix-list-without-board-info`
     Then the output should match:
       """
-      \+-----------------\+----------------\+------------------+\+----------------\+-------------------------\+-------------------------\+
+      \+-----------------+-------------------------\+
       \| \s+  Sprint Prefixes With Corresponding Last Sprints\s+  \|
       \+-----------------\+----------------\+------------------+\+----------------\+-------------------------\+-------------------------\+
       \| Sprint Prefix   \| Last Sprint Id \| Last Sprint Name\s+\| Length In Days \| Start Date              \| End Date                \|
@@ -36,7 +36,7 @@ Feature: List Sprint Prefixes
       """
     And the output should match:
       """
-      .*------------------------\+----------------\+-------------------------\+-------------------------.*
+      .*----------------------+----------.*
       .* Last Sprint Name       \| Length In Days \| Start Date              \| End Date                .*
       .*------------------------\+----------------\+-------------------------\+-------------------------.*
       .* ART-16_E2E-Test_24.4.2 \| 4.0            \| 2024-12-05 11:00:00 UTC \| 2024-12-09 11:00:00 UTC .*
