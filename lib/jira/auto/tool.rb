@@ -156,10 +156,6 @@ module Jira
         FieldController.new(jira_client)
       end
 
-      def team_sprint_prefix_mapper
-        TeamSprintPrefixMapper.new(teams, unclosed_sprint_prefixes)
-      end
-
       def unclosed_sprints
         sprint_controller.unclosed_sprints
       end
@@ -169,7 +165,7 @@ module Jira
       end
 
       def teams
-        implementation_team_field.values.collect { |value| Team.new(value) }
+        implementation_team_field.values.collect { |value| Team.new(value) }.collect(&:name)
       end
 
       def tickets(jql = "project = #{project.key}")
@@ -185,10 +181,8 @@ module Jira
 
       def team_sprint_ticket_dispatcher
         TeamSprintTicketDispatcher.new(jira_client,
-                                       teams,
                                        tickets(jat_tickets_for_team_sprint_ticket_dispatcher_jql),
-                                       unclosed_sprint_prefixes,
-                                       team_sprint_prefix_mapper)
+                                       unclosed_sprint_prefixes)
       end
 
       private

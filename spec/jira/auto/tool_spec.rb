@@ -350,8 +350,8 @@ module Jira
         context "when dealing with mapping team tickets to sprints" do
           describe "#team_sprint_ticket_dispatcher" do
             before do
-              allow(tool).to receive_messages(jira_client: nil, teams: nil,
-                                              unclosed_sprint_prefixes: nil, team_sprint_prefix_mapper: nil,
+              allow(tool).to receive_messages(jira_client: nil,
+                                              unclosed_sprint_prefixes: nil,
                                               jat_tickets_for_team_sprint_ticket_dispatcher_jql: :jql_for_tickets)
 
               allow(tool).to receive(:tickets).with(:jql_for_tickets)
@@ -359,15 +359,6 @@ module Jira
             end
 
             it { expect(tool.team_sprint_ticket_dispatcher).to be_a(TeamSprintTicketDispatcher) }
-          end
-
-          describe "#team_sprint_prefix_mapper" do
-            before do
-              allow(tool).to receive_messages(teams: [instance_double(Team)],
-                                              unclosed_sprint_prefixes: [instance_double(Sprint::Prefix)])
-            end
-
-            it { expect(tool.team_sprint_prefix_mapper).to be_a(TeamSprintPrefixMapper) }
           end
 
           describe "#tickets" do
@@ -408,7 +399,7 @@ module Jira
             it do
               allow(tool).to receive_messages(implementation_team_field: team_field)
 
-              expect(tool.teams).to all be_a(Team)
+              expect(tool.teams).to eq(["a team", "another team", "a third team"])
             end
           end
         end

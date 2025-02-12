@@ -44,8 +44,23 @@ module Jira
           @expected_start_date || jira_field_value(expected_start_date_field.id)
         end
 
+        IMPLEMENTATION_TEAM_VALUE_ATTRIBUTES = %w[value name].freeze
+
         def implementation_team
-          @implementation_team || jira_field_value(implementation_team_field.id)["value"]
+          @implementation_team ||=
+            begin
+              attributes = implementation_team_attributes
+
+              IMPLEMENTATION_TEAM_VALUE_ATTRIBUTES.any? { |attr| attributes.key?(attr) } or
+                raise "Implementation team #{IMPLEMENTATION_TEAM_VALUE_ATTRIBUTES.join(" and ")} " \
+                      "attributes not found in #{attributes}!"
+
+              attributes.values_at(*IMPLEMENTATION_TEAM_VALUE_ATTRIBUTES).compact.first
+            end
+        end
+
+        def implementation_team_attributes
+          jira_field_value(implementation_team_field.id)
         end
 
         def implementation_team_field
@@ -64,7 +79,7 @@ module Jira
           log.debug { "jira_field_value(#{field_id})" }
 
           field = jira_ticket.fields.fetch(field_id) do |id|
-            raise "#{id}: value not found in\#{field}"
+            raise "#{id}: value not found in #{jira_ticket.fields}"
           end
 
           log.debug { "jira_field_value(#{field_id}), field: #{field}" }

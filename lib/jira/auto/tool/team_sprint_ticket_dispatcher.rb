@@ -4,14 +4,12 @@ module Jira
   module Auto
     class Tool
       class TeamSprintTicketDispatcher
-        attr_reader :jira_client, :teams, :tickets, :sprint_prefixes, :team_sprint_prefix_mapper
+        attr_reader :jira_client, :tickets, :sprint_prefixes
 
-        def initialize(jira_client, teams, tickets, sprint_prefixes, team_sprint_prefix_mapper)
+        def initialize(jira_client, tickets, sprint_prefixes)
           @jira_client = jira_client
-          @teams = teams
           @tickets = tickets
           @sprint_prefixes = sprint_prefixes
-          @team_sprint_prefix_mapper = team_sprint_prefix_mapper
         end
 
         def dispatch_tickets
@@ -57,6 +55,14 @@ module Jira
           team_ticket_map = tickets.group_by(&:implementation_team)
 
           team_ticket_map.each(&)
+        end
+
+        def team_sprint_prefix_mapper
+          TeamSprintPrefixMapper.new(teams, sprint_prefixes)
+        end
+
+        def teams
+          tickets.collect(&:implementation_team).uniq.sort
         end
       end
     end

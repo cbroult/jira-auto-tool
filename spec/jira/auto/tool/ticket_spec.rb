@@ -49,14 +49,45 @@ module Jira
             end
 
             describe "#implementation_team" do
-              let(:fields) { { "customfield_80044" => { "value" => "A16 Logistic" } } }
-
               before do
                 allow(jira_ticket).to receive_messages(fields: fields)
                 allow(ticket).to receive_messages(implementation_team_field: implementation_team_field)
               end
 
-              it { expect(ticket.implementation_team).to eq("A16 Logistic") }
+              context "when stored as value" do
+                let(:fields) { { "customfield_80044" => { "value" => "A16 Logistic" } } }
+
+                it { expect(ticket.implementation_team).to eq("A16 Logistic") }
+              end
+
+              context "when stored as name" do
+                let(:fields) { { "customfield_80044" => { "name" => "A16 Logistic" } } }
+
+                it { expect(ticket.implementation_team).to eq("A16 Logistic") }
+              end
+
+              context "when the field is not present" do
+                let(:fields) { { "another key" => "some other value" } }
+
+                it "reports missing information" do
+                  expect { ticket.implementation_team }
+                    .to raise_error(RuntimeError,
+                                    /customfield_80044: value not found in #{fields.inspect}/)
+                end
+              end
+
+              context "when value or name are not present" do
+                let(:fields) { { "customfield_80044" => field_attributes } }
+                let(:field_attributes) { { "key" => "some value", "another key" => "some other value" } }
+
+                it "reports missing information" do
+                  expect { ticket.implementation_team }
+                    .to raise_error(
+                      RuntimeError,
+                      /Implementation team value and name attributes not found in #{field_attributes.inspect}!/
+                    )
+                end
+              end
             end
           end
 

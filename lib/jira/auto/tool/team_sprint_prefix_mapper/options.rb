@@ -10,7 +10,7 @@ module Jira
           def self.add(tool, parser)
             parser.on("--team-sprint-mapping-list", "--tsm-list",
                       "List the sprint and team owning their content") do
-              tool.team_sprint_prefix_mapper.list_mappings
+              tool.team_sprint_ticket_dispatcher.team_sprint_prefix_mapper.list_mappings
             end
 
             parser.on("--team-sprint-mapping-dispatch-tickets", "--tsm-dispatch",

@@ -11,10 +11,6 @@ module Jira
       class TeamSprintTicketDispatcher
         RSpec.describe TeamSprintTicketDispatcher do
           let(:jira_client) { instance_double(JIRA::Client) }
-          let(:team_sprint_prefix_mapper) do
-            instance_double(TeamSprintPrefixMapper,
-                            team_sprint_prefix_mappings: { "Team1" => "ART_Team1", "Team2" => "ART_Team2" })
-          end
           let(:ticket_for_1st_team) { build_ticket("Ticket1", "Team1", key: "ART-10040") }
           let(:ticket_for_2nd_team) { build_ticket("Ticket2", "Team2", key: "ART-10041") }
           let(:another_ticket_for_1st_team) { build_ticket("Ticket3", "Team1", key: "ART-10042") }
@@ -22,9 +18,8 @@ module Jira
           let(:tickets) do
             [ticket_for_1st_team, ticket_for_2nd_team, another_ticket_for_1st_team, another_ticket_for_2nd_team]
           end
-          let(:first_team) { instance_double(Team, name: "Team1") }
-          let(:second_team) { instance_double(Team, name: "Team2") }
-          let(:teams) { [first_team, second_team] }
+          let(:first_team) { "Team1" }
+          let(:second_team) { "Team2" }
 
           def build_ticket(summary, implementation_team, expected_start_date = "undefined")
             instance_double(Ticket,
@@ -39,17 +34,30 @@ module Jira
 
           context "when dispatching tickets" do
             let(:dispatcher) do
-              described_class.new(jira_client, teams, tickets, sprint_prefixes, team_sprint_prefix_mapper)
+              described_class.new(jira_client, tickets, sprint_prefixes)
             end
 
             let(:sprint_prefix_for_1st_team) { build_sprint_prefix("ART_Team1") }
             let(:sprint_prefix_for_2nd_team) { build_sprint_prefix("ART_Team2") }
             let(:sprint_prefixes) { [sprint_prefix_for_1st_team, sprint_prefix_for_2nd_team] }
 
+            describe "#teams" do
+              it { expect(dispatcher.teams).to eq(%w[Team1 Team2]) }
+            end
+
+            describe "#team_sprint_prefix_mapper" do
+              it { expect(dispatcher.team_sprint_prefix_mapper).to be_a(TeamSprintPrefixMapper) }
+            end
+
+            describe "#sprint_prefix_for" do
+              it { expect(dispatcher.sprint_prefix_for(first_team)).to eq("ART_Team1") }
+              it { expect(dispatcher.sprint_prefix_for(second_team)).to eq("ART_Team2") }
+            end
+
             describe "#dispatch_tickets" do
               before do
-                allow(team_sprint_prefix_mapper).to receive(:fetch_for).with("Team1").once.and_return("ART_Team1")
-                allow(team_sprint_prefix_mapper).to receive(:fetch_for).with("Team2").once.and_return("ART_Team2")
+                # allow(team_sprint_prefix_mapper).to receive(:fetch_for).with("Team1").once.and_return("ART_Team1")
+                # allow(team_sprint_prefix_mapper).to receive(:fetch_for).with("Team2").once.and_return("ART_Team2")
 
                 allow(ticket_for_1st_team).to receive_messages(key: "ART-10040")
                 allow(another_ticket_for_1st_team).to receive_messages(key: "ART-10042")
@@ -118,35 +126,21 @@ module Jira
           end
 
           context "when iterating over tickets" do
-            let(:dispatcher) { described_class.new(jira_client, teams, tickets, nil, team_sprint_prefix_mapper) }
+            let(:dispatcher) { described_class.new(jira_client, tickets, nil) }
 
             describe "#per_team_tickets" do
               it "succeeds" do
                 expect { |block| dispatcher.per_team_tickets(&block) }
                   .to yield_successive_args(
-                    [first_team.name, [ticket_for_1st_team, another_ticket_for_1st_team]],
-                    [second_team.name, [ticket_for_2nd_team, another_ticket_for_2nd_team]]
+                    [first_team, [ticket_for_1st_team, another_ticket_for_1st_team]],
+                    [second_team, [ticket_for_2nd_team, another_ticket_for_2nd_team]]
                   )
               end
-            end
-
-            describe "#sprint_prefix_for" do
-              it {
-                allow(team_sprint_prefix_mapper).to receive_messages(fetch_for: "ART_Team1")
-
-                expect(dispatcher.sprint_prefix_for(first_team)).to eq("ART_Team1")
-              }
-
-              it {
-                allow(team_sprint_prefix_mapper).to receive_messages(fetch_for: "ART_Team2")
-
-                expect(dispatcher.sprint_prefix_for(second_team)).to eq("ART_Team2")
-              }
             end
           end
 
           context "when matching tickets to prefix sprints" do
-            let(:dispatcher) { described_class.new(jira_client, nil, nil, nil, nil) }
+            let(:dispatcher) { described_class.new(jira_client, nil, nil) }
 
             describe "#dispatch_to_prefix" do
               RSpec::Matchers.define :be_dispatched_to_sprint do |expected_sprint|

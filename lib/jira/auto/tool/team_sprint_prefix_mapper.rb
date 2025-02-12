@@ -21,7 +21,7 @@ module Jira
             title: "Team Sprint Mappings",
             headings: ["Team", "Sprint Prefix"],
             rows: teams.collect do |team|
-              [team.name, team_sprint_prefix_mappings.fetch(team.name, "!!__no matching sprint prefix__!!")]
+              [team, team_sprint_prefix_mappings.fetch(team, "!!__no matching sprint prefix__!!")]
             end
           )
 
@@ -37,16 +37,15 @@ module Jira
         def team_sprint_prefix_mappings
           @team_sprint_prefix_mappings ||=
             sprint_prefixes.collect(&:name).each_with_object({}) do |prefix_name, mappings|
-              mappings[prefix_name] = map_prefix_name_to_team_name(prefix_name)
+              found_team = map_prefix_name_to_team_name(prefix_name)
+              mappings[prefix_name] = found_team if found_team
             end.invert
         end
 
         def map_prefix_name_to_team_name(prefix_name)
           sub_team_in_prefix = prefix_name.split(Sprint::Name::SPRINT_PREFIX_SEPARATOR).last
 
-          teams.find { |team| team.name.end_with?(sub_team_in_prefix) }&.name or
-            raise NoMatchingTeamError,
-                  "No matching team for sprint prefix '#{prefix_name}' in #{teams.collect(&:name).inspect}"
+          teams.find { |team| team.end_with?(sub_team_in_prefix) }
         end
       end
     end

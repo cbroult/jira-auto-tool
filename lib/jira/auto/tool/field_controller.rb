@@ -23,7 +23,7 @@ module Jira
         end
 
         def implementation_team_field(field_name)
-          field_fetcher(field_name, "option")
+          field_fetcher(field_name, "option|any")
         end
 
         def ticket_fields
@@ -38,7 +38,7 @@ module Jira
           field = ticket_fields.find { |f| f.name == field_name } or
             raise FieldNotFoundError, "Field '#{field_name}' not found!"
 
-          field.type == expected_type or
+          field.type =~ Regexp.new(expected_type) or
             raise ExpectedFieldTypeError,
                   "Field '#{field_name}' expected to have type '#{expected_type}', but was '#{field.type}'."
 

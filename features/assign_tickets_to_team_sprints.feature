@@ -30,26 +30,7 @@ Feature: Assign tickets to team sprints as per an expected start date
       | EXPECTED_START_DATE_FIELD_NAME                    | Expected Start                                       |
       | JIRA_SPRINT_FIELD_NAME                            | Sprint                                               |
     And JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL has been defined as an environment variable
-
-  Scenario: List team to sprint prefix mappings
-    When I successfully run `jira-auto-tool --team-sprint-mapping-list`
-    Then the stdout should contain exactly:
-      """
-      +--------------+-----------------------------------+
-      |               Team Sprint Mappings               |
-      +--------------+-----------------------------------+
-      | Team         | Sprint Prefix                     |
-      +--------------+-----------------------------------+
-      | A16 CRM      | ART-16_CRM                        |
-      | A16 E2E-Test | ART-16_E2E-Test                   |
-      | A16 Logistic | !!__no matching sprint prefix__!! |
-      | A16 Platform | ART-16_Platform                   |
-      | A16 Sys-Team | ART-16_Sys-Team                   |
-      +--------------+-----------------------------------+
-      """
-
-  Scenario: Assign tickets to the relevant implementation team sprints as per the expected starts
-    Given the following tickets exist:
+    And the following tickets exist:
       | summary                                                   | description                                                    | implementation_team | expected_start_date |
       | ASX-1 - Prepare repository for CI/CD                      | start date is overdue => earliest sprint                       | A16 Sys-Team        | 2024-12-05          |
       | ASX-2 - Implement stage deployment                        |                                                                | A16 Sys-Team        | 2024-12-26          |
@@ -58,6 +39,22 @@ Feature: Assign tickets to team sprints as per an expected start date
       | ASX-5 - Setup monitoring dashboard                        |                                                                | A16 Sys-Team        | 2025-01-07          |
       | ASX-6 - Establish a solution wide holistic testing vision |                                                                | A16 E2E-Test        | 2024-12-04          |
       | ASX-7 - Prepare an E2E Smoke Test in CI                   | no sprint available at that time, so going to stay sprint-less | A16 E2E-Test        | 2024-12-12          |
+
+  Scenario: List team to sprint prefix mappings
+    When I successfully run `jira-auto-tool --team-sprint-mapping-list`
+    Then the stdout should contain exactly:
+      """
+      +--------------+-----------------+
+      |      Team Sprint Mappings      |
+      +--------------+-----------------+
+      | Team         | Sprint Prefix   |
+      +--------------+-----------------+
+      | A16 E2E-Test | ART-16_E2E-Test |
+      | A16 Sys-Team | ART-16_Sys-Team |
+      +--------------+-----------------+
+      """
+
+  Scenario: Assign tickets to the relevant implementation team sprints as per the expected starts
     When I successfully run `jira-auto-tool --team-sprint-mapping-dispatch-tickets`
     Then the tickets should have been assigned to sprints as follows:
       | summary                                                   | sprint                  |

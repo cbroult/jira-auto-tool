@@ -16,8 +16,10 @@ module Jira
             instance_double(Field, name: name, type: type)
           end
 
-          RSpec.shared_examples "a field fetcher" do |method_under_test, expected_field_name, expected_field_type|
-            let(:expected_field) { build_field(expected_field_name, expected_field_type) }
+          RSpec.shared_examples "a field fetcher" do
+            |method_under_test, expected_field_name, expected_field_type, actual_type = expected_field_type|
+
+            let(:expected_field) { build_field(expected_field_name, actual_type) }
             let(:field_with_incorrect_type_name) { "non_#{expected_field_type}_field" }
 
             before do
@@ -34,7 +36,7 @@ module Jira
               end
 
               it "has the expected type" do
-                expect(actual_field.type).to eq(expected_field_type)
+                expect(actual_field.type).to match_regex(expected_field_type)
               end
             end
 
@@ -58,7 +60,13 @@ module Jira
           end
 
           describe "#implementation_team_field" do
-            it_behaves_like "a field fetcher", :implementation_team_field, "Custom Team", "option"
+            context "when any field" do
+              it_behaves_like "a field fetcher", :implementation_team_field, "Custom Team", "option|any", "any"
+            end
+
+            context "when option field" do
+              it_behaves_like "a field fetcher", :implementation_team_field, "Custom Team", "option|any", "option"
+            end
           end
 
           describe "#sprint_field" do
