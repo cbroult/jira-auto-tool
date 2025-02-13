@@ -46,7 +46,8 @@ module Jira
             expect(tool).to receive(:transition_sprint_state).with(:created_sprint, desired_state: "a state")
 
             expect(tool).to receive(:create_future_sprint)
-              .with({ name: "sprint_name_24.4.2", start_date: "2024-12-16 11:00 UTC", length_in_days: 14 })
+              .with({ name: "sprint_name_24.4.2", start_date: "2024-12-16 11:00 UTC",
+                      length_in_days: 14 })
               .and_return(:created_sprint)
 
             tool.create_sprint({ name: "sprint_name_24.4.2", start_date: "2024-12-16 11:00 UTC", length_in_days: 14,
@@ -103,6 +104,15 @@ module Jira
         end
 
         describe "#project" do
+          let(:jira_client) { instance_double(RateLimitedJiraClient, Project: project_query) }
+          let(:jira_project) { instance_double(JIRA::Resource::Project) }
+          let(:jira_project_key) { "JIRA_PROJECT_KEY" }
+          let(:project_query) { double("project_query", find: jira_project) } # rubocop:disable RSpec/VerifiedDoubles
+
+          before do
+            allow(tool).to receive_messages(jira_project_key: jira_project_key, jira_client: jira_client)
+          end
+
           it { expect(tool.project).to be_a(Project) }
         end
 
@@ -234,7 +244,7 @@ module Jira
               .to receive_messages(jira_username: "jira_username_value", jira_site_url: "https://jira_site_url_value",
                                    jira_api_token: "jira_api_token_value",
                                    jira_context_path_when_defined_else: "/context_path_value",
-                                   jira_http_debug: "false",
+                                   jira_http_debug?: false,
                                    jat_rate_limit_in_seconds_when_defined_else: "10",
                                    jat_rate_interval_in_seconds_when_defined_else: "60")
           end

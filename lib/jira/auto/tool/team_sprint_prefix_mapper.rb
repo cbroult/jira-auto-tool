@@ -7,6 +7,7 @@ module Jira
     class Tool
       class TeamSprintPrefixMapper
         class NoMatchingTeamError < StandardError; end
+
         class NoMatchingSprintPrefixError < StandardError; end
 
         attr_reader :teams, :sprint_prefixes
@@ -29,9 +30,13 @@ module Jira
         end
 
         def fetch_for(team_name)
-          team_sprint_prefix_mappings[team_name] or
+          team_sprint_prefix_mappings[team_name]
+        end
+
+        def fetch_for!(team_name)
+          fetch_for(team_name) or
             raise NoMatchingSprintPrefixError,
-                  "No matching sprint prefix for team '#{team_name}' in #{team_sprint_prefix_mappings.inspect}"
+                  no_matching_sprint_prefix_for_team_message(team_name)
         end
 
         def team_sprint_prefix_mappings
@@ -46,6 +51,10 @@ module Jira
           sub_team_in_prefix = prefix_name.split(Sprint::Name::SPRINT_PREFIX_SEPARATOR).last
 
           teams.find { |team| team.end_with?(sub_team_in_prefix) }
+        end
+
+        def no_matching_sprint_prefix_for_team_message(team_name)
+          "No matching sprint prefix for team '#{team_name}' in #{team_sprint_prefix_mappings.inspect}"
         end
       end
     end

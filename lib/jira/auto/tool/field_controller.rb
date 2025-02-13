@@ -27,7 +27,7 @@ module Jira
         end
 
         def ticket_fields
-          @jira_client.Field.all.collect { |field| Field.new(@jira_client, field) }
+          @ticket_fields ||= @jira_client.Field.all.collect { |field| Field.new(@jira_client, field) }
         rescue StandardError => e
           raise "Error fetching project ticket fields: Something went wrong:\n#{e}"
         end

@@ -16,7 +16,13 @@ module Jira
           per_team_tickets do |team, tickets|
             log.debug { "#{team}: dispatching tickets #{tickets.collect(&:key).join(", ")}" }
 
-            dispatch_tickets_to_prefix_sprints(sprint_prefix_for(team), tickets)
+            sprint_prefix_matching_team = sprint_prefix_for(team)
+
+            if sprint_prefix_matching_team.nil?
+              log.warn { team_sprint_prefix_mapper.no_matching_sprint_prefix_for_team_message(team) }
+            else
+              dispatch_tickets_to_prefix_sprints(sprint_prefix_matching_team, tickets)
+            end
           end
         end
 

@@ -26,6 +26,20 @@ module Jira
           @sprint = sprint
 
           jira_ticket.save!({ "fields" => { tool.jira_sprint_field.id => sprint.id } })
+        rescue StandardError => e
+          message = "Failed to set sprint for ticket #{key} to #{sprint.id}! #{self}"
+
+          log.error { message }
+
+          raise e.class, message
+        end
+
+        def to_s
+          "Ticket(#{to_s_fields.collect { |field| "#{field}: #{send(field)}" }.join(", ")})"
+        end
+
+        def to_s_fields
+          %i[key summary sprint implementation_team expected_start_date]
         end
 
         def sprint
@@ -51,11 +65,15 @@ module Jira
             begin
               attributes = implementation_team_attributes
 
-              IMPLEMENTATION_TEAM_VALUE_ATTRIBUTES.any? { |attr| attributes.key?(attr) } or
-                raise "Implementation team #{IMPLEMENTATION_TEAM_VALUE_ATTRIBUTES.join(" and ")} " \
-                      "attributes not found in #{attributes}!"
+              if attributes.nil?
+                nil
+              else
+                IMPLEMENTATION_TEAM_VALUE_ATTRIBUTES.any? { |attr| attributes.key?(attr) } or
+                  raise "Implementation team #{IMPLEMENTATION_TEAM_VALUE_ATTRIBUTES.join(" and ")} " \
+                        "attributes not found in #{attributes}!"
 
-              attributes.values_at(*IMPLEMENTATION_TEAM_VALUE_ATTRIBUTES).compact.first
+                attributes.values_at(*IMPLEMENTATION_TEAM_VALUE_ATTRIBUTES).compact.first
+              end
             end
         end
 

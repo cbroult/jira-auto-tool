@@ -52,6 +52,7 @@ module Jira
             describe "#sprint_prefix_for" do
               it { expect(dispatcher.sprint_prefix_for(first_team)).to eq("ART_Team1") }
               it { expect(dispatcher.sprint_prefix_for(second_team)).to eq("ART_Team2") }
+              it { expect(dispatcher.sprint_prefix_for("team w/o sprints")).to be_nil }
             end
 
             describe "#dispatch_tickets" do

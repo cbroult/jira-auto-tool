@@ -43,8 +43,14 @@ module Jira
             it { expect(mapper.fetch_for("A16 CRM")).to eq "ART-16_CRM" }
             it { expect(mapper.fetch_for("A32 64 Sys-Team")).to eq "ART-32-64_Sys-Team" }
 
+            it "returns nil if the prefix is not found" do
+              expect(mapper.fetch_for("team with no related prefix")).to be_nil
+            end
+          end
+
+          describe "#fetch_for!" do
             it "raises an error if the prefix is not found" do
-              expect { mapper.fetch_for("team with no related prefix") }
+              expect { mapper.fetch_for!("team with no related prefix") }
                 .to raise_error(NoMatchingSprintPrefixError,
                                 /#{Regexp.escape(
                                   "No matching sprint prefix for team 'team with no related prefix' in "

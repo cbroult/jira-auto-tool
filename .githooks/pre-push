@@ -2,7 +2,8 @@
 
 echo "Running pre-push hook: bundle exec rake"
 
-# Run bundle exec rake
+
+bundle install &&
 bundle exec rake
 RESULT=$?
 

@@ -54,6 +54,12 @@ module Jira
                 allow(ticket).to receive_messages(implementation_team_field: implementation_team_field)
               end
 
+              context "when not value specified" do
+                let(:fields) { { "customfield_80044" => nil } }
+
+                it { expect(ticket.implementation_team).to be_nil }
+              end
+
               context "when stored as value" do
                 let(:fields) { { "customfield_80044" => { "value" => "A16 Logistic" } } }
 

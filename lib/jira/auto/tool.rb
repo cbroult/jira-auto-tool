@@ -153,7 +153,7 @@ module Jira
       end
 
       def field_controller
-        FieldController.new(jira_client)
+        @field_controller ||= FieldController.new(jira_client)
       end
 
       def unclosed_sprints
