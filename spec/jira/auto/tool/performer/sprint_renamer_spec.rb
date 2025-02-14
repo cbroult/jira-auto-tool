@@ -3,22 +3,11 @@
 require "rspec"
 require "jira/auto/tool/performer/sprint_renamer"
 
-# rubocop:disable RSpec/MultipleMemoizedHelpers
 RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
   let(:sprint_renamer) { described_class.new(tool, from_string, to_string) }
   let(:tool) { instance_double(Jira::Auto::Tool) }
   let(:from_string) { "25.1.5" }
   let(:to_string) { "25.2.1" }
-
-  let(:sprint_prefixes) { %i[one_sprint_prefix another_sprint_prefix] }
-
-  describe "#sprint_prefixes" do
-    before do
-      allow(tool).to receive_messages(unclosed_sprint_prefixes: sprint_prefixes)
-    end
-
-    it { expect(sprint_renamer.sprint_prefixes).to eq(sprint_prefixes) }
-  end
 
   describe "#from_string_regex" do
     it { expect(sprint_renamer.from_string_regex).to eq(/25\.1\.5/) }
@@ -28,17 +17,7 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
     it { expect(sprint_renamer.to_string).to eq("25.2.1") }
   end
 
-  describe "#run" do
-    it "rename the sprints for each sprint prefix" do
-      allow(sprint_renamer).to receive_messages(sprint_prefixes: sprint_prefixes, rename_sprints_for_sprint_prefix: nil)
-
-      sprint_renamer.run
-
-      expect(sprint_renamer).to have_received(:rename_sprints_for_sprint_prefix).exactly(2).times
-    end
-  end
-
-  describe "#rename_sprints_for_sprint_prefix" do
+  describe "#acton_sprints_for_sprint_prefix" do
     def create_sprint(name)
       instance_double(Jira::Auto::Tool::Sprint, name: name, rename_to: nil)
     end
@@ -55,7 +34,7 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
     end
 
     it "renames each sprint" do
-      sprint_renamer.rename_sprints_for_sprint_prefix(prefix)
+      sprint_renamer.act_on_sprints_for_sprint_prefix(prefix)
 
       expect(sprints).to all have_received(:rename_to)
     end
@@ -215,11 +194,11 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
     end
   end
 
-  describe "#first_sprint_to_rename?" do
+  describe "#first_sprint_to_act_on?" do
     let(:sprint_renamer) { described_class.new(nil, "25.1.5", "25.2.1") }
 
     def first_to_rename?(sprint_name)
-      sprint_renamer.first_sprint_to_rename?(sprint_name)
+      sprint_renamer.first_sprint_to_act_on?(sprint_name)
     end
 
     it { expect(first_to_rename?("prefix_25.1.4")).not_to be_truthy }
@@ -229,4 +208,3 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
     it { expect(first_to_rename?("prefix_26.1.6")).not_to be_truthy }
   end
 end
-# rubocop:enable RSpec/MultipleMemoizedHelpers
