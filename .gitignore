@@ -10,8 +10,9 @@
 # Emacs
 
 *~
-
 *.log
+*.gem
+
 /log
 
 # rspec failure tracking
@@ -22,3 +23,4 @@
 
 # Cucumber failed tests for rerun
 /rerun_failures.txt
+

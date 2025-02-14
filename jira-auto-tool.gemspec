@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["cbroult@yahoo.com"]
 
   spec.summary = "Automate making adjustments to Jira sprints for multiple teams following some naming conventions."
-  #spec.description = "TODO: Write a longer description or delete this line."
+  # spec.description = "TODO: Write a longer description or delete this line."
   spec.homepage = "https://github.com/cbroult/jira-auto-tool"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.3.5"
@@ -24,7 +24,9 @@ Gem::Specification.new do |spec|
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   gemspec = File.basename(__FILE__)
   spec.files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
-    ls.readlines("\x0", chomp: true).reject do |f|
+    ls.readlines("\x0", chomp: true)
+      .reject { |f| f.end_with?(".gem") }
+      .reject do |f|
       (f == gemspec) ||
         f.start_with?(*%w[bin/console test/ spec/ features/ pkg/ .git .github appveyor Gemfile])
     end
