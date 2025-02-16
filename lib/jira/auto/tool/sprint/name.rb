@@ -8,6 +8,7 @@ module Jira
       class Sprint
         class Name
           include Comparable
+
           class NameConventionError < StandardError; end
 
           SPRINT_PREFIX_SEPARATOR = "_"
@@ -39,6 +40,18 @@ module Jira
           def self.build(prefix, year, quarter, index)
             new(prefix, year, quarter, index)
               .to_s
+          end
+
+          def self.new_with(prefix, suffix)
+            name = [prefix, suffix].join(SPRINT_PREFIX_SEPARATOR)
+
+            respects_naming_convention?(name) ||
+              raise(NameConventionError,
+                    "suffix not following convention '#{suffix}': " \
+                    "resulting sprint name '#{name}' " \
+                    "not matching #{SPRINT_NAME_REGEX}!")
+
+            parse(name)
           end
 
           FIELDS = %i[prefix year quarter index_in_quarter].freeze

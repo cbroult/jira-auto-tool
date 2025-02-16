@@ -53,6 +53,22 @@ module Jira
             end
           end
 
+          describe "#new_with" do
+            it "builds the expected name" do
+              expect(described_class.new_with("ART_Team", "25.3.4"))
+                .to eq(described_class.new("ART_Team", 25, 3, 4))
+            end
+
+            it "fails if the sprint name is not according to convention" do
+              expect { described_class.new_with("ART_Team", "MALFORMED_SUFFIX") }
+                .to raise_error(
+                  Name::NameConventionError,
+                  "suffix not following convention 'MALFORMED_SUFFIX': " \
+                  "resulting sprint name 'ART_Team_MALFORMED_SUFFIX' not matching #{Name::SPRINT_NAME_REGEX}!"
+                )
+            end
+          end
+
           describe "#<=>" do
             let(:parsed_name) { described_class.parse("ART_Team_24.4.5") }
 

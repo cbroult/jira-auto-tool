@@ -4,7 +4,7 @@ module Jira
   module Auto
     # rubocop:disable Metrics/ClassLength
     class Tool
-      # rubocop:disable RSpec/NestedGroups:
+      # rubocop:disable RSpec/NestedGroups
       RSpec.describe Sprint do
         let(:jira_client) { instance_double(JIRA::Client) }
         let(:tool) { instance_double(Tool, jira_client: jira_client) }
@@ -301,7 +301,7 @@ module Jira
           end
         end
       end
-      # rubocop:enable RSpec/NestedGroups:
+      # rubocop:enable RSpec/NestedGroups
     end
 
     # rubocop:enable Metrics/ClassLength

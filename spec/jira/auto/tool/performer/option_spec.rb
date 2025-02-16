@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require "rspec"
-
+require "active_support"
+require "active_support/core_ext/string/inflections"
 require "jira/auto/tool/performer/options"
 
 module Jira
@@ -9,46 +10,40 @@ module Jira
     class Tool
       class Performer
         module Options
-          PERFORMER_CLASSES = [SprintTimeInDatesAligner, SprintRenamer, SprintEndDateUpdater].freeze
-
           RSpec.describe Options do
             describe ".add" do
               let(:tool) { instance_double(Tool) }
               let(:parser) { OptionParser.new }
 
-              before do
-                PERFORMER_CLASSES.each do |performer_class|
-                  instance = instance_double(performer_class, run: nil)
-                  allow(performer_class).to receive_messages(new: instance)
+              shared_examples "a performer" do |option_use_with_args, performer_class, *expected_args|
+                let(:performer_instance) { instance_double(performer_class, run: nil) }
+
+                before do
+                  allow(performer_class).to receive_messages(new: performer_instance)
+                end
+
+                it "adds a parser option to process #{option_use_with_args}" do
+                  expect do
+                    described_class.add(tool, parser)
+                    parser.parse([option_use_with_args])
+                  end.not_to raise_error
+
+                  expect(performer_class).to have_received(:new).with(tool, *expected_args)
+                  expect(performer_instance).to have_received(:run)
                 end
               end
 
-              it "adds a parser option for sprint align time in dates" do
-                expect do
-                  described_class.add(tool, parser)
-                  parser.parse(["--sprint-align-time-in-dates=12:00"])
-                end.not_to raise_error
+              it_behaves_like "a performer", "--sprint-add=25.3.1,4",
+                              PlanningIncrementSprintCreator, "25.3.1", 4
 
-                expect(SprintTimeInDatesAligner).to have_received(:new).with(tool, an_instance_of(Time))
-              end
+              it_behaves_like "a performer", "--sprint-align-time-in-dates=12:00 UTC",
+                              SprintTimeInDatesAligner, Time.parse("12:00 UTC")
 
-              it "adds a parser option for sprint rename" do
-                expect do
-                  described_class.add(tool, parser)
-                  parser.parse(["--sprint-rename=old_name,new_name"])
-                end.not_to raise_error
+              it_behaves_like "a performer", "--sprint-rename=old_name,new_name",
+                              SprintRenamer, "old_name", "new_name"
 
-                expect(SprintRenamer).to have_received(:new).with(tool, "old_name", "new_name")
-              end
-
-              it "adds a parser option for sprint update end date" do
-                expect do
-                  described_class.add(tool, parser)
-                  parser.parse(["--sprint-update-end-date=regex,new_end_date"])
-                end.not_to raise_error
-
-                expect(SprintEndDateUpdater).to have_received(:new).with(tool, "regex", "new_end_date")
-              end
+              it_behaves_like "a performer", "--sprint-update-end-date=regex,new_end_date",
+                              SprintEndDateUpdater, "regex", "new_end_date"
             end
           end
         end

@@ -1,8 +1,9 @@
 AllCops:
   NewCops: enable
 
-require:
+plugins:
   - rubocop-rake
+require:
   - rubocop-rspec
 
 RSpec/ExampleLength:

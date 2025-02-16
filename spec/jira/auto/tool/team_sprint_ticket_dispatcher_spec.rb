@@ -6,8 +6,7 @@ require "jira/auto/tool/team_sprint_ticket_dispatcher"
 module Jira
   module Auto
     class Tool
-      # rubocop:disable  Metrics/ClassLength
-      # rubocop:disable  RSpec/MultipleMemoizedHelpers
+      # rubocop:disable  Metrics/ClassLength, RSpec/MultipleMemoizedHelpers
       class TeamSprintTicketDispatcher
         RSpec.describe TeamSprintTicketDispatcher do
           let(:jira_client) { instance_double(JIRA::Client) }
@@ -227,8 +226,7 @@ module Jira
         end
       end
 
-      # rubocop:enable  RSpec/MultipleMemoizedHelpers
-      # rubocop:enable  Metrics/ClassLength RSpec/MultipleMemoizedHelpers
+      # rubocop:enable  Metrics/ClassLength, RSpec/MultipleMemoizedHelpers
     end
   end
 end

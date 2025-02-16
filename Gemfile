@@ -6,18 +6,18 @@ source "https://rubygems.org"
 gemspec
 
 group :development do
-  gem "rake", "~> 13.0"
+  gem "rake"
 
-  gem "rspec", "~> 3.0"
+  gem "rspec"
 
-  gem "rubocop", "~> 1.21"
+  gem "rubocop"
 
   gem "aruba"
   gem "cucumber" # , git: "https://github.com/cucumber/cucumber-ruby.git"
-  gem "fiddle", platform: :mswin
   gem "rubocop-rake", require: false
   gem "rubocop-rspec", require: false
   gem "simplecov", require: false
+  gem "wdm", ">= 0.1.0", platform: :mswin
   gem "win32ole", platform: :mswin
 
   gem "guard"

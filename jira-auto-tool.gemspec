@@ -49,6 +49,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "syslog"
   spec.add_dependency "terminal-table"
 
+  spec.add_dependency "fiddle", "1.1.0", platform: :mswin if Gem::Platform.local.os == "mswin"
   spec.add_dependency "win32ole", platform: :mswin if Gem::Platform.local.os == "mswin"
 
   # For more information and examples about making a new gem, check out our

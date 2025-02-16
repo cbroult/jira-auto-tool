@@ -14,12 +14,6 @@ module Jira
             @new_state = new_state
           end
 
-          private
-
-          def request_path
-            "/rest/agile/1.0/sprint/#{sprint.id}"
-          end
-
           ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE = %i[
             id
             self
@@ -28,6 +22,12 @@ module Jira
             endDate
             originBoardId
           ].freeze
+
+          private
+
+          def request_path
+            "/rest/agile/1.0/sprint/#{sprint.id}"
+          end
 
           def request_payload
             attributes = sprint.attrs.symbolize_keys
