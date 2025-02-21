@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "jira/auto/tool/helpers/overridable_time"
 require_relative "request_builder/sprint_creator"
 require_relative "request_builder/sprint_state_updater"
 
@@ -34,10 +35,7 @@ module Jira
         end
 
         def current_date_time
-          overridden_date_time = ENV.fetch("JAT_CURRENT_DATE_TIME", nil)
-
-          (overridden_date_time ? Time.parse(overridden_date_time) : Time.now)
-            .utc
+          Helpers::OverridableTime.now.utc
         end
 
         private

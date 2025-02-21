@@ -1,0 +1,45 @@
+# frozen_string_literal: true
+
+require "rspec"
+
+require "jira/auto/tool/board_controller/options"
+
+module Jira
+  module Auto
+    class Tool
+      class BoardController
+        class Options
+          RSpec.describe Options do
+            let(:tool) { instance_double(Tool, board_controller: board_controller) }
+            let(:board_controller) { instance_double(BoardController) }
+            let(:parser) { instance_double(OptionParser) }
+
+            describe ".add" do
+              it "configures board cache clear option" do
+                expect(parser).to receive(:on).with("--board-cache-clear", any_args) do |&block|
+                  expect(board_controller).to receive(:clear_cache)
+                  block.call
+                end
+
+                expect(parser).to receive(:on).with("--board-list", any_args)
+
+                described_class.add(tool, parser)
+              end
+
+              it "configures board list option" do
+                expect(parser).to receive(:on).with("--board-cache-clear", any_args)
+
+                expect(parser).to receive(:on).with("--board-list", any_args) do |&block|
+                  expect(board_controller).to receive(:list_boards)
+                  block.call
+                end
+
+                described_class.add(tool, parser)
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end

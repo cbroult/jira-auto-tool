@@ -93,3 +93,10 @@ Then(/^afterwards the board only has the following sprints:$/) do |table|
 
   expect(actual_sprints).to contain_exactly(*expected_sprints)
 end
+
+Then(/^the output contains (no )?requests that enumerate the list of boards$/) do |contains_or_not|
+  contains_predicate = contains_or_not.nil? || contains_or_not.empty? ? :to : :not_to
+
+  board_enumeration_pattern = /#{Regexp.escape("get: /rest/agile/1.0/board - []")}/
+  expect(last_command_started.output).send(contains_predicate, match(board_enumeration_pattern))
+end

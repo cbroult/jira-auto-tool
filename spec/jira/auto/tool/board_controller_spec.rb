@@ -6,6 +6,10 @@ module Jira
   module Auto
     class Tool
       class BoardController
+        def self.filtered_boards
+          board_controller.send(:filtered_boards)
+        end
+
         # rubocop:disable  RSpec/MultipleMemoizedHelpers
         RSpec.describe BoardController do
           let(:jira_client) { instance_double(JIRA::Client) }
@@ -62,8 +66,35 @@ module Jira
           end
 
           describe "#boards" do
+            context "when the cache is invalid" do
+              let(:boards) { %i[a_board another_board] }
+
+              it "uses the API to fetch the boards and stores them in the cache" do
+                allow(board_controller)
+                  .to receive_messages(filtered_boards: boards, valid_cache?: false)
+
+                allow(board_controller).to receive_messages(cache_boards: boards)
+
+                expect(board_controller.boards).to eq(boards)
+              end
+            end
+
+            context "when the cache is valid" do
+              it "uses the API to fetch the boards and stores them in the cache" do
+                allow(board_controller)
+                  .to receive_messages(filtered_boards: %i[a_board another_board], valid_cache?: true)
+
+                allow(board_controller).to receive_messages(cached_boards: %i[a_board another_board])
+
+                expect(board_controller.boards).to eq(%i[a_board another_board])
+              end
+            end
+          end
+
+          describe "#filtered_boards" do
             let(:project_key) { nil }
             let(:board_name_regex) { nil }
+            let(:filtered_boards) { board_controller.send(:filtered_boards) }
 
             before do
               allow(board_controller).to receive_messages(unfiltered_boards: expected_boards)
@@ -80,11 +111,11 @@ module Jira
               context "when a board name regex is specified" do
                 let(:board_name_regex) { "1|3" }
 
-                it { expect(board_controller.boards).to eq(expected_boards.find_all { |b| b.name !~ /Board (2|4)/ }) }
+                it { expect(filtered_boards).to eq(expected_boards.find_all { |b| b.name !~ /Board (2|4)/ }) }
               end
 
               context "when no board name regex is specified" do
-                it { expect(board_controller.boards).to eq(expected_boards) }
+                it { expect(filtered_boards).to eq(expected_boards) }
               end
             end
 
@@ -95,12 +126,12 @@ module Jira
                   build_board("Board 3", "ART", "https://jira.example.com/projects/ART/boards/3")
                 end
 
-                it { expect(board_controller.boards).to eq(expected_boards.find_all { |b| b.name != "Board 3" }) }
-                it { expect(board_controller.boards).not_to include(board_expected_to_be_excluded) }
+                it { expect(filtered_boards).to eq(expected_boards.find_all { |b| b.name != "Board 3" }) }
+                it { expect(filtered_boards).not_to include(board_expected_to_be_excluded) }
               end
 
               context "when no project key is specified" do
-                it { expect(board_controller.boards).to eq(expected_boards) }
+                it { expect(filtered_boards).to eq(expected_boards) }
               end
             end
           end
@@ -112,7 +143,7 @@ module Jira
               allow(jira_client).to receive_messages(Board: query)
             end
 
-            it("returns boards") { expect(board_controller.unfiltered_boards).to all be_a(Board) }
+            it("returns boards") { expect(board_controller.send(:unfiltered_boards)).to all be_a(Board) }
           end
         end
       end

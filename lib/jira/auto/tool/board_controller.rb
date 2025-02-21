@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "jira/auto/tool/board"
+require "jira/auto/tool/board/cache"
 
 module Jira
   module Auto
@@ -24,18 +25,46 @@ module Jira
         end
 
         def boards
-          boards_to_filter = unfiltered_boards
+          return cached_boards if valid_cache?
 
-          named_filtered_boards = apply_board_name_filter(boards_to_filter)
+          cache_boards(filtered_boards)
+        end
+
+        def clear_cache
+          cache.clear
+        end
+
+        private
+
+        def filtered_boards
+          named_filtered_boards = apply_board_name_filter(unfiltered_boards)
 
           apply_project_key_filter(named_filtered_boards)
         end
 
         def unfiltered_boards
-          @unfiltered_boards ||= jira_client.Board.all.collect { |board| Board.new(tool, board) }
+          @unfiltered_boards ||= request_boards
         end
 
-        private
+        def valid_cache?
+          cache.valid?
+        end
+
+        def cached_boards
+          cache.boards
+        end
+
+        def cache
+          @cache ||= Board::Cache.new(tool)
+        end
+
+        def request_boards
+          jira_client.Board.all.collect { |board| Board.new(tool, board) }
+        end
+
+        def cache_boards(boards)
+          cache.save(boards)
+        end
 
         def apply_project_key_filter(boards_to_filter)
           return boards_to_filter unless tool.jira_project_key_defined?

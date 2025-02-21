@@ -23,3 +23,7 @@ Then(/^successfully running `(.*)` takes between (.*) and (.*) seconds$/) do |co
 
   expect(end_time - start_time).to be_between(minimal_time.to_i, maximal_time.to_i)
 end
+
+Given(/^I wait for over an hour$/) do
+  set_environment_variable("JAT_CURRENT_DATE_TIME", Time.now + 1.hour + 1.minute)
+end
