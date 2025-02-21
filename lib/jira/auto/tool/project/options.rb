@@ -8,6 +8,8 @@ module Jira
       class Project
         class Options
           def self.add(tool, parser)
+            parser.on
+            parser.on("Project")
             parser.on("--project-field-list",
                       "Display the fields pertaining to the ticket types of a project") do
               tool.project.list_ticket_fields

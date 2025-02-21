@@ -12,6 +12,8 @@ module Jira
       class Performer
         module Options
           def self.add(tool, parser)
+            parser.on
+            parser.on("Sprint Actions")
             add_sprint_add(parser, tool)
             add_sprint_align_time_in_dates(parser, tool)
             add_sprint_rename(parser, tool)

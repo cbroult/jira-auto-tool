@@ -9,6 +9,8 @@ module Jira
       class BoardController
         class Options
           def self.add(tool, parser)
+            parser.on
+            parser.on("Board")
             parser.on("--board-cache-clear", "Clear the board cache so they are requested again.") do
               tool.board_controller.clear_cache
             end

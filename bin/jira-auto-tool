@@ -52,8 +52,8 @@ option_parser = OptionParser.new do |parser|
   end
 
   Jira::Auto::Tool::BoardController::Options.add(tool, parser)
-  Jira::Auto::Tool::Performer::Options.add(tool, parser)
   Jira::Auto::Tool::Project::Options.add(tool, parser)
+  Jira::Auto::Tool::Performer::Options.add(tool, parser)
   Jira::Auto::Tool::SprintController::Options.add(tool, parser)
   Jira::Auto::Tool::TeamSprintPrefixMapper::Options.add(tool, parser)
 end
