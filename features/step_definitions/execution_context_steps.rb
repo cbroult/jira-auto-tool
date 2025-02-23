@@ -25,5 +25,9 @@ Then(/^successfully running `(.*)` takes between (.*) and (.*) seconds$/) do |co
 end
 
 Given(/^I wait for over an hour$/) do
-  set_environment_variable("JAT_CURRENT_DATE_TIME", Time.now + 1.hour + 1.minute)
+  in_over_an_hour = (Time.now + 1.hour + 2.minute).to_s
+
+  log.debug { "Waiting until #{in_over_an_hour}" }
+
+  set_environment_variable("JAT_CURRENT_DATE_TIME", in_over_an_hour)
 end

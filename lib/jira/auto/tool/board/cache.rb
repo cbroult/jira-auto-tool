@@ -35,13 +35,13 @@ module Jira
             File.exist?(file_path) && !expired?
           end
 
+          private
+
           def expired?
             log.debug { "expired? #{cached_at} < #{one_hour_ago}" }
 
             cached_at < one_hour_ago
           end
-
-          private
 
           def one_hour_ago
             Helpers::OverridableTime.now - 1.hour

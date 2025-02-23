@@ -11,4 +11,5 @@ Before do
 
   remove_existing_sprints(@jira_auto_tool)
   remove_existing_board_tickets(@jira_auto_tool)
+  Jira::Auto::Tool::Board::Cache.new(@jira_auto_tool).clear
 end

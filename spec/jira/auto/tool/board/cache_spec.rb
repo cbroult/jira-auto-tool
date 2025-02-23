@@ -103,13 +103,13 @@ module Jira
               context "when expired" do
                 let(:cached_at) { Time.now - 1.hour }
 
-                it { expect(cache).to be_expired }
+                it { expect(cache.send(:expired?)).to be_truthy }
               end
 
               context "when not expired" do
                 let(:cached_at) { Time.now }
 
-                it { expect(cache).not_to be_expired }
+                it { expect(cache.send(:expired?)).to be_falsy }
               end
             end
 

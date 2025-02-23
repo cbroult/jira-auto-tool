@@ -6,6 +6,7 @@ require "active_support/core_ext/numeric/time"
 require "active_support/core_ext/date/calculations"
 require "jira-ruby"
 
+require_relative "tool/config"
 require_relative "tool/board_controller"
 require_relative "tool/helpers/environment_based_value"
 require_relative "tool/project"
@@ -26,6 +27,10 @@ module Jira
       extend Helpers::EnvironmentBasedValue
 
       class Error < StandardError; end
+
+      def config
+        @config ||= Config.new(self)
+      end
 
       def board_name
         jira_board_name
@@ -85,11 +90,22 @@ module Jira
       end
 
       def jira_http_debug?
-        if defined?(@jira_http_debug)
-          @jira_http_debug
-        else
-          jira_http_debug_defined? && jira_http_debug =~ /^(true|yes|1)$/i
-        end
+        value = if config.key?(:jira_http_debug)
+                  config[:jira_http_debug]
+                else
+                  jira_http_debug_defined? && jira_http_debug
+                end
+
+        result = case value
+                 when String
+                   value =~ /^(true|yes|1)$/i
+                 else
+                   value
+                 end
+
+        log.debug { "jira_http_debug? = #{result} (jira_http_debug = #{value}, config = #{config.inspect})" }
+
+        result
       end
 
       def jira_request_path(path)

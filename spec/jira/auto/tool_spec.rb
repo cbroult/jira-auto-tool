@@ -120,6 +120,12 @@ module Jira
         RSpec.shared_examples "an overridable environment based value" do |method_name|
           let(:env_var_name) { method_name.to_s.upcase }
           let(:method_name?) { :"#{method_name}_defined?" }
+          let(:config) { Config.new(object_with_overridable_value) }
+
+          before do
+            allow(object_with_overridable_value).to receive_messages(config: config)
+            allow(config).to receive_messages(value_store: {})
+          end
 
           context "when the environment variable is set" do
             let(:expected_value) { "#{env_var_name} env_value" }
@@ -136,8 +142,20 @@ module Jira
                 .to eq(expected_value)
             end
 
-            it "fetch its value from the environment" do
+            it "fetches its value from the environment" do
               expect(object_with_overridable_value.send(method_name)).to eq(expected_value)
+            end
+
+            # TODO: do the following also in case the env var is not defined
+            context "when the value is defined in the configuration" do
+              let(:expected_config_value) { "<<<<#{method_name} config value>>>>" }
+
+              before { allow(config).to receive_messages(value_store: { method_name.to_s => expected_config_value }) }
+
+              it "uses the configured value" do
+                expect(object_with_overridable_value.send("#{method_name}_when_defined_else", "DEFAULT_VALUE"))
+                  .to eq(expected_config_value)
+              end
             end
           end
 
@@ -163,14 +181,20 @@ module Jira
             end
           end
 
-          it "can be overridden explicitly" do
+          it "can be overridden explicitly and updates the config" do
             override_value = "override value for #{method_name}"
+
+            config = instance_double(Config)
+            allow(config).to receive_messages(:[]= => nil, :key? => true, :[] => override_value)
+            allow(object_with_overridable_value).to receive_messages(config: config)
+
             object_with_overridable_value.send("#{method_name}=", override_value)
 
             expect(object_with_overridable_value.send(method_name)).to eq(override_value)
+            expect(config).to have_received(:[]=).with(method_name, override_value)
           end
 
-          it "defines a constant with the same name" do
+          it "defines an Environment constant with the same name" do
             const_name = method_name.to_s.upcase
             fully_qualified_const_name = "#{described_class}::Environment::#{const_name}"
 
@@ -260,40 +284,53 @@ module Jira
           end
         end
 
+        # TODO: overly complex - simplify
         describe "#jira_http_debug?" do
           let(:jira_http_debug_defined?) { true }
+          let(:config) { Config.new(tool) }
 
           before do
-            allow(tool).to receive_messages(jira_http_debug: jira_http_debug,
-                                            jira_http_debug_defined?: jira_http_debug_defined?)
+            allow(tool).to receive_messages(config: config)
           end
 
           context "when jira_http_debug is overridden with a specific value" do
-            let(:jira_http_debug) { :overridden_value }
+            it "can be overridden explicitly and updates the config" do
+              tool.jira_http_debug = true
 
-            before do
-              tool.jira_http_debug = jira_http_debug
+              expect(tool).to be_jira_http_debug
             end
 
-            it { expect(tool.jira_http_debug?).to eq(:overridden_value) }
+            it "can be set to false" do
+              tool.jira_http_debug = false
+
+              expect(tool).not_to be_jira_http_debug
+            end
           end
 
-          context "when a true value is set for jira_http_debug" do
-            let(:jira_http_debug) { "true" }
+          context "when jira_http_debug has not been overridden with a specific value" do
+            before do
+              allow(tool).to receive_messages(jira_http_debug: jira_http_debug,
+                                              jira_http_debug_defined?: jira_http_debug_defined?)
+              allow(config).to receive_messages(value_store: {})
+            end
 
-            it { expect(tool).to be_jira_http_debug }
-          end
+            context "when a true value is set for jira_http_debug" do
+              let(:jira_http_debug) { "true" }
 
-          context "when jira_http_debug is set to nil" do
-            let(:jira_http_debug) { nil }
+              it { expect(tool).to be_jira_http_debug }
+            end
 
-            it { expect(tool).not_to be_jira_http_debug }
-          end
+            context "when jira_http_debug is set to nil" do
+              let(:jira_http_debug) { nil }
 
-          context "when a false value is set for jira_http_debug" do
-            let(:jira_http_debug) { "false" }
+              it { expect(tool).not_to be_jira_http_debug }
+            end
 
-            it { expect(tool).not_to be_jira_http_debug }
+            context "when a false value is set for jira_http_debug" do
+              let(:jira_http_debug) { "false" }
+
+              it { expect(tool).not_to be_jira_http_debug }
+            end
           end
         end
 
