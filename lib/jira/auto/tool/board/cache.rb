@@ -56,7 +56,7 @@ module Jira
           end
 
           def file_path
-            File.join(Dir.home, ".jira-auto-tool-cache.yml")
+            File.join(tool.config.dir, "jira-auto-tool.cache.yml")
           end
         end
       end

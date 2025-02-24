@@ -31,6 +31,19 @@ module Jira
           value_store <=> (other.is_a?(Config) ? other.value_store : other)
         end
 
+        def path
+          File.join(dir, "jira-auto-tool.config.yml")
+        end
+
+        def dir
+          @dir ||=
+            begin
+              config_dir = File.join(Dir.home, ".config/jira-auto-tool")
+              FileUtils.makedirs(config_dir)
+              config_dir
+            end
+        end
+
         private
 
         def sanitize_key(key)
@@ -47,19 +60,6 @@ module Jira
 
         def load
           File.exist?(path) ? YAML.safe_load_file(path) : {}
-        end
-
-        def path
-          File.join(dir, "jira-auto-tool.config.yml")
-        end
-
-        def dir
-          @dir ||=
-            begin
-              config_dir = File.join(Dir.home, ".config/jira-auto-tool")
-              FileUtils.makedirs(config_dir)
-              config_dir
-            end
         end
       end
     end

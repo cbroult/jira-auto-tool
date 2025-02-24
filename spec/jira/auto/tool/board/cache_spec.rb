@@ -120,6 +120,18 @@ module Jira
 
               it { expect(cache.send(:one_hour_ago)).to eq(Time.parse("2025-02-21 19:55:00 UTC")) }
             end
+
+            describe "#file_path" do
+              let(:config) { instance_double(Config, dir: "path/to/config/dir") }
+
+              before do
+                allow(tool).to receive_messages(config: config)
+              end
+
+              it "is located in the config dir" do
+                expect(cache.send(:file_path)).to eq("path/to/config/dir/jira-auto-tool.cache.yml")
+              end
+            end
           end
         end
       end
