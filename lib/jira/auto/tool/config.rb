@@ -36,12 +36,9 @@ module Jira
         end
 
         def dir
-          @dir ||=
-            begin
-              config_dir = File.join(Dir.home, ".config/jira-auto-tool")
-              FileUtils.makedirs(config_dir)
-              config_dir
-            end
+          config_dir = File.join(Dir.home, ".config/jira-auto-tool")
+          FileUtils.makedirs(config_dir)
+          config_dir
         end
 
         private
