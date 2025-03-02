@@ -18,11 +18,13 @@ module Jira
           def boards
             raise "This method should not be used since the cache is invalid" unless valid?
 
-            @boards ||= raw_content.fetch("boards").collect { |board_id| Board.find_by_id(tool, board_id) }
+            @boards ||= raw_content.fetch("boards").collect do |board_info|
+              Board.new(tool, tool.jira_client.Board.build(board_info))
+            end
           end
 
           def save(boards)
-            File.write(file_path, { "boards" => boards.collect(&:id) }.to_yaml)
+            File.write(file_path, { "boards" => boards.collect { |board| board.jira_board.attrs } }.to_yaml)
 
             boards
           end

@@ -11,7 +11,9 @@ module Jira
         class Cache
           RSpec.describe Cache do
             let(:cache) { described_class.new(tool) }
-            let(:tool) { instance_double(Tool) }
+            let(:tool) { instance_double(Tool, jira_client: jira_client) }
+            let(:jira_client) { jira_resource_double(JIRA::Client) }
+            let(:board_factory) { double("BoardFactory") } # rubocop:disable RSpec/VerifiedDoubles
 
             describe "#boards" do
               before { allow(cache).to receive_messages(valid?: valid?) }
@@ -19,10 +21,30 @@ module Jira
               context "when cache is valid" do
                 let(:valid?) { true }
 
+                let(:raw_content) do
+                  {
+                    "boards" => [
+                      { "id" => 16, "name" => "name for board #16" },
+                      { "id" => 32, "name" => "name for board #32" }
+                    ]
+                  }
+                end
+
                 before do
-                  allow(cache).to receive_messages(raw_content: { "boards" => [1, 2] })
-                  allow(Board).to receive(:find_by_id).with(tool, 1).and_return(:first_board)
-                  allow(Board).to receive(:find_by_id).with(tool, 2).and_return(:second_board)
+                  allow(cache).to receive_messages(raw_content: raw_content)
+                  allow(jira_client).to receive_messages(Board: board_factory)
+
+                  allow(board_factory)
+                    .to receive(:build).with({ "id" => 16, "name" => "name for board #16" })
+                                       .and_return(:first_jira_board)
+
+                  allow(Board).to receive(:new).with(tool, :first_jira_board).and_return(:first_board)
+
+                  allow(board_factory)
+                    .to receive(:build).with({ "id" => 32, "name" => "name for board #32" })
+                                       .and_return(:second_jira_board)
+
+                  allow(Board).to receive(:new).with(tool, :second_jira_board).and_return(:second_board)
                 end
 
                 it "returns the boards" do
@@ -41,14 +63,31 @@ module Jira
             end
 
             describe "#save" do
-              let(:boards) { [4, 8].collect { |id| instance_double(Board, id: id) } }
+              def build_board(id)
+                instance_double(
+                  Board,
+                  jira_board: jira_resource_double(attrs: { "id" => id, "name" => "name for board ##{id}" })
+                )
+              end
+
+              let(:boards) { [4, 8].collect { |id| build_board(id) } }
+              let(:expected_board_yaml) do
+                <<~EOBYAML
+                  ---
+                  boards:
+                  - id: 4
+                    name: 'name for board #4'
+                  - id: 8
+                    name: 'name for board #8'
+                EOBYAML
+              end
 
               before do
                 allow(cache).to receive_messages(file_path: "path/to/cache.yml")
               end
 
               it "returns the boards" do
-                expect(File).to receive(:write).with("path/to/cache.yml", { "boards" => [4, 8] }.to_yaml)
+                expect(File).to receive(:write).with("path/to/cache.yml", expected_board_yaml)
 
                 expect(cache.save(boards)).to eq(boards)
               end
