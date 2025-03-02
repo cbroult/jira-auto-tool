@@ -5,6 +5,7 @@ require "jira-ruby"
 require "jira/auto/tool"
 
 def ensure_the_aruba_sandbox_is_active
+  setup_aruba
   ENV["HOME"] = expand_path(".")
   cd(".")
 
