@@ -26,9 +26,10 @@ logging_logger.add_appenders(
   Logging.appenders.file(File.join(log_dir, "http_requests.log"), level: :debug)
 )
 
-# Step 2: Configure HttpLogger to use the Logging logger
-HttpLogger.logger = logging_logger
-HttpLogger.colorize = false # Disable colorize, as it's handled by Logging
-HttpLogger.log_headers = true # Log request and response headers
-HttpLogger.log_request_body = true # Log request body
-HttpLogger.log_response_body = true # Log response body
+HttpLogger.configure do |config|
+  config.logger = logging_logger
+  config.colorize = false
+  config.log_headers = true
+  config.log_request_body = true
+  config.log_response_body = true
+end

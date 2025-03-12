@@ -3,7 +3,6 @@ AllCops:
 
 plugins:
   - rubocop-rake
-require:
   - rubocop-rspec
 
 RSpec/ExampleLength:

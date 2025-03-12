@@ -14,6 +14,7 @@ group :development do
 
   gem "aruba"
   gem "cucumber" # , git: "https://github.com/cucumber/cucumber-ruby.git"
+  gem "mermaid"
   gem "rubocop-rake", require: false
   gem "rubocop-rspec", require: false
   gem "simplecov", require: false
