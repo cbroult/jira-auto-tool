@@ -39,8 +39,10 @@ module Jira
               it_behaves_like "a performer", "--sprint-align-time-in-dates=12:00 UTC",
                               SprintTimeInDatesAligner, Time.parse("12:00 UTC")
 
-              it_behaves_like "a performer", "--sprint-rename=old_name,new_name",
-                              SprintRenamer, "old_name", "new_name"
+              ["--quarterly-sprint-rename", "--qsr"].each do |option|
+                it_behaves_like "a performer", "#{option}=old_name,new_name",
+                                SprintRenamer, "old_name", "new_name"
+              end
 
               it_behaves_like "a performer", "--sprint-update-end-date=regex,new_end_date",
                               SprintEndDateUpdater, "regex", "new_end_date"

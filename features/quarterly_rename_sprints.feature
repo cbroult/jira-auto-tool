@@ -28,7 +28,7 @@ Feature: Rename sprints
       | Food_Market_25.2.5     | 4-day  | 2024-12-01 11:00:00 UTC | future |
       | Food_Market_25.3.1     | 4-day  | 2024-12-01 11:00:00 UTC | future |
       | Food_Market_25.3.2     | 4-day  | 2024-12-01 11:00:00 UTC | future |
-    When I successfully run `jira-auto-tool --sprint-rename=25.1.5,25.2.1`
+    When I successfully run `jira-auto-tool --quarterly-sprint-rename=25.1.5,25.2.1`
     Then afterwards the board only has the following sprints:
       | name                   | start_date              | state  |
       | Food_Supply_25.1.2     | 2024-12-01 11:00:00 UTC | closed |
@@ -73,7 +73,7 @@ Feature: Rename sprints
       | Food_Market_25.2.5     | 4-day  | 2024-12-01 11:00:00 UTC | future |
       | Food_Market_25.3.1     | 4-day  | 2024-12-01 11:00:00 UTC | future |
       | Food_Market_25.3.2     | 4-day  | 2024-12-01 11:00:00 UTC | future |
-    When I successfully run `jira-auto-tool --sprint-rename=25.2.1,25.1.6`
+    When I successfully run `jira-auto-tool --qsr=25.2.1,25.1.6`
     Then afterwards the board only has the following sprints:
       | name                   | start_date              | state  |
       | Food_Supply_25.1.2     | 2024-12-01 11:00:00 UTC | closed |
@@ -111,7 +111,7 @@ Feature: Rename sprints
       | Food_Delivery_25.3.1 | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.3.4 | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_26.1.1 | 2-week | 2024-12-01 11:00:00 UTC | future |
-    When I successfully run `jira-auto-tool --sprint-rename=25.1.5,25.2.1`
+    When I successfully run `jira-auto-tool --quarterly-sprint-rename=25.1.5,25.2.1`
     Then afterwards the board only has the following sprints:
       | name                 | start_date              | state  |
       | Food_Delivery_25.1.2 | 2024-12-01 11:00:00 UTC | future |
@@ -139,7 +139,7 @@ Feature: Rename sprints
       | Food_Delivery_25.3.1 | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.3.4 | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_26.1.1 | 2-week | 2024-12-01 11:00:00 UTC | future |
-    When I successfully run `jira-auto-tool --sprint-rename=25.2.2,25.2.10`
+    When I successfully run `jira-auto-tool --quarterly-sprint-rename=25.2.2,25.2.10`
     Then afterwards the board only has the following sprints:
       | name                  | start_date              | state  |
       | Food_Delivery_25.1.5  | 2024-12-01 11:00:00 UTC | future |
@@ -164,7 +164,7 @@ Feature: Rename sprints
       | Food_Delivery_25.3.1  | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_25.3.4  | 2-week | 2024-12-01 11:00:00 UTC | future |
       | Food_Delivery_26.1.1  | 2-week | 2024-12-01 11:00:00 UTC | future |
-    When I successfully run `jira-auto-tool --sprint-rename=25.2.10,25.2.2`
+    When I successfully run `jira-auto-tool --quarterly-sprint-rename=25.2.10,25.2.2`
     Then afterwards the board only has the following sprints:
       | name                 | start_date              | state  |
       | Food_Delivery_25.1.5 | 2024-12-01 11:00:00 UTC | future |

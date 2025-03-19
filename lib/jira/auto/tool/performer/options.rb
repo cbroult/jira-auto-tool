@@ -16,8 +16,16 @@ module Jira
             parser.on("Sprint Actions")
             add_sprint_add(parser, tool)
             add_sprint_align_time_in_dates(parser, tool)
-            add_sprint_rename(parser, tool)
+            add_quarterly_sprint_rename(parser, tool)
             add_sprint_update_end_date(parser, tool)
+          end
+
+          def self.add_quarterly_sprint_rename(parser, tool)
+            parser.on("--quarterly-sprint-rename=FROM_STRING,TO_STRING", "--qsr", Array,
+                      "Rename sprints starting with FROM_STRING to TO_STRING. The following sprints in the same " \
+                      "planning increment will also be renamed. ") do |from_string, to_string|
+              SprintRenamer.new(tool, from_string, to_string).run
+            end
           end
 
           def self.add_sprint_update_end_date(parser, tool)
@@ -27,14 +35,6 @@ module Jira
                       "while keeping their original length planning increment will " \
                       "also be renamed. ") do |sprint_name_regex, new_end_date|
               SprintEndDateUpdater.new(tool, sprint_name_regex, new_end_date).run
-            end
-          end
-
-          def self.add_sprint_rename(parser, tool)
-            parser.on("--sprint-rename=FROM_STRING,TO_STRING", "--sr", Array,
-                      "Rename sprints starting with FROM_STRING to TO_STRING. The following sprints in the same " \
-                      "planning increment will also be renamed. ") do |from_string, to_string|
-              SprintRenamer.new(tool, from_string, to_string).run
             end
           end
 
