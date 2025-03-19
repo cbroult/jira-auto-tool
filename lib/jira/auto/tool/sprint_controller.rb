@@ -16,11 +16,11 @@ module Jira
           @board = board
         end
 
-        def add_sprints_until(until_date)
-          unclosed_sprint_prefixes.each { |prefix| prefix.add_sprints_until(until_date) }
+        def quarterly_add_sprints_until(until_date)
+          unclosed_sprint_prefixes.each { |prefix| prefix.quarterly_add_sprints_until(until_date) }
         end
 
-        def add_one_sprint_for_each_unclosed_sprint_prefix
+        def quarterly_add_one_sprint_for_each_unclosed_sprint_prefix
           exit_with_board_warning "No sprint added since no reference sprint was found!" unless sprint_exist?
           unless unclosed_sprint_exist?
             exit_with_board_warning "No sprint added since no unclosed reference sprint was found!"

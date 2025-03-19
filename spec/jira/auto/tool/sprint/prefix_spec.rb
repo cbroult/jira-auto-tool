@@ -139,14 +139,14 @@ module Jira
             end
           end
 
-          describe "#add_sprints_until" do
+          describe "#quarterly_add_sprints_until" do
             let(:until_date) { UntilDate.new("2024-05-15") }
             let(:prefix) { described_class.new("name_prefix") }
 
             it "adds no sprint if date is already covered" do
               allow(prefix).to receive_messages(covered?: true, add_sprint_following_last_one: nil)
 
-              prefix.add_sprints_until(until_date)
+              prefix.quarterly_add_sprints_until(until_date)
 
               expect(prefix).not_to have_received(:add_sprint_following_last_one)
             end
@@ -155,7 +155,7 @@ module Jira
               allow(prefix).to receive(:covered?).and_return(false, false, true)
               allow(prefix).to receive_messages(add_sprint_following_last_one: nil)
 
-              prefix.add_sprints_until(until_date)
+              prefix.quarterly_add_sprints_until(until_date)
 
               expect(prefix).to have_received(:add_sprint_following_last_one).exactly(:twice)
             end

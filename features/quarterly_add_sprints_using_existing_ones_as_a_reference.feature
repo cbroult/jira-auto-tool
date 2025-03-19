@@ -8,7 +8,7 @@ Feature: Add sprints using existing ones as a reference
 
   Scenario: Board with no sprints
     Given the board has no sprint
-    When I successfully run `jira-auto-tool --sprint-add-one`
+    When I successfully run `jira-auto-tool --quarterly-sprint-add-one`
     Then the output should match:
        """
        WARN.*No sprint added since no reference sprint was found!
@@ -16,7 +16,7 @@ Feature: Add sprints using existing ones as a reference
 
   Scenario: Board with only closed sprints
     Given the board has only closed sprints
-    When I successfully run `jira-auto-tool --sprint-add-one`
+    When I successfully run `jira-auto-tool --quarterly-sprint-add-one`
     Then the output should match:
        """
        WARN.*No sprint added since no unclosed reference sprint was found!
@@ -24,7 +24,7 @@ Feature: Add sprints using existing ones as a reference
 
   Scenario Outline: The new sprint length is the same as the reference sprint
     Given an unclosed <sprint_length> sprint named ART_Team_24.4.5 starting on <start_date_time>
-    When I successfully run `jira-auto-tool --sprint-add-one`
+    When I successfully run `jira-auto-tool --quarterly-sprint-add-one`
     Then a sprint named <expected_name> should exist
     And it starts on <expected_start>
     And it ends on <expected_end>
@@ -44,7 +44,7 @@ Feature: Add sprints using existing ones as a reference
       | yes                            | art_e2e-test_24.4.12 | 3-week | 2024-12-14 11:00:00 UTC | future |
       | yes                            | art_people_24.4.6    | 2-week | 2024-12-14 11:00:00 UTC | active |
       | yes                            | art_sys-team_24.4.12 | 1-week | 2024-12-21 11:00:00 UTC | future |
-    When I successfully run `jira-auto-tool --sprint-add-one`
+    When I successfully run `jira-auto-tool --quarterly-sprint-add-one`
     Then afterwards the board only has the following sprints:
       | name                 | start_date              | state  |
       | art_crm_24.4.6       | 2024-12-14 11:00:00 UTC | closed |
@@ -62,7 +62,7 @@ Feature: Add sprints using existing ones as a reference
       | ignored since not last existing sprint | art_sys-team_24.4.11 | 1-week | 2024-12-05 11:00:00 UTC | future |
       | yes                                    | art_sys-team_24.4.12 | 2-week | 2024-12-14 11:00:00 UTC | future |
 
-    When I successfully run `jira-auto-tool --sprint-add-one`
+    When I successfully run `jira-auto-tool --qsao`
     Then afterwards the board only has the following sprints:
       | name                 | start_date              | state  |
       | art_sys-team_24.4.10 | 2024-12-01 11:00:00 UTC | future |

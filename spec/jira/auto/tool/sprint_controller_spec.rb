@@ -11,29 +11,29 @@ module Jira
         let(:board) { double(JIRA::Resource::Board, name: "board name", id: 128) } # rubocop:disable RSpec/VerifiedDoubles
         let(:sprint_controller) { described_class.new(tool, board) }
 
-        describe "#add_sprints_until" do
+        describe "#quarterly_add_sprints_until" do
           let(:actual_sprint_prefixes) do
             %w[art_team1 art_team2 art_team3].collect do |name_prefix|
-              instance_double(Sprint::Prefix, name: name_prefix, add_sprints_until: nil)
+              instance_double(Sprint::Prefix, name: name_prefix, quarterly_add_sprints_until: nil)
             end
           end
 
           it "creates sprints for all unclosed prefixes until date is included" do
             allow(sprint_controller).to receive_messages(unclosed_sprint_prefixes: actual_sprint_prefixes)
 
-            sprint_controller.add_sprints_until("2024-05-15")
+            sprint_controller.quarterly_add_sprints_until("2024-05-15")
 
-            expect(actual_sprint_prefixes).to all have_received(:add_sprints_until).with("2024-05-15")
+            expect(actual_sprint_prefixes).to all have_received(:quarterly_add_sprints_until).with("2024-05-15")
           end
         end
 
-        describe "#add_one_sprint_for_each_unclosed_sprint_prefix" do
+        describe "#quarterly_add_one_sprint_for_each_unclosed_sprint_prefix" do
           context "when no sprint are found" do
             it "exits with a warning" do
               allow(sprint_controller).to receive_messages(sprints: [])
               allow(sprint_controller).to receive_messages(exit_with_board_warning: nil)
 
-              sprint_controller.add_one_sprint_for_each_unclosed_sprint_prefix
+              sprint_controller.quarterly_add_one_sprint_for_each_unclosed_sprint_prefix
 
               expect(sprint_controller).to have_received(:exit_with_board_warning)
                 .with("No sprint added since no reference sprint was found!")
@@ -50,7 +50,7 @@ module Jira
               allow(sprint_controller).to receive_messages(jira_sprints: closed_sprints)
               allow(sprint_controller).to receive_messages(exit_with_board_warning: nil)
 
-              sprint_controller.add_one_sprint_for_each_unclosed_sprint_prefix
+              sprint_controller.quarterly_add_one_sprint_for_each_unclosed_sprint_prefix
 
               expect(sprint_controller).to have_received(:exit_with_board_warning)
                 .with("No sprint added since no unclosed reference sprint was found!")
@@ -68,7 +68,7 @@ module Jira
               allow(sprint_controller).to receive_messages(sprint_exist?: true, unclosed_sprint_exist?: true)
               allow(sprint_controller).to receive_messages(unclosed_sprint_prefixes: actual_sprint_prefixes)
 
-              sprint_controller.add_one_sprint_for_each_unclosed_sprint_prefix
+              sprint_controller.quarterly_add_one_sprint_for_each_unclosed_sprint_prefix
 
               expect(actual_sprint_prefixes).to all have_received(:add_sprint_following_last_one)
             end

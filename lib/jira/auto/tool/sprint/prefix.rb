@@ -24,7 +24,7 @@ module Jira
             @sprints << sprint
           end
 
-          def add_sprints_until(until_date)
+          def quarterly_add_sprints_until(until_date)
             add_sprint_following_last_one until covered?(until_date)
           end
 
