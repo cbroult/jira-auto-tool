@@ -71,14 +71,7 @@ module Jira
       end
 
       def jira_client
-        RateLimitedJiraClient.new({
-                                    username: jira_username,
-                                    password: jira_api_token,
-                                    site: jira_site_url,
-                                    context_path: jira_context_path_when_defined_else(""),
-                                    auth_type: :basic,
-                                    http_debug: jira_http_debug?
-                                  },
+        RateLimitedJiraClient.new(jira_client_options,
                                   rate_interval:
                                     jat_rate_interval_in_seconds_when_defined_else(
                                       RateLimitedJiraClient::NO_RATE_INTERVAL_IN_SECONDS
@@ -87,6 +80,17 @@ module Jira
                                     jat_rate_limit_in_seconds_when_defined_else(
                                       RateLimitedJiraClient::NO_RATE_LIMIT_IN_SECONDS
                                     ).to_i)
+      end
+
+      def jira_client_options
+        {
+          username: jira_username,
+          password: jira_api_token,
+          site: jira_site_url,
+          context_path: jira_context_path_when_defined_else(""),
+          auth_type: :basic,
+          http_debug: jira_http_debug?
+        }
       end
 
       def jira_http_debug?
