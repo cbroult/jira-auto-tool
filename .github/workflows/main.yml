@@ -3,6 +3,7 @@ name: Ruby
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 env:
   LANG: en_US.UTF-8
