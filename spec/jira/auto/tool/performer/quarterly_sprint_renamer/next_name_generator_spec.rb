@@ -2,9 +2,9 @@
 
 require "rspec"
 
-require "jira/auto/tool/performer/sprint_renamer/next_name_generator"
+require "jira/auto/tool/performer/quarterly_sprint_renamer/next_name_generator"
 
-RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
+RSpec.describe Jira::Auto::Tool::Performer::QuarterlySprintRenamer::NextNameGenerator do
   def parsed_name(sprint_name)
     Jira::Auto::Tool::Sprint::Name.parse(sprint_name)
   end
@@ -20,7 +20,7 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
       let(:original_name_of_first_renamed_sprint) { "prefix_23.2.1" }
       let(:name_of_first_renamed_sprint) { "prefix_23.1.6" }
 
-      it("returns the original sprint name") { expect(new_name).to eq(parsed_name("prefix_23.1.7")) }
+      it("returns the original sprint name") { expect(new_name).to eq(parsed_name("prefix_23.2.1")) }
     end
 
     context "when renaming inside planning interval" do
@@ -57,7 +57,7 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
       it { expect(next_name_generator).not_to be_pulling_sprint_into_previous_planning_interval }
     end
 
-    context "when sprint is renamed forward inside the current planning interval" do
+    context "when sprint is renamed forward inside the current preceding planning interval" do
       let(:original_name_of_first_renamed_sprint) { "prefix_26.1.1" }
       let(:name_of_first_renamed_sprint) { "prefix_26.1.4" }
 
@@ -81,7 +81,7 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
       let(:name_of_first_renamed_sprint) { "prefix_25.1.8" }
 
       it "generates a new name consecutive to the previous one in the planning interval" do
-        expect(next_names).to eq(%w[prefix_25.1.9 prefix_25.1.10 prefix_25.1.11 prefix_25.1.12])
+        expect(next_names).to eq(%w[prefix_25.2.1 prefix_25.2.2 prefix_25.2.3 prefix_25.2.4])
       end
     end
 
@@ -119,11 +119,57 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer::NextNameGenerator do
 
     context "when sprint name outside planning interval" do
       let(:original_name_of_first_renamed_sprint) { "prefix_25.1.5" }
-      let(:name_of_first_renamed_sprint) { "prefix_25.2.20" }
+      let(:name_of_first_renamed_sprint) { "prefix_25.1.20" }
 
       it "generates a new name consecutive to the previous one in the planning interval" do
-        expect(name_generator.name_for("prefix_25.3.2")).to eq("prefix_25.2.21")
+        expect(name_generator.name_for("prefix_25.3.2")).to eq("prefix_25.3.2")
       end
+    end
+  end
+
+  describe "#outside_planning_interval_of_sprint_next_to_first_renamed_sprint?" do
+    let(:name_generator) { described_class.new(original_name, new_name) }
+
+    def outside?(sprint_name)
+      name_generator.outside_planning_interval_of_sprint_next_to_first_renamed_sprint?(sprint_name)
+    end
+
+    context "when pulling sprint into previous planning interval" do
+      let(:original_name) { "prefix_25.2.1" }
+      let(:new_name) { "prefix_25.1.6" }
+
+      it { expect(outside?("prefix_25.1.3")).to be_truthy }
+      it { expect(outside?("prefix_25.2.1")).not_to be_truthy }
+      it { expect(outside?("prefix_25.2.3")).not_to be_truthy }
+      it { expect(outside?("prefix_25.3.1")).to be_truthy }
+      it { expect(outside?("prefix_25.3.2")).to be_truthy }
+      it { expect(outside?("prefix_25.4.2")).to be_truthy }
+      it { expect(outside?("prefix_26.1.1")).to be_truthy }
+    end
+
+    context "when sprint renamed inside planning interval" do
+      let(:original_name) { "prefix_25.2.5" }
+      let(:new_name) { "prefix_25.2.16" }
+
+      it { expect(outside?("prefix_25.1.5")).to be_truthy }
+      it { expect(outside?("prefix_25.2.1")).to be_falsy }
+      it { expect(outside?("prefix_25.2.20")).to be_falsy }
+      it { expect(outside?("prefix_25.3.2")).to be_truthy }
+      it { expect(outside?("prefix_25.4.2")).to be_truthy }
+      it { expect(outside?("prefix_26.1.1")).to be_truthy }
+    end
+
+    context "when pushing sprint into next planning interval" do
+      let(:original_name) { "prefix_25.1.5" }
+      let(:new_name) { "prefix_25.2.1" }
+
+      it { expect(outside?("prefix_25.1.5")).to be_truthy }
+      it { expect(outside?("prefix_25.2.1")).to be_falsy }
+      it { expect(outside?("prefix_25.2.3")).to be_falsy }
+      it { expect(outside?("prefix_25.3.1")).to be_truthy }
+      it { expect(outside?("prefix_25.3.2")).to be_truthy }
+      it { expect(outside?("prefix_25.4.2")).to be_truthy }
+      it { expect(outside?("prefix_26.1.1")).to be_truthy }
     end
   end
 end

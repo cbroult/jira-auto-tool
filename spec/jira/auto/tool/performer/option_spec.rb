@@ -41,7 +41,7 @@ module Jira
 
               ["--quarterly-sprint-rename", "--qsr"].each do |option|
                 it_behaves_like "a performer", "#{option}=old_name,new_name",
-                                SprintRenamer, "old_name", "new_name"
+                                QuarterlySprintRenamer, "old_name", "new_name"
               end
 
               it_behaves_like "a performer", "--sprint-update-end-date=regex,new_end_date",

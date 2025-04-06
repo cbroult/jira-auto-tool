@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "jira/auto/tool/performer/sprint_renamer"
+
 module Jira
   module Auto
     class Tool

@@ -48,7 +48,7 @@ Then(/^the tickets should have been assigned to sprints as follows:$/) do |ticke
 
     log.debug { "ticket: #{ticket.summary} sprint: #{sprint.inspect}" }
 
-    [ticket.summary, sprint ? sprint.first["name"] : ""]
+    [ticket.summary, sprint&.first&.fetch("name") || ""]
   end
 
   expect(actual_ticket_values.sort).to eq(ticket_expectations.sort)

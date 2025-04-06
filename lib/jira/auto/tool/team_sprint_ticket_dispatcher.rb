@@ -45,7 +45,7 @@ module Jira
 
           first_sprint_when_overdue_ticket(ticket_start_time, prefix) ||
             prefix.sprints.find do |sprint|
-              sprint.start_date <= ticket_start_time && sprint.end_date >= ticket_start_time
+              ticket_start_time.between?(sprint.start_date, sprint.end_date)
             end
         end
 

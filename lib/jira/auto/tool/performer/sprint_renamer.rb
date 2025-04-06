@@ -14,6 +14,7 @@ module Jira
 
           def initialize(tool, from_string, to_string)
             super(tool)
+
             @from_string_regex = Regexp.new(Regexp.escape(from_string))
             @to_string = to_string
           end
@@ -29,19 +30,23 @@ module Jira
           end
 
           def calculate_sprint_new_names(sprint_names)
-            name_generator = KeepSameNameGenerator.new
+            name_generator = Performer::SprintRenamer::KeepSameNameGenerator.new
 
             sprint_names.collect do |sprint_name|
               if first_sprint_to_act_on?(sprint_name)
                 sprint_new_name = sprint_name.sub(from_string_regex, to_string)
 
-                name_generator = NextNameGenerator.new(sprint_name, sprint_new_name)
+                name_generator = next_sprint_name_generator_class.new(sprint_name, sprint_new_name)
 
                 sprint_new_name
               else
                 name_generator.name_for(sprint_name)
               end
             end
+          end
+
+          def next_sprint_name_generator_class
+            NextNameGenerator
           end
         end
       end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "optparse/time"
+require "jira/auto/tool/performer/quarterly_sprint_renamer"
 require "jira/auto/tool/performer/sprint_renamer"
 require "jira/auto/tool/performer/sprint_time_in_dates_aligner"
 require "jira/auto/tool/performer/sprint_end_date_updater"
@@ -17,6 +18,7 @@ module Jira
             add_sprint_add(parser, tool)
             add_sprint_align_time_in_dates(parser, tool)
             add_quarterly_sprint_rename(parser, tool)
+            add_sprint_rename(parser, tool)
             add_sprint_update_end_date(parser, tool)
           end
 
@@ -24,6 +26,15 @@ module Jira
             parser.on("--quarterly-sprint-rename=FROM_STRING,TO_STRING", "--qsr", Array,
                       "Rename sprints starting with FROM_STRING to TO_STRING. The following sprints in the same " \
                       "planning increment will also be renamed. ") do |from_string, to_string|
+              QuarterlySprintRenamer.new(tool, from_string, to_string).run
+            end
+          end
+
+          def self.add_sprint_rename(parser, tool)
+            parser.on("--sprint-rename=FROM_STRING,TO_STRING", "--sr", Array,
+                      "Rename sprints starting with FROM_STRING to TO_STRING. The following sprints in the same " \
+                      "prefix are also all going to be renamed " \
+                      "irrespective of their original planning interval. ") do |from_string, to_string|
               SprintRenamer.new(tool, from_string, to_string).run
             end
           end

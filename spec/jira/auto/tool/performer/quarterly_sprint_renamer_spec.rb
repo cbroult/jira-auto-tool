@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "rspec"
-require "jira/auto/tool/performer/sprint_renamer"
+require "jira/auto/tool/performer/quarterly_sprint_renamer"
 
-RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
+RSpec.describe Jira::Auto::Tool::Performer::QuarterlySprintRenamer do
   let(:sprint_renamer) { described_class.new(tool, from_string, to_string) }
   let(:tool) { instance_double(Jira::Auto::Tool) }
   let(:from_string) { "25.1.5" }
@@ -66,31 +66,10 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
           Food_Delivery_25.1.4
           Food_Delivery_25.1.5
           Food_Delivery_25.1.6
-          Food_Delivery_25.1.7
-          Food_Delivery_25.1.8
-          Food_Delivery_25.1.9
-          Food_Delivery_25.1.10
-        ]
-      end
-
-      it { expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names) }
-    end
-
-    context "when pushing a sprint to the next planning interval" do
-      let(:from_string) { "25.1.5" }
-      let(:to_string) { "25.2.1" }
-
-      let(:expected_new_sprint_names) do
-        %w[
-          Food_Delivery_25.1.2
-          Food_Delivery_25.1.3
-          Food_Delivery_25.1.4
           Food_Delivery_25.2.1
           Food_Delivery_25.2.2
           Food_Delivery_25.2.3
           Food_Delivery_25.2.4
-          Food_Delivery_25.2.5
-          Food_Delivery_25.2.6
         ]
       end
 
@@ -163,6 +142,26 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
       it { expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names) }
     end
 
+    context "when pushing a sprint to the next planning interval" do
+      let(:expected_new_sprint_names) do
+        %w[
+          Food_Delivery_25.1.2
+          Food_Delivery_25.1.3
+          Food_Delivery_25.1.4
+          Food_Delivery_25.2.1
+          Food_Delivery_25.2.2
+          Food_Delivery_25.2.3
+          Food_Delivery_25.2.4
+          Food_Delivery_25.2.5
+          Food_Delivery_25.2.6
+        ]
+      end
+
+      it { expect(sprint_renamer.calculate_sprint_new_names(["Food_Delivery_25.1.5"])).to eq(["Food_Delivery_25.2.1"]) }
+
+      it { expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names) }
+    end
+
     context "when sprints exist beyond the immediate planning interval of the sprint" do
       let(:from_string) { "25.2.1" }
       let(:to_string) { "25.1.6" }
@@ -182,17 +181,48 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
         %w[
           Food_Delivery_25.1.5
           Food_Delivery_25.1.6
-          Food_Delivery_25.1.7
-          Food_Delivery_25.1.8
-          Food_Delivery_25.1.9
-          Food_Delivery_25.1.10
+          Food_Delivery_25.2.1
+          Food_Delivery_25.3.1
+          Food_Delivery_25.3.2
+          Food_Delivery_25.3.3
         ]
       end
 
-      it "also renames those sprints" do
+      it "does not rename those sprints" do
         expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names)
       end
     end
+
+    # TODO: reenable
+
+    # context "when multiple sprints are matching the first sprint to rename" do
+    #   let(:from_string) { "25.2.1" }
+    #   let(:to_string) { "25.1.6" }
+    #
+    #   let(:sprint_names) do
+    #     %w[
+    #       Food_Delivery_25.1.5
+    #       Food_Delivery_25.2.1
+    #       Food_Delivery_25.2.1
+    #       Food_Delivery_25.2.1
+    #       Food_Delivery_25.2.1
+    #     ]
+    #   end
+    #
+    #   let(:expected_new_sprint_names) do
+    #     %w[
+    #       Food_Delivery_25.1.5
+    #       Food_Delivery_25.1.6
+    #       Food_Delivery_25.1.7
+    #       Food_Delivery_25.1.8
+    #       Food_Delivery_25.1.9
+    #     ]
+    #   end
+    #
+    #   it "does rename those sprints in sequence" do
+    #     expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names)
+    #   end
+    # end
   end
 
   describe "#first_sprint_to_act_on?" do

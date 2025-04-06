@@ -18,7 +18,10 @@ module Jira
           end
 
           def run
-            sprint_prefixes.each { |sprint_prefix| act_on_sprints_for_sprint_prefix(sprint_prefix) }
+            sprint_prefixes.each do |sprint_prefix|
+              @first_sprint_to_act_on = nil
+              act_on_sprints_for_sprint_prefix(sprint_prefix)
+            end
           end
 
           def act_on_sprints_for_sprint_prefix(sprint_prefix)
@@ -26,7 +29,8 @@ module Jira
           end
 
           def first_sprint_to_act_on?(sprint_name)
-            sprint_name =~ from_string_regex
+            @first_sprint_to_act_on ||= nil
+            (sprint_name =~ from_string_regex)
           end
         end
       end
