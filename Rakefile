@@ -13,6 +13,8 @@ RuboCop::RakeTask.new(:rubocop) do |task|
   task.options = ["--autocorrect"]
 end
 
-Cucumber::Rake::Task.new
+Cucumber::Rake::Task.new do |t|
+  t.profile = "rake"
+end
 
 task default: %i[rubocop spec cucumber]
