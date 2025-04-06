@@ -4,6 +4,7 @@ require_relative "next_sprint_creator"
 require_relative "sprint"
 require_relative "sprint/prefix"
 require_relative "sprint_state_controller"
+require_relative "helpers/pagination"
 
 module Jira
   module Auto
@@ -107,34 +108,16 @@ module Jira
           tool.board_controller.boards
         end
 
-        PAGE_SIZE = 50
-
         def unfiltered_jira_sprints(board)
-          all_jira_sprints = []
-          start_at = 0
-
-          loop do
-            log.debug { "board #{board.name}: fetching sprints from Jira (start_at: #{start_at})" }
-
-            fetched_sprints = fetch_jira_sprints(board, PAGE_SIZE, start_at)
-
-            log.debug { "Fetched #{fetched_sprints.size} sprints" }
-
-            all_jira_sprints.concat(fetched_sprints)
-            start_at += PAGE_SIZE
-
-            break if fetched_sprints.empty?
+          Helpers::Pagination.fetch_all_object_pages do |pagination_options|
+            fetch_jira_sprints(board, pagination_options)
           end
-
-          log.debug { all_jira_sprints.collect(&:name).join(", ") }
-
-          all_jira_sprints
         end
 
-        def fetch_jira_sprints(board, max_results, start_at)
-          log.debug { "Fetching sprints from Jira (max_results: #{max_results}, start_at: #{start_at})" }
+        def fetch_jira_sprints(board, options)
+          log.debug { "Fetching sprints from Jira (#{options.inspect})" }
 
-          fetched_sprints = board.jira_board.sprints(maxResults: max_results, startAt: start_at)
+          fetched_sprints = board.jira_board.sprints(options)
 
           log.debug do
             "Board: #{board.name}: Fetched #sprints #{fetched_sprints.size} sprints from Jira: " \
