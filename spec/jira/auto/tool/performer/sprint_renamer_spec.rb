@@ -193,6 +193,35 @@ RSpec.describe Jira::Auto::Tool::Performer::SprintRenamer do
         expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names)
       end
     end
+
+    context "when multiple sprints are matching the first sprint to rename" do
+      let(:from_string) { "25.2.1" }
+      let(:to_string) { "25.1.6" }
+
+      let(:sprint_names) do
+        %w[
+          Food_Delivery_25.1.5
+          Food_Delivery_25.2.1
+          Food_Delivery_25.2.1
+          Food_Delivery_25.2.1
+          Food_Delivery_25.2.1
+        ]
+      end
+
+      let(:expected_new_sprint_names) do
+        %w[
+          Food_Delivery_25.1.5
+          Food_Delivery_25.1.6
+          Food_Delivery_25.1.7
+          Food_Delivery_25.1.8
+          Food_Delivery_25.1.9
+        ]
+      end
+
+      it "does rename those sprints in sequence" do
+        expect(sprint_renamer.calculate_sprint_new_names(sprint_names)).to eq(expected_new_sprint_names)
+      end
+    end
   end
 
   describe "#first_sprint_to_act_on?" do

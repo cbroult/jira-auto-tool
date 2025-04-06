@@ -50,14 +50,14 @@ RSpec.describe Jira::Auto::Tool::Performer::QuarterlySprintRenamer::NextNameGene
       it { expect(next_name_generator).to be_pulling_sprint_into_previous_planning_interval }
     end
 
-    context "when sprint is renamed backward inside the current preceding planning interval" do
+    context "when sprint is renamed backward inside the current planning interval" do
       let(:original_name_of_first_renamed_sprint) { "prefix_26.1.4" }
       let(:name_of_first_renamed_sprint) { "prefix_26.1.1" }
 
       it { expect(next_name_generator).not_to be_pulling_sprint_into_previous_planning_interval }
     end
 
-    context "when sprint is renamed forward inside the current preceding planning interval" do
+    context "when sprint is renamed forward inside the current planning interval" do
       let(:original_name_of_first_renamed_sprint) { "prefix_26.1.1" }
       let(:name_of_first_renamed_sprint) { "prefix_26.1.4" }
 
@@ -117,11 +117,11 @@ RSpec.describe Jira::Auto::Tool::Performer::QuarterlySprintRenamer::NextNameGene
       it { expect(name_generator.name_for("prefix_25.2.2")).to eq("next_name_in_planning_interval") }
     end
 
-    context "when sprint name outside planning interval" do
+    context "when sprint name outside planning interval from first sprint to rename" do
       let(:original_name_of_first_renamed_sprint) { "prefix_25.1.5" }
       let(:name_of_first_renamed_sprint) { "prefix_25.1.20" }
 
-      it "generates a new name consecutive to the previous one in the planning interval" do
+      it "the name stays unchanged" do
         expect(name_generator.name_for("prefix_25.3.2")).to eq("prefix_25.3.2")
       end
     end
