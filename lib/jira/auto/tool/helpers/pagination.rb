@@ -7,12 +7,12 @@ module Jira
         module Pagination
           PAGE_SIZE = 50
 
-          def self.fetch_all_object_pages
+          def self.fetch_all_object_pages(parameter_naming_convention = :camelCase)
             all_objects = []
             start_at = 0
 
             loop do
-              pagination_options = { maxResults: PAGE_SIZE, startAt: start_at }
+              pagination_options = build_pagination_options(parameter_naming_convention, PAGE_SIZE, start_at)
 
               log.debug { "Fetching objects from Jira (#{pagination_options.inspect})..." }
 
@@ -31,6 +31,18 @@ module Jira
 
             all_objects
           end
+
+          def self.build_pagination_options(parameter_naming_convention, max_results, start_at)
+            PAGINATION_PARAMETER_STYLES
+              .fetch(parameter_naming_convention) { |k| "#{k.inspect}: not found in #{PAGINATION_PARAMETER_STYLES}" }
+              .zip([max_results, start_at])
+              .to_h
+          end
+
+          PAGINATION_PARAMETER_STYLES = {
+            camelCase: %i[maxResults startAt],
+            snake_case: %i[max_results start_at]
+          }.freeze
         end
       end
     end
