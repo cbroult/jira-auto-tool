@@ -6,15 +6,12 @@ source "https://rubygems.org"
 gemspec
 
 group :development do
-  gem "rake"
-
-  gem "rspec"
-
-  gem "rubocop"
-
   gem "aruba"
   gem "cucumber" # , git: "https://github.com/cucumber/cucumber-ruby.git"
   gem "mermaid"
+  gem "rake"
+  gem "rspec"
+  gem "rubocop"
   gem "rubocop-rake", require: false
   gem "rubocop-rspec", require: false
   gem "simplecov", require: false
