@@ -5,13 +5,19 @@ require "jira/auto/tool"
 module Jira
   module Auto
     class Tool
-      module Options
+      module CommonOptions
         DISPLAY_HELP_OPTION = "--help"
 
         def self.add(tool, parser)
           ::ARGV << DISPLAY_HELP_OPTION if ARGV.empty?
 
           add_help_banner_and_options(parser)
+
+          parser.on("-v", "--version", "Print the version") do
+            Kernel.puts tool.class::VERSION
+
+            Kernel.exit 1
+          end
 
           parser.on("--[no-]jira-http-debug", "Enable or disable HTTP debug mode") do |v|
             tool.jira_http_debug = v

@@ -18,8 +18,9 @@ require "bundler/setup"
 require "active_support/core_ext/object/blank"
 require "jira/auto/tool"
 require "jira/auto/tool/board_controller/options"
+require "jira/auto/tool/common_options"
 require "jira/auto/tool/config/options"
-require "jira/auto/tool/options"
+require "jira/auto/tool/jira_http_options"
 require "jira/auto/tool/performer/options"
 require "jira/auto/tool/project/options"
 require "jira/auto/tool/sprint_controller/options"
@@ -31,7 +32,8 @@ require "optparse/date"
 tool = Jira::Auto::Tool.new
 
 option_parser = OptionParser.new do |parser|
-  Jira::Auto::Tool::Options.add(tool, parser)
+  Jira::Auto::Tool::CommonOptions.add(tool, parser)
+  Jira::Auto::Tool::JiraHttpOptions.add(tool, parser)
   Jira::Auto::Tool::BoardController::Options.add(tool, parser)
   Jira::Auto::Tool::Config::Options.add(tool, parser)
   Jira::Auto::Tool::Project::Options.add(tool, parser)

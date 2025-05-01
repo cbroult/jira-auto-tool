@@ -61,9 +61,19 @@ module Jira
         end
 
         describe "#field_context" do
-          before { allow(field).to receive_messages(field_contexts: %i[first_context second_context third_context]) }
+          let(:logger) { instance_double(Logger) }
 
-          it { expect(field.field_context).to eq(:first_context) }
+          before do
+            allow(field)
+              .to receive_messages(field_contexts: %i[first_context second_context third_context],
+                                   log: logger)
+          end
+
+          it "returns the first context associated to a field and warns about multiple contexts" do
+            expect(logger).to receive(:warn)
+
+            expect(field.field_context).to eq(:first_context)
+          end
         end
 
         describe "#field_contexts" do
