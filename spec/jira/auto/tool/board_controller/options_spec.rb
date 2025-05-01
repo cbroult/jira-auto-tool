@@ -20,6 +20,7 @@ module Jira
               it "configures board cache clear option" do
                 expect(parser).to receive(:on).with(no_args)
                 expect(parser).to receive(:on).with("Board")
+                expect(parser).to receive(:on).with("--board-name=STRING", String)
                 expect(parser).to receive(:on).with("--board-cache-clear", any_args) do |&block|
                   expect(board_controller).to receive(:clear_cache)
                   block.call
@@ -33,6 +34,7 @@ module Jira
               it "configures board list option" do
                 expect(parser).to receive(:on).with(no_args)
                 expect(parser).to receive(:on).with("Board")
+                expect(parser).to receive(:on).with("--board-name=STRING", String)
                 expect(parser).to receive(:on).with("--board-cache-clear", any_args)
 
                 expect(parser).to receive(:on).with("--board-list", any_args) do |&block|

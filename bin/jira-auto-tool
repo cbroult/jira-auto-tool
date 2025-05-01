@@ -19,6 +19,7 @@ require "active_support/core_ext/object/blank"
 require "jira/auto/tool"
 require "jira/auto/tool/board_controller/options"
 require "jira/auto/tool/config/options"
+require "jira/auto/tool/options"
 require "jira/auto/tool/performer/options"
 require "jira/auto/tool/project/options"
 require "jira/auto/tool/sprint_controller/options"
@@ -27,31 +28,10 @@ require "jira/auto/tool/team_sprint_prefix_mapper/options"
 require "optparse"
 require "optparse/date"
 
-DISPLAY_HELP_OPTION = "--help"
-
-ARGV << DISPLAY_HELP_OPTION if ARGV.empty?
-
 tool = Jira::Auto::Tool.new
 
 option_parser = OptionParser.new do |parser|
-  parser.banner = <<~EOBANNER
-    Usage: #{File.basename(__FILE__)} [options]*
-
-  EOBANNER
-
-  parser.on("-h", DISPLAY_HELP_OPTION, "Print this help") do
-    puts parser
-    exit
-  end
-
-  parser.on("--[no-]jira-http-debug", "Enable or disable HTTP debug mode") do |v|
-    tool.jira_http_debug = v
-  end
-
-  parser.on("--board-name=STRING", String) do |board_name|
-    tool.jira_board_name = board_name
-  end
-
+  Jira::Auto::Tool::Options.add(tool, parser)
   Jira::Auto::Tool::BoardController::Options.add(tool, parser)
   Jira::Auto::Tool::Config::Options.add(tool, parser)
   Jira::Auto::Tool::Project::Options.add(tool, parser)

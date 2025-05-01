@@ -11,6 +11,11 @@ module Jira
           def self.add(tool, parser)
             parser.on
             parser.on("Board")
+
+            parser.on("--board-name=STRING", String) do |board_name|
+              tool.jira_board_name = board_name
+            end
+
             parser.on("--board-cache-clear", "Clear the board cache so they are requested again.") do
               tool.board_controller.clear_cache
             end
