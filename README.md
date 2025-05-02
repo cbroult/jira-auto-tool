@@ -24,13 +24,13 @@ in such a cloud sandbox. Though, if the sandbox belongs to the target context
    * ... and add to the application's Gemfile by executing:
 
      ```bash
-     bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+     bundle add jira-auto-tool
      ```
      
    * ... if bundler is not being used to manage dependencies, by executing:
      
      ```bash
-     gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+     gem install jira-auto-tool
      ```
 
 ## Setup

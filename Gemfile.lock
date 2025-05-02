@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    jira-auto-tool (0.1.1)
+    jira-auto-tool (0.1.4)
       activesupport
       http_logger
       irb
