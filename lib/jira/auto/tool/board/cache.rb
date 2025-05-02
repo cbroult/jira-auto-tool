@@ -40,13 +40,13 @@ module Jira
           private
 
           def expired?
-            log.debug { "expired? #{cached_at} < #{one_hour_ago}" }
+            log.debug { "expired? #{cached_at} < #{one_day_ago}" }
 
-            cached_at < one_hour_ago
+            cached_at < one_day_ago
           end
 
-          def one_hour_ago
-            Helpers::OverridableTime.now - 1.hour
+          def one_day_ago
+            Helpers::OverridableTime.now - 1.day
           end
 
           def cached_at

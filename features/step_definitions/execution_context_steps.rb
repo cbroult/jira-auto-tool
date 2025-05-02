@@ -24,10 +24,10 @@ Then(/^successfully running `(.*)` takes between (.*) and (.*) seconds$/) do |co
   expect(end_time - start_time).to be_between(minimal_time.to_i, maximal_time.to_i)
 end
 
-Given(/^I wait for over an hour$/) do
-  in_over_an_hour = (Time.now + 1.hour + 2.minute).to_s
+Given(/^I wait for over a day$/) do
+  in_over_a_day = (Time.now + 1.day + 2.minute).to_s
 
-  log.debug { "Waiting until #{in_over_an_hour}" }
+  log.debug { "Waiting until #{in_over_a_day}" }
 
-  set_environment_variable("JAT_CURRENT_DATE_TIME", in_over_an_hour)
+  set_environment_variable("JAT_CURRENT_DATE_TIME", in_over_a_day)
 end

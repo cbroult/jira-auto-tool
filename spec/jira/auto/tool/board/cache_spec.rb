@@ -140,7 +140,7 @@ module Jira
               end
 
               context "when expired" do
-                let(:cached_at) { Time.now - 1.hour }
+                let(:cached_at) { Time.now - 1.day }
 
                 it { expect(cache.send(:expired?)).to be_truthy }
               end
@@ -157,7 +157,7 @@ module Jira
 
               before { allow(Helpers::OverridableTime).to receive_messages(now: time_now) }
 
-              it { expect(cache.send(:one_hour_ago)).to eq(Time.parse("2025-02-21 19:55:00 UTC")) }
+              it { expect(cache.send(:one_day_ago)).to eq(Time.parse("2025-02-20 20:55:00 UTC")) }
             end
 
             describe "#file_path" do
