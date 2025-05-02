@@ -45,14 +45,17 @@ Gem::Specification.new do |spec|
   spec.add_dependency "logging"
   spec.add_dependency "ostruct"
   spec.add_dependency "ratelimit"
+  spec.add_dependency "rb-readline"
   spec.add_dependency "rdoc"
   spec.add_dependency "redis"
   spec.add_dependency "reline"
   spec.add_dependency "syslog"
   spec.add_dependency "terminal-table"
 
-  spec.add_dependency "fiddle", "1.1.0", platform: :mswin if Gem::Platform.local.os == "mswin"
-  spec.add_dependency "win32ole", platform: :mswin if Gem::Platform.local.os == "mswin"
+  if Gem.win_platform?
+    plat.add_dependency "fiddle", "1.1.0"
+    plat.add_dependency "win32ole"
+  end
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
