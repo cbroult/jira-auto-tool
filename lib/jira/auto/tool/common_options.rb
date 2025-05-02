@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "jira/auto/tool"
+require "jira/auto/tool/helpers/option_parser"
 
 module Jira
   module Auto
@@ -17,10 +17,6 @@ module Jira
             Kernel.puts tool.class::VERSION
 
             Kernel.exit 1
-          end
-
-          parser.on("--[no-]jira-http-debug", "Enable or disable HTTP debug mode") do |v|
-            tool.jira_http_debug = v
           end
         end
 

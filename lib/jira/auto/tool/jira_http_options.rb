@@ -9,6 +9,7 @@ module Jira
         DISPLAY_HELP_OPTION = "--help"
 
         def self.add(tool, parser)
+          parser.section_header "JIRA HTTP"
           parser.on("--[no-]jira-http-debug", "Enable or disable HTTP debug mode") do |v|
             tool.jira_http_debug = v
           end

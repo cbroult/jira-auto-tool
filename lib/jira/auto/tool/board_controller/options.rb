@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "jira/auto/tool/helpers/option_parser"
 require "jira/auto/tool/board_controller"
 require "jira/auto/tool/board/cache"
 
@@ -9,8 +10,7 @@ module Jira
       class BoardController
         class Options
           def self.add(tool, parser)
-            parser.on
-            parser.on("Board")
+            parser.section_header "Board"
 
             parser.on("--board-name=STRING", String) do |board_name|
               tool.jira_board_name = board_name

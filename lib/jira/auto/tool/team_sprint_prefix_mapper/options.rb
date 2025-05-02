@@ -8,8 +8,8 @@ module Jira
       class TeamSprintPrefixMapper
         class Options
           def self.add(tool, parser)
-            parser.on
-            parser.on("Team Sprint Mapping")
+            parser.section_header "Team Sprint Prefix Mapping"
+
             parser.on("--team-sprint-mapping-list", "--tsm-list",
                       "List the sprint and team owning their content") do
               tool.team_sprint_ticket_dispatcher.team_sprint_prefix_mapper.list_mappings

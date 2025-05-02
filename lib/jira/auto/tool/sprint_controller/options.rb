@@ -41,8 +41,7 @@ module Jira
           end
 
           def self.add_sprint_prefix_listing_options(parser, tool)
-            parser.on
-            parser.on("Sprint Prefix")
+            parser.section_header "Sprint Prefix"
 
             parser.on("--sprint-prefix-list",
                       "List sprints. The output may be controlled via the ART_PREFIX_REGEX environment variable") do
