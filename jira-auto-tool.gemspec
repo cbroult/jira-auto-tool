@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.3.5"
 
-  spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
+  spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/cbroult/jira-auto-tool"
@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
       .reject { |f| f.end_with?(".gem") }
       .reject do |f|
       (f == gemspec) ||
-        f.start_with?(*%w[bin/console test/ spec/ features/ pkg/ .git .github appveyor Gemfile])
+        f.start_with?(*%w[bin/console test/ pkg/ .git .github appveyor Gemfile])
     end
   end
   spec.bindir = "bin"
