@@ -8,6 +8,7 @@ gemspec
 group :development do
   gem "aruba"
   gem "cucumber" # , git: "https://github.com/cucumber/cucumber-ruby.git"
+  gem "gem-release"
   gem "mermaid"
   gem "rake"
   gem "rspec"
@@ -15,8 +16,8 @@ group :development do
   gem "rubocop-rake", require: false
   gem "rubocop-rspec", require: false
   gem "simplecov", require: false
-  gem "wdm", ">= 0.1.0", platform: :mswin
-  gem "win32ole", platform: :mswin
+  gem "wdm", ">= 0.1.0", platform: :windows
+  gem "win32ole", platform: :windows
 
   gem "guard"
   gem "guard-bundler"
