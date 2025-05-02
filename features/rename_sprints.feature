@@ -1,4 +1,3 @@
-@wip
 Feature: Rename sprints
   In order to adjust the sprint names according to the convention and needs
   As a team member
