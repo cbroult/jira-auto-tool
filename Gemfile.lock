@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    jira-auto-tool (0.1.0)
+    jira-auto-tool (0.1.1)
       activesupport
       http_logger
       irb
@@ -297,4 +297,4 @@ DEPENDENCIES
   win32ole
 
 BUNDLED WITH
-   2.7.0.dev
+   2.6.8
