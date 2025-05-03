@@ -5,11 +5,12 @@ module Jira
     class Tool
       class Config
         class Options
-          def self.add(_tool, parser)
+          def self.add(_tool, _parser)
             # parser.section_header "Config"
-            #
+
             # parser.on("--config-list") do
-            #   # TODO: tool.config.list
+            # Config.list
+            # TODO: tool.config.list
             # end
           end
         end

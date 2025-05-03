@@ -12,7 +12,10 @@ module Jira
             let(:tool) { Tool.new }
             let(:parser) { OptionParser.new }
 
-            before { described_class.add(tool, parser) }
+            before do
+              allow(EnvironmentLoader).to receive_messages(new: instance_double(EnvironmentLoader))
+              described_class.add(tool, parser)
+            end
 
             context "when using --help" do
               it do

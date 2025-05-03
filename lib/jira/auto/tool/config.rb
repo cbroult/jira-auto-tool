@@ -32,13 +32,17 @@ module Jira
         end
 
         def path
-          File.join(dir, "jira-auto-tool.config.yml")
+          File.join(dir, "#{tool_name}.config.yml")
         end
 
         def dir
-          config_dir = File.join(Dir.home, ".config/jira-auto-tool")
+          config_dir = File.join(Dir.home, ".config/#{tool_name}")
           FileUtils.makedirs(config_dir)
           config_dir
+        end
+
+        def tool_name
+          "jira-auto-tool"
         end
 
         private

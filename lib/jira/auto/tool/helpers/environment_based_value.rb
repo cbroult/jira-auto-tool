@@ -55,10 +55,10 @@ module Jira
             constant_name = method_name.to_s.upcase
             class_eval <<-EOCONSTANT, __FILE__, __LINE__ + 1
               # This module and constant will be interpolated as follows:
-              # module Environment
+              # class Environment
               #   CONSTANT_NAME = "CONSTANT_NAME"
               # end
-              module Environment
+              class Environment
                  #{constant_name} = #{constant_name.inspect}
               end
             EOCONSTANT
@@ -70,7 +70,7 @@ module Jira
             environment_variable_name = caller_method_name.upcase
 
             value = ENV.fetch(environment_variable_name) do |name|
-              raise KeyError, "Missing #{name} environment variable!"
+              raise KeyError, "Missing #{name} environment_loader variable!"
             end
 
             log.debug { "fetch_corresponding_environment_variable(#{environment_variable_name}) - #{value.inspect}" }
