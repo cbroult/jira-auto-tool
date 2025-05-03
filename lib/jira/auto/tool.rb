@@ -8,6 +8,7 @@ require "jira-ruby"
 
 require_relative "tool/config"
 require_relative "tool/board_controller"
+require_relative "tool/environment_loader"
 require_relative "tool/helpers/environment_based_value"
 require_relative "tool/project"
 require_relative "tool/rate_limited_jira_client"
@@ -23,13 +24,24 @@ require_relative "tool/version"
 
 module Jira
   module Auto
+    # rubocop:disable Metrics/ClassLength
     class Tool
       extend Helpers::EnvironmentBasedValue
 
       class Error < StandardError; end
 
+      attr_reader :environment
+
+      def initialize
+        @environment = EnvironmentLoader.new(self)
+      end
+
       def config
         @config ||= Config.new(self)
+      end
+
+      def home_dir
+        File.expand_path(File.join("..", "..", ".."), __dir__)
       end
 
       def board_name
@@ -212,5 +224,7 @@ module Jira
           .create_sprint(self, board.id, attributes)
       end
     end
+
+    # rubocop:enable Metrics/ClassLength
   end
 end

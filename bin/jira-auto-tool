@@ -20,6 +20,7 @@ require "jira/auto/tool"
 require "jira/auto/tool/board_controller/options"
 require "jira/auto/tool/common_options"
 require "jira/auto/tool/config/options"
+require "jira/auto/tool/environment_loader/options"
 require "jira/auto/tool/jira_http_options"
 require "jira/auto/tool/performer/options"
 require "jira/auto/tool/project/options"
@@ -36,6 +37,7 @@ option_parser = OptionParser.new do |parser|
   Jira::Auto::Tool::JiraHttpOptions.add(tool, parser)
   Jira::Auto::Tool::BoardController::Options.add(tool, parser)
   Jira::Auto::Tool::Config::Options.add(tool, parser)
+  Jira::Auto::Tool::EnvironmentLoader::Options.add(tool, parser)
   Jira::Auto::Tool::Project::Options.add(tool, parser)
   Jira::Auto::Tool::Performer::Options.add(tool, parser)
   Jira::Auto::Tool::SprintController::Options.add(tool, parser)

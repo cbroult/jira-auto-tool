@@ -35,10 +35,19 @@ in such a cloud sandbox. Though, if the sandbox belongs to the target context
 
 ## Setup
 
+1. Create an example configuration file
+   ```bash
+   jira-auto-tool --env-setup
+   ```
+2. Adjust the file to your context. 
+
+**WARNING** - It is highly recommended that the JIRA_API_TOKEN value is set as an environment variable 
+and **NOT** in the generated file.
+
 While we strive to use convention over configuration as a principle, the following environment variables have to be set
 in order to use this tool:
 
-Required environment variables:
+Some explanations:
 
 - `JIRA_USERNAME` - Your Jira account username (e.g., "user@company.com").
 - `JIRA_API_TOKEN` - Your Jira API authentication token.
@@ -63,19 +72,20 @@ See [sprint filtering](./features/sprint_filtering.feature).
 
 ## Usage
 
-* Leverage the [specification by examples](./features)
 * Use the tool integrated help: 
   ```bash
   jira-auto-tool --help
   ```
-* Usually the long option names have a short version equivalent to reduce typing.
+* Leverage the [specification by examples](./features) for a detailled understand of the features.
+* Note that usually the long option names have a short version equivalent to reduce typing.
 
 Below are a few examples.
 
 ### Add Sprints
 
-The following is going to create sprints `sprint_prefix_25.4.3` until `sprint_prefix_25.4.6` 
-for the teams respective sprint prefixes. 
+The following is going to [add sprints](./features/create_sprints_using_existing_ones_as_reference.feature) 
+`sprint_prefix_25.4.3` until `sprint_prefix_25.4.6` 
+to the teams respective sprint prefixes. 
 ```bash
 jira-auto-tool --sprint-add=25.4.3,4
 ```
