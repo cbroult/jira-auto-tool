@@ -3,7 +3,7 @@
 module Jira
   module Auto
     class Tool
-      VERSION = "1.0.0"
+      VERSION = "1.1.0"
     end
   end
 end
