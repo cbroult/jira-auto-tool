@@ -70,7 +70,7 @@ module Jira
             environment_variable_name = caller_method_name.upcase
 
             value = ENV.fetch(environment_variable_name) do |name|
-              raise KeyError, "Missing #{name} environment_loader variable!"
+              raise KeyError, "Missing #{name} environment variable!"
             end
 
             log.debug { "fetch_corresponding_environment_variable(#{environment_variable_name}) - #{value.inspect}" }
