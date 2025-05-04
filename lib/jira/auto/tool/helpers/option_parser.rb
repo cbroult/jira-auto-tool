@@ -10,7 +10,7 @@ class OptionParser
     on <<~EOSH
 
       #{header_name}
-      #{header_name.gsub(/./, "-")}
+      #{header_name.gsub(/./, "*")}
     EOSH
   end
 end

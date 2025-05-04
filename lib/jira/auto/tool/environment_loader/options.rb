@@ -8,7 +8,7 @@ module Jira
           def self.add(tool, parser)
             parser.section_header "Environment"
 
-            parser.on("--env-list", "List the environment_loader variables used by the tool") do
+            parser.on("--env-list", "List the environment variables used by the tool") do
               tool.environment.list
             end
 

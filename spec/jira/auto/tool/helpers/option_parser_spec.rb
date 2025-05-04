@@ -12,7 +12,7 @@ RSpec.describe OptionParser do
       expect(option_parser).to receive(:on).with(<<~EOSB)
 
         a section name:
-        ---------------
+        ***************
       EOSB
 
       option_parser.section_header("a section name")

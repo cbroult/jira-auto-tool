@@ -42,7 +42,7 @@ module Jira
           end
         end
 
-        describe "#environment_loader" do
+        describe "#environment" do
           let(:environment_loader) { instance_double(EnvironmentLoader) }
 
           before { allow(EnvironmentLoader).to receive_messages(new: environment_loader) }
@@ -131,7 +131,7 @@ module Jira
         end
 
         # TODO: move that to environment_based_value_spec
-        RSpec.shared_examples "an overridable environment_loader based value" do |method_name|
+        RSpec.shared_examples "an overridable environment based value" do |method_name|
           let(:env_var_name) { method_name.to_s.upcase }
           let(:method_name?) { :"#{method_name}_defined?" }
           let(:config) { Config.new(object_with_overridable_value) }
@@ -141,7 +141,7 @@ module Jira
             allow(config).to receive_messages(value_store: {})
           end
 
-          context "when the environment_loader variable is set" do
+          context "when the environment variable is set" do
             let(:expected_value) { "#{env_var_name} env_value" }
 
             before do
@@ -156,7 +156,7 @@ module Jira
                 .to eq(expected_value)
             end
 
-            it "fetches its value from the environment_loader" do
+            it "fetches its value from the environment" do
               expect(object_with_overridable_value.send(method_name)).to eq(expected_value)
             end
 
@@ -173,11 +173,11 @@ module Jira
             end
           end
 
-          context "when the environment_loader variable is not set" do
+          context "when the environment variable is not set" do
             before do
               allow(ENV).to receive(:fetch)
                 .with(env_var_name)
-                .and_raise(KeyError.new("Missing #{env_var_name} environment_loader variable!)"))
+                .and_raise(KeyError.new("Missing #{env_var_name} environment variable!)"))
 
               allow(ENV).to receive(:key?).with(env_var_name).and_return(false)
             end
@@ -189,9 +189,9 @@ module Jira
                 .to eq("DEFAULT_VALUE")
             end
 
-            it "raises an error if the environment_loader variable is not found" do
+            it "raises an error if the environment variable is not found" do
               expect { object_with_overridable_value.send(method_name) }
-                .to raise_error(KeyError, /Missing #{env_var_name} environment_loader variable!/)
+                .to raise_error(KeyError, /Missing #{env_var_name} environment variable!/)
             end
           end
 
@@ -232,10 +232,10 @@ module Jira
           jira_site_url jira_username
           jira_sprint_field_name
         ].each do |method_name|
-          describe "environment_loader based values" do
+          describe "environment based values" do
             let(:object_with_overridable_value) { tool }
 
-            it_behaves_like "an overridable environment_loader based value", method_name
+            it_behaves_like "an overridable environment based value", method_name
           end
         end
 
