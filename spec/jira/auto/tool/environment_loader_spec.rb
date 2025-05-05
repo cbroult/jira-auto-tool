@@ -138,8 +138,8 @@ module Jira
 
               allow(YAML)
                 .to receive(:safe_load)
-                      .with("file_content")
-                      .and_return({ "a_key" => "a_value", "another_key" => "another_value", "yet_another_key" => 16 })
+                .with("file_content")
+                .and_return({ "a_key" => "a_value", "another_key" => "another_value", "yet_another_key" => 16 })
 
               expect(ENV).to receive(:[]=).with("a_key", "a_value")
               expect(ENV).to receive(:[]=).with("another_key", "another_value")
