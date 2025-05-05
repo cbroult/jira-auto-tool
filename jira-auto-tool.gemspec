@@ -35,8 +35,22 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Abin/}) { |f| File.basename(f) }.grep_v(/\.bat$/)
   spec.require_paths = ["lib"]
 
-  # Uncomment to register a new dependency of your gem
-  # spec.add_dependency "example-gem", "~> 1.0"
+  # Windows-specific settings
+  spec.platform = Gem::Platform::CURRENT if Gem.win_platform?
+  if Gem.win_platform?
+    ext_conf_rb = File.join(File.dirname(__FILE__), 'ext/no_wrappers_win.rb')
+
+    win_config = <<~CONFIG
+      # Disable wrappers only on Windows
+      puts 'Disabling wrappers for Windows installation'
+      RubyGems.configuration.wrappers = false
+      exit 0
+    CONFIG
+
+    File.write(ext_conf_rb, win_config) #unless File.exist?(ext_conf_rb)
+
+    spec.extensions << ext_conf_rb
+  end
 
   spec.add_dependency "activesupport"
   spec.add_dependency "http_logger"
@@ -53,8 +67,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "terminal-table"
 
   if Gem.win_platform?
-    plat.add_dependency "fiddle", "1.1.0"
-    plat.add_dependency "win32ole"
+    spec.add_dependency "fiddle", "1.1.0"
+    spec.add_dependency "win32ole"
   end
 
   # For more information and examples about making a new gem, check out our
