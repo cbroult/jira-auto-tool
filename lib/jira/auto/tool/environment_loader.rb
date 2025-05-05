@@ -64,7 +64,7 @@ module Jira
         private
 
         def setup
-          config_values.each { |key, value| ENV[key] = value }
+          config_values.each { |key, value| ENV[key] = value.to_s }
         end
 
         def configuration_source_string

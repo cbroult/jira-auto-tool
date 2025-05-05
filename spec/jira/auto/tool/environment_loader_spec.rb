@@ -137,11 +137,13 @@ module Jira
               allow(environment_loader).to receive_messages(config_file_content: "file_content")
 
               allow(YAML)
-                .to receive(:safe_load).with("file_content")
-                                       .and_return({ "a_key" => "a_value", "another_key" => "another_value" })
+                .to receive(:safe_load)
+                      .with("file_content")
+                      .and_return({ "a_key" => "a_value", "another_key" => "another_value", "yet_another_key" => 16 })
 
               expect(ENV).to receive(:[]=).with("a_key", "a_value")
               expect(ENV).to receive(:[]=).with("another_key", "another_value")
+              expect(ENV).to receive(:[]=).with("yet_another_key", "16")
 
               environment_loader.send(:setup)
             end
