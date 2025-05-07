@@ -11,7 +11,7 @@ require_relative "tool/board_controller"
 require_relative "tool/environment_loader"
 require_relative "tool/helpers/environment_based_value"
 require_relative "tool/project"
-require_relative "tool/rate_limited_jira_client"
+require_relative "tool/redis_rate_limited_jira_client"
 require_relative "tool/request_builder"
 require_relative "tool/setup_logging"
 require_relative "tool/sprint_controller"
@@ -83,14 +83,14 @@ module Jira
       end
 
       def jira_client
-        RateLimitedJiraClient.new(jira_client_options,
-                                  rate_interval:
+        RedisRateLimitedJiraClient.new(jira_client_options,
+                                       rate_interval_in_seconds:
                                     jat_rate_interval_in_seconds_when_defined_else(
-                                      RateLimitedJiraClient::NO_RATE_INTERVAL_IN_SECONDS
+                                      RedisRateLimitedJiraClient::NO_RATE_INTERVAL_IN_SECONDS
                                     ).to_i,
-                                  rate_limit:
+                                       rate_limit:
                                     jat_rate_limit_in_seconds_when_defined_else(
-                                      RateLimitedJiraClient::NO_RATE_LIMIT_IN_SECONDS
+                                      RedisRateLimitedJiraClient::NO_RATE_LIMIT_IN_SECONDS
                                     ).to_i)
       end
 

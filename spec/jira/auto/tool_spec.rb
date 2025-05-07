@@ -16,7 +16,7 @@ module Jira
         end
 
         describe "#board_controller" do
-          before { allow(tool).to receive_messages(jira_client: instance_double(RateLimitedJiraClient)) }
+          before { allow(tool).to receive_messages(jira_client: instance_double(RedisRateLimitedJiraClient)) }
 
           it { expect(tool.board_controller).to be_a(BoardController) }
         end
@@ -118,7 +118,7 @@ module Jira
         end
 
         describe "#project" do
-          let(:jira_client) { instance_double(RateLimitedJiraClient, Project: project_query) }
+          let(:jira_client) { instance_double(RedisRateLimitedJiraClient, Project: project_query) }
           let(:jira_project) { instance_double(JIRA::Resource::Project) }
           let(:jira_project_key) { "JIRA_PROJECT_KEY" }
           let(:project_query) { double("project_query", find: jira_project) } # rubocop:disable RSpec/VerifiedDoubles
@@ -288,10 +288,10 @@ module Jira
           end
 
           it "has a jira client" do
-            expected_jira_client = instance_double(RateLimitedJiraClient)
+            expected_jira_client = instance_double(RedisRateLimitedJiraClient)
 
-            allow(RateLimitedJiraClient)
-              .to receive(:new).with(client_options, rate_limit: 10, rate_interval: 60)
+            allow(RedisRateLimitedJiraClient)
+              .to receive(:new).with(client_options, rate_limit: 10, rate_interval_in_seconds: 60)
                                .and_return(expected_jira_client)
 
             expect(tool.jira_client).to equal(expected_jira_client)
@@ -424,7 +424,7 @@ module Jira
 
           describe "#tickets" do
             let(:query) { jira_resource_double("query") }
-            let(:jira_client) { instance_double(RateLimitedJiraClient, Issue: query) }
+            let(:jira_client) { instance_double(RedisRateLimitedJiraClient, Issue: query) }
 
             before do
               allow(tool).to receive_messages(jira_client: jira_client)

@@ -8,15 +8,15 @@ require "jira/auto/tool"
 module Jira
   module Auto
     class Tool
-      class RateLimitedJiraClient < JIRA::Client
+      class RedisRateLimitedJiraClient < JIRA::Client
         NO_RATE_LIMIT_IN_SECONDS = 0
         NO_RATE_INTERVAL_IN_SECONDS = 0
 
-        attr_reader :rate_interval, :rate_limit
+        attr_reader :rate_interval_in_seconds, :rate_limit
 
-        def initialize(options, rate_interval: 1, rate_limit: 1)
+        def initialize(options, rate_interval_in_seconds: 1, rate_limit: 1)
           super(options)
-          @rate_interval = rate_interval
+          @rate_interval_in_seconds = rate_interval_in_seconds
           @rate_limit = rate_limit
         end
 
@@ -24,7 +24,8 @@ module Jira
         def request(*args)
           return original_request(*args) if rate_limit == NO_RATE_LIMIT_IN_SECONDS
 
-          rate_limiter.exec_within_threshold(rate_limiter_key, interval: rate_interval, threshold: rate_limit) do
+          rate_limiter.exec_within_threshold(rate_limiter_key, interval: rate_interval_in_seconds,
+                                                               threshold: rate_limit) do
             response = original_request(*args)
 
             rate_limiter.add(rate_limiter_key)
@@ -38,7 +39,7 @@ module Jira
         end
 
         def rate_limiter
-          self.class.rate_limiter(rate_limiter_key, rate_interval)
+          self.class.rate_limiter(rate_limiter_key, rate_interval_in_seconds)
         end
 
         def self.rate_limiter(rate_limiter_key, rate_interval)

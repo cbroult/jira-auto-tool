@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require "jira/auto/tool/rate_limited_jira_client"
+require "jira/auto/tool/redis_rate_limited_jira_client"
 
 module Jira
   module Auto
     class Tool
-      class RateLimitedJiraClient
-        RSpec.describe RateLimitedJiraClient do
+      class RedisRateLimitedJiraClient
+        RSpec.describe RedisRateLimitedJiraClient do
           describe "#request" do
-            let(:client) { described_class.new({}, rate_interval:, rate_limit:) }
-            let(:rate_interval) { 2 }
+            let(:client) { described_class.new({}, rate_interval_in_seconds:, rate_limit:) }
+            let(:rate_interval_in_seconds) { 2 }
             let(:rate_limit) { 1 }
             let(:oauth_client) { instance_double(JIRA::OauthClient, request: nil, consumer: nil) }
             let(:rate_limiter) { instance_double(Ratelimit) }
@@ -43,7 +43,7 @@ module Jira
 
                 expect(rate_limiter)
                   .to have_received(:exec_within_threshold)
-                  .with("jira_auto_tool_api_requests", { interval: rate_interval, threshold: rate_limit })
+                  .with("jira_auto_tool_api_requests", { interval: rate_interval_in_seconds, threshold: rate_limit })
                   .exactly(4).times
               end
 
