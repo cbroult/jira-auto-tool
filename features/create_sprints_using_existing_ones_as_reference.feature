@@ -34,7 +34,7 @@ Feature: Add sprints using existing ones as reference
       | Food_Restaurant_25.3.4 | 2025-06-13 11:00:00 UTC | future |
 
   Scenario: Add several planning interval sprints
-    When I successfully run `jira-auto-tool --sprint-add=25.2.2,3  --sprint-add=25.3.1,4  --sprint-add=25.4.1,5`
+    When I successfully run `jira-auto-tool --sa=25.2.2,3  --sa=25.3.1,4  --sa=25.4.1,5`
     Then afterwards the board only has the following sprints:
       | name                   | start_date              | state  |
       | Food_Supply_25.1.3     | 2025-02-01 11:00:00 UTC | closed |

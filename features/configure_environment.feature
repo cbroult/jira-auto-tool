@@ -17,7 +17,7 @@ Feature: Environment Configuration Management
       """
       ---
       <%
-        project_key = "PROJ"
+        project_key = "JATCIDEVLX"
         sprint_field_name = "Sprint"
         jira_username = "cbroult@yahoo.com"
       %>
@@ -29,9 +29,11 @@ Feature: Environment Configuration Management
       JAT_RATE_INTERVAL_IN_SECONDS:
       JAT_RATE_LIMIT_IN_SECONDS:
       JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL: "project = <%= project_key %> AND <%= sprint_field_name %> IS EMPTY"
-      JIRA_BOARD_NAME: "<%= project_key %> - Your board name"
+      # JIRA_BOARD_NAME: "<<<Name of one board if the project>>>"
+      JIRA_BOARD_NAME: "<%= project_key %> - Delivery"
       JIRA_BOARD_NAME_REGEX: "<%= project_key %>|ART 16|unconventional board name"
-      JIRA_CONTEXT_PATH: /jira
+      #JIRA_CONTEXT_PATH: /jira
+      JIRA_CONTEXT_PATH:
       JIRA_HTTP_DEBUG:
       JIRA_PROJECT_KEY: <%= project_key %>
       JIRA_SITE_URL: http://cbroult.atlassian.net:443/

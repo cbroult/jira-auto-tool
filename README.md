@@ -7,15 +7,23 @@
 The purpose of this tool it support managing the sprints of multiple teams so it is easier to adjust to changes.
 See the [feature files](./features) for some behavior examples.
 
-## Warning
+## Table of Contents
 
-1. You should familiarize yourself with this tool in a Jira sandbox project **before applying it to your context**. 
-That can be done easily by [creating a free Atlassian account](https://www.atlassian.com/software) 
-like it has been done to document [this tool features](./features) using executable specifications.
+<!-- Generated using jekyll-toc -->
 
-1. Remember that you are **not allowed** to use confidential/sensitive information when familiarizing with this tool 
-in such a cloud sandbox. Though, if the sandbox belongs to the target context 
-(e.g., sandbox project on the client Jira instance) you can experiment with the parameters you intend to use later. 
+* TOC
+  {:toc}
+
+## Principles
+
+Following a convention over configuration approach:
+* All Scrum boards from the Jira instance are scanned to identify the ones matching the search criteria 
+(the list is [cached for a day for performance reasons](./features/cache_boards.feature) to deal with Jira 
+instances having thousands of boards);
+* For each board, only the unclosed sprints are considered;
+* Sprint manipulations only apply to those sprints whose names match the following format: `sprint_prefix_25.4.3`
+* [Creating new sprints](./features/create_sprints_using_existing_ones_as_reference.feature) 
+will use the existing ones as a reference for the prefix and the length of the sprint.
 
 ## Installation
 
@@ -41,11 +49,8 @@ in such a cloud sandbox. Though, if the sandbox belongs to the target context
    ```
 2. Adjust the file to your context. 
 
-**WARNING** - It is highly recommended that the JIRA_API_TOKEN value is set as an environment variable 
-and **NOT** in the generated file.
-
-While we strive to use convention over configuration as a principle, the following environment variables have to be set
-in order to use this tool:
+The following environment variables have to be set to use this tool. **Except** for te `JIRA_API_TOKEN` that should 
+be done via the configuration file.
 
 Some explanations:
 
@@ -78,6 +83,16 @@ See [sprint filtering](./features/sprint_filtering.feature).
   ```
 * Leverage the [specification by examples](./features) for a detailled understand of the features.
 * Note that usually the long option names have a short version equivalent to reduce typing.
+
+### Warning
+
+1. You should familiarize yourself with this tool in a Jira sandbox project **before applying it to your context**.
+   That can be done easily by [creating a free Atlassian account](https://www.atlassian.com/software)
+   like it has been done to document [this tool features](./features) using executable specifications.
+
+1. Remember that you are **not allowed** to use confidential/sensitive information when familiarizing with this tool
+   in such a cloud sandbox. Though, if the sandbox belongs to the target context
+   (e.g., sandbox project on the client Jira instance) you can experiment with the parameters you intend to use later.
 
 Below are a few examples.
 
