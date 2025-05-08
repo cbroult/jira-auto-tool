@@ -4,7 +4,7 @@
 ![Main Workflow - all branches](https://github.com/cbroult/jira-auto-tool/actions/workflows/main.yml/badge.svg?label=Ruby%20-%20all%20branches)
 
 ****
-The purpose of this tool it support managing the sprints of multiple teams so it is easier to adjust to changes.
+The purpose of this tool is to make it easier to make adjustments to the sprints of multiple teams.
 See the [feature files](./features) for some behavior examples.
 
 ## Table of Contents
@@ -49,7 +49,7 @@ will use the existing ones as a reference for the prefix and the length of the s
    ```
 2. Adjust the file to your context. 
 
-The following environment variables have to be set to use this tool. **Except** for te `JIRA_API_TOKEN` that should 
+The following environment variables have to be set to use this tool. **Except** for the `JIRA_API_TOKEN` that should 
 be done via the configuration file.
 
 Some explanations:
@@ -104,6 +104,15 @@ The following is going to [add sprints](./features/create_sprints_using_existing
 to the teams respective sprint prefixes. 
 ```bash
 jira-auto-tool --sprint-add=25.4.3,4
+```
+
+### Adjusting The End Date Of Sprints
+
+The following is going to 
+[adjust the end date of sprints](./features/update_sprint_end_date_and_shift_following_ones.feature) 
+named `sprint_prefix_25.1.5` and shift the subsequent ones by adjust their start and end dates: 
+```bash
+jira-auto-tool --sprint-update-end-date=25.1.5,"2025-02-25 16:00:00 UTC"
 ```
 
 ### Align Time In Sprint Dates
