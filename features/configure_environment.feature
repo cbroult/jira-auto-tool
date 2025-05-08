@@ -63,7 +63,7 @@ Feature: Environment Configuration Management
       Please remove first before running this again!
       """
 
-  Scenario: Tool successfully loads the config
+  Scenario: Tool successfully loads the config from the current directory
     Given a file named "jira-auto-tool.env.yaml.erb" with:
       """
       ---
@@ -169,3 +169,22 @@ Feature: Environment Configuration Management
       """
       JIRA_API_TOKEN\s+|token-value\s+
       """
+
+  Scenario: Tool displays a useful error message in case of error
+    Given a file named "./jira-auto-tool.env.yaml.erb" with:
+      """
+      ---
+      JIRA_USERNAME: "home@company.com"
+      JIRA_API_TOKEN: "home-token"
+      JIRA_SITE_URL: "https://home.atlassian.net"
+      <%
+      raise "This is meant to fail while loading!"
+      %>
+      """
+    When I run `jira-auto-tool --env-list`
+    Then it should fail with:
+      """
+      ERROR  Jira::Auto::Tool::EnvironmentLoader : ./jira-auto-tool.env.yaml.erb:6: failed to load with the following error:
+      This is meant to fail while loading!
+      """
+

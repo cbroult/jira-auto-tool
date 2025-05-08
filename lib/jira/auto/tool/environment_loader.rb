@@ -81,10 +81,30 @@ module Jira
 
         def config_values
           @config_values ||= YAML.safe_load(config_file_content) || {}
+        rescue StandardError => e
+          error_line = e.backtrace_locations.first.lineno
+          message = <<~EOEMSG
+            #{file_path}:#{error_line}: failed to load with the following error:
+            #{e.message}
+          EOEMSG
+
+          log.error { message }
+          raise message
         end
 
         def config_file_content
           @config_file_content ||= File.exist?(file_path) ? ERB.new(File.read(file_path)).result(binding) : ""
+        rescue StandardError => e
+          error_line = e.backtrace_locations.first.lineno
+
+          message = <<~EOEMSG
+            #{file_path}:#{error_line}: failed to load with the following error:
+            #{e.message}
+          EOEMSG
+
+          log.error { message }
+
+          raise message
         end
 
         def table

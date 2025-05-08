@@ -5,6 +5,7 @@ require "rspec"
 module Jira
   module Auto
     class Tool
+      # rubocop:disable Metrics/ClassLength
       class EnvironmentLoader
         RSpec.describe EnvironmentLoader do
           let(:environment_loader) { described_class.new(tool, auto_setup: auto_setup) }
@@ -132,10 +133,12 @@ module Jira
           end
 
           describe "#setup" do
-            it "sets up the value according to the configuration file content" do
-              allow(environment_loader).to receive_messages(file_path: "file_path")
+            before do
+              allow(environment_loader).to receive_messages(file_path: "path/to/config/file.yaml")
               allow(environment_loader).to receive_messages(config_file_content: "file_content")
+            end
 
+            it "sets up the value according to the configuration file content" do
               allow(YAML)
                 .to receive(:safe_load)
                 .with("file_content")
@@ -147,10 +150,25 @@ module Jira
 
               environment_loader.send(:setup)
             end
+
+            context "when the YAML parsing fails" do
+              it "generates an error message including the file name" do
+                allow(YAML).to receive(:safe_load)
+                  .with("file_content")
+                  .and_raise(RuntimeError, "could not find expected ':' at line 3 column 6)")
+
+                expect { environment_loader.send(:setup) }
+                  .to raise_error(RuntimeError, <<~EOEMSG
+                    path/to/config/file.yaml:188: failed to load with the following error:
+                    could not find expected ':' at line 3 column 6)
+                  EOEMSG
+                  )
+              end
+            end
           end
 
           describe "#config_file_content" do
-            let(:file_path) { "file_path" }
+            let(:file_path) { "path/to/config/file" }
             let(:file_content) do
               <<-YAML_ERB
                 ---
@@ -174,9 +192,31 @@ module Jira
             end
 
             it { expect(environment_loader.send(:config_file_content)).to eq(erb_result) }
+
+            context "when the ERB evaluation fails" do
+              let(:file_content) do
+                <<-YAML_ERB
+                  ---
+                  a_key: <%= 4*4 %>
+                  another_key: <%= 4*4 %>
+                  <%
+                  raise "An error that should be caught and reported!"#{" "}
+                  %>
+                YAML_ERB
+              end
+
+              it "generates an error message including the file name" do
+                expect { environment_loader.send(:config_file_content) }
+                  .to raise_error(RuntimeError, <<~EOEMSG)
+                    path/to/config/file:5: failed to load with the following error:
+                    An error that should be caught and reported!
+                  EOEMSG
+              end
+            end
           end
         end
       end
+      # rubocop:enable Metrics/ClassLength
     end
   end
 end
