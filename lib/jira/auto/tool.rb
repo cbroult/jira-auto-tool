@@ -89,7 +89,7 @@ module Jira
                                       RedisRateLimitedJiraClient::NO_RATE_INTERVAL_IN_SECONDS
                                     ).to_i,
                                        rate_limit:
-                                    jat_rate_limit_in_seconds_when_defined_else(
+                                    jat_rate_limit_per_interval_when_defined_else(
                                       RedisRateLimitedJiraClient::NO_RATE_LIMIT_IN_SECONDS
                                     ).to_i)
       end
@@ -136,12 +136,13 @@ module Jira
         jira_base_url + url
       end
 
-      %i[
+      ENVIRONMENT_BASED_VALUE_SYMBOLS = %i[
         art_sprint_regex
         expected_start_date_field_name
         implementation_team_field_name
-        jat_rate_limit_in_seconds
         jat_rate_interval_in_seconds
+        jat_rate_limit_implementation
+        jat_rate_limit_per_interval
         jat_tickets_for_team_sprint_ticket_dispatcher_jql
         jira_api_token
         jira_board_name
@@ -150,9 +151,11 @@ module Jira
         jira_http_debug
         jira_project_key
         jira_site_url
-        jira_username
         jira_sprint_field_name
-      ].each do |method_name|
+        jira_username
+      ].freeze
+
+      ENVIRONMENT_BASED_VALUE_SYMBOLS.each do |method_name|
         define_overridable_environment_based_value(method_name)
       end
 

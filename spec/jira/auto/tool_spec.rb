@@ -217,21 +217,7 @@ module Jira
           end
         end
 
-        %i[
-          expected_start_date_field_name
-          implementation_team_field_name
-          jat_tickets_for_team_sprint_ticket_dispatcher_jql
-          jat_rate_limit_in_seconds
-          jat_rate_interval_in_seconds
-          jira_api_token
-          jira_board_name
-          jira_board_name_regex
-          jira_context_path
-          jira_http_debug
-          jira_project_key
-          jira_site_url jira_username
-          jira_sprint_field_name
-        ].each do |method_name|
+        described_class::ENVIRONMENT_BASED_VALUE_SYMBOLS.each do |method_name|
           describe "environment based values" do
             let(:object_with_overridable_value) { tool }
 
@@ -283,7 +269,7 @@ module Jira
                                    jira_api_token: "jira_api_token_value",
                                    jira_context_path_when_defined_else: "/context_path_value",
                                    jira_http_debug?: false,
-                                   jat_rate_limit_in_seconds_when_defined_else: "10",
+                                   jat_rate_limit_per_interval_when_defined_else: "10",
                                    jat_rate_interval_in_seconds_when_defined_else: "60")
           end
 

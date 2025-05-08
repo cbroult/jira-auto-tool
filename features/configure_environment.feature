@@ -27,7 +27,7 @@ Feature: Environment Configuration Management
       EXPECTED_START_DATE_FIELD_NAME: Expected Start
       IMPLEMENTATION_TEAM_FIELD_NAME: "Implementation Team"
       JAT_RATE_INTERVAL_IN_SECONDS:
-      JAT_RATE_LIMIT_IN_SECONDS:
+      JAT_RATE_LIMIT_PER_INTERVAL:
       JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL: "project = <%= project_key %> AND <%= sprint_field_name %> IS EMPTY"
       # JIRA_BOARD_NAME: "<<<Name of one board if the project>>>"
       JIRA_BOARD_NAME: "<%= project_key %> - Delivery"
@@ -76,7 +76,7 @@ Feature: Environment Configuration Management
       EXPECTED_START_DATE_FIELD_NAME: Expected Start
       IMPLEMENTATION_TEAM_FIELD_NAME: "Implementation Team"
       JAT_RATE_INTERVAL_IN_SECONDS:
-      JAT_RATE_LIMIT_IN_SECONDS:
+      JAT_RATE_LIMIT_PER_INTERVAL:
       JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL: "project = <%= project_key %> AND <%= sprint_field_name %> IS EMPTY"
       JIRA_API_TOKEN: "current API TOKEN"
       JIRA_BOARD_NAME: "Team Board"
@@ -99,7 +99,8 @@ Feature: Environment Configuration Management
 | EXPECTED_START_DATE_FIELD_NAME                    | Expected Start                     |
 | IMPLEMENTATION_TEAM_FIELD_NAME                    | Implementation Team                |
 | JAT_RATE_INTERVAL_IN_SECONDS                      |                                    |
-| JAT_RATE_LIMIT_IN_SECONDS                         |                                    |
+| JAT_RATE_LIMIT_IMPLEMENTATION                     |                                    |
+| JAT_RATE_LIMIT_PER_INTERVAL                       |                                    |
 | JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL | project = PROJ AND Sprint IS EMPTY |
 | JIRA_API_TOKEN                                    | current API TOKEN                  |
 | JIRA_BOARD_NAME                                   | Team Board                         |
