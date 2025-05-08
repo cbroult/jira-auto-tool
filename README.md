@@ -72,8 +72,9 @@ Optional environment variables:
 See [sprint filtering](./features/sprint_filtering.feature).
 - `JIRA_CONTEXT_PATH` - Context path for Jira instance (if needed typically "/jira").
 - `JIRA_HTTP_DEBUG` - Enable HTTP debug logging (set to "true" or "false").
-- `JAT_RATE_LIMIT` - Rate limit for Jira API calls (e.g., "1").
-- `JAT_RATE_INTERVAL` - Interval for rate limiting in seconds (e.g., "1").
+- `JAT_RATE_LIMIT_PER_INTERVAL` - Rate limit for Jira API calls (e.g., "1") 
+See [Control Jira HTTP request rate.](./features/control_http_request_rate_limit.feature).
+- `JAT_RATE_INTERVAL_IN_SECONDS` - Interval for rate limiting in seconds (e.g., "1").
 
 ## Usage
 

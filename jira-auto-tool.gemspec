@@ -63,6 +63,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rdoc"
   spec.add_dependency "redis"
   spec.add_dependency "reline"
+  spec.add_dependency "ruby-limiter"
   spec.add_dependency "syslog"
   spec.add_dependency "terminal-table"
 
