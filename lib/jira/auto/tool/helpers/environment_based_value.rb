@@ -6,12 +6,13 @@ module Jira
       module Helpers
         module EnvironmentBasedValue
           # TODO: overly complex - simplify by moving this to the Config and define a Configurable module
-          def define_overridable_environment_based_value(method_name)
+          def define_overridable_environment_based_value(method_name, holds_a_secret)
             define_reader(method_name)
             define_predicate(method_name)
             define_reader_accepting_default_value(method_name)
             define_writer(method_name)
             define_environment_variable_name_constant(method_name)
+            define_holds_a_secret_predicate(method_name, holds_a_secret)
           end
 
           def define_reader(method_name)
@@ -30,6 +31,10 @@ module Jira
             define_method(:"#{method_name}_defined?") do
               self.class.corresponding_environment_variable_defined?(method_name.to_s)
             end
+          end
+
+          def define_holds_a_secret_predicate(method_name, holds_a_secret)
+            define_method(:"#{method_name}_holds_a_secret?") { holds_a_secret }
           end
 
           def define_reader_accepting_default_value(method_name)

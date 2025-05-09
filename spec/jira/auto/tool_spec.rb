@@ -136,7 +136,7 @@ module Jira
         end
 
         # TODO: move that to environment_based_value_spec
-        RSpec.shared_examples "an overridable environment based value" do |method_name|
+        RSpec.shared_examples "an overridable environment based value" do |method_name, holds_a_secret_expectation|
           let(:env_var_name) { method_name.to_s.upcase }
           let(:method_name?) { :"#{method_name}_defined?" }
           let(:config) { Config.new(object_with_overridable_value) }
@@ -144,6 +144,13 @@ module Jira
           before do
             allow(object_with_overridable_value).to receive_messages(config: config)
             allow(config).to receive_messages(value_store: {})
+          end
+
+          context "when dealing with sensitive information" do
+            it "defines a predicate informing about the value being a secret or not" do
+              expect(object_with_overridable_value.send("#{method_name}_holds_a_secret?"))
+                .to eq(holds_a_secret_expectation)
+            end
           end
 
           context "when the environment variable is set" do
@@ -222,11 +229,13 @@ module Jira
           end
         end
 
-        described_class::ENVIRONMENT_BASED_VALUE_SYMBOLS.each do |method_name|
-          describe "environment based values" do
+        described_class::ENVIRONMENT_BASED_VALUE_SYMBOLS.each do |method_name, holds_a_secret|
+          holds_a_secret ||= false
+
+          describe "environment based values - #{method_name} - holds_a_secret = #{holds_a_secret}}" do
             let(:object_with_overridable_value) { tool }
 
-            it_behaves_like "an overridable environment based value", method_name
+            it_behaves_like "an overridable environment based value", method_name, holds_a_secret
           end
         end
 

@@ -57,7 +57,7 @@ module Jira
           end
 
           describe "#tool_environment" do
-            let(:environment_keys) { %i[JIRA_HOST JIRA_USER JIRA_PASSWORD] }
+            let(:environment_keys) { %i[JIRA_SITE_URL JIRA_USERNAME JIRA_API_TOKEN] }
 
             before do
               allow(Environment).to receive(:constants).and_return(environment_keys)
@@ -65,14 +65,29 @@ module Jira
               environment_keys.each do |environment_key|
                 allow(ENV).to receive(:fetch).with(environment_key.to_s, nil).and_return("#{environment_key} value")
               end
+
+              allow(tool).to receive_messages(
+                jira_api_token_holds_a_secret?: true,
+                jira_site_url_holds_a_secret?: false,
+                jira_username_holds_a_secret?: false
+              )
             end
 
             it do
-              expect(environment_loader.tool_environment).to eq(
-                "JIRA_HOST" => "JIRA_HOST value",
-                "JIRA_USER" => "JIRA_USER value",
-                "JIRA_PASSWORD" => "JIRA_PASSWORD value"
-              )
+              expect(environment_loader.tool_environment)
+                .to eq(
+                  "JIRA_API_TOKEN" => "****",
+                  "JIRA_SITE_URL" => "JIRA_SITE_URL value",
+                  "JIRA_USERNAME" => "JIRA_USERNAME value"
+                )
+            end
+          end
+
+          describe "#environment_variable_holds_a_secret?" do
+            it "allows checking that the corresponding constant is a secret or not" do
+              allow(tool).to receive(:jira_api_token_holds_a_secret?).and_return(true)
+
+              expect(environment_loader).to be_environment_variable_holds_a_secret("JIRA_API_TOKEN")
             end
           end
 

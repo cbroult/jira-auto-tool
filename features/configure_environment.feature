@@ -63,7 +63,7 @@ Feature: Environment Configuration Management
       Please remove first before running this again!
       """
 
-  Scenario: Tool successfully loads the config from the current directory
+  Scenario: Tool successfully loads the config from the current directory and hides secret values when listing them
     Given a file named "jira-auto-tool.env.yaml.erb" with:
       """
       ---
@@ -104,7 +104,7 @@ Feature: Environment Configuration Management
 | JAT_RATE_LIMIT_IMPLEMENTATION                     |                                    |
 | JAT_RATE_LIMIT_PER_INTERVAL                       |                                    |
 | JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL | project = PROJ AND Sprint IS EMPTY |
-| JIRA_API_TOKEN                                    | current API TOKEN                  |
+| JIRA_API_TOKEN                                    | ****                               |
 | JIRA_BOARD_NAME                                   | Team Board                         |
 | JIRA_BOARD_NAME_REGEX                             | ART 16|unconventional board name   |
 | JIRA_CONTEXT_PATH                                 | /jira                              |
@@ -116,7 +116,7 @@ Feature: Environment Configuration Management
 +---------------------------------------------------+------------------------------------+
       """
 
-  Scenario: Tool looks first for configuration in the current directory
+  Scenario: Tool looks first for configuration in the current directory (hiding secret when listing)
     Given a file named "./jira-auto-tool.env.yaml.erb" with:
       """
       ---
@@ -136,8 +136,16 @@ Feature: Environment Configuration Management
       """
       Using configuration from ./jira-auto-tool.env.yaml.erb
       """
+    And the output should match:
+      """
+      JIRA_API_TOKEN\s+\|\s\*{4}
+      """
+    And the output should match:
+      """
+      JIRA_USERNAME\s+\|\scurrent@company.com
+      """
 
-  Scenario: Tool looks for home directory config folder when no config file in the current directory
+  Scenario: Tool looks for home directory config folder when no config file in the current directory (hiding secret when listing)
     Given a file named "./jira-auto-tool.env.yaml.erb" does not exist
     And a file named "~/.config/jira-auto-tool/jira-auto-tool.env.yaml.erb" with:
       """
@@ -150,14 +158,23 @@ Feature: Environment Configuration Management
       """
       Using configuration from .+/.config/jira-auto-tool/jira-auto-tool.env.yaml.erb
       """
+    And the output should match:
+      """
+      JIRA_API_TOKEN\s+\|\s\*{4}\s+
+      """
+    And the output should match:
+      """
+      JIRA_USERNAME\s+\|\shome@company.com
+      """
 
-  Scenario: Tool uses the existing environment values if no config file found
+  Scenario: Tool uses the existing environment values if no config file found (hiding secret when listing)
     Given the following files should not exist:
       | ./jira-auto-tool.env.yaml.erb                        |
       | ~/.config/jira-auto-tool/jira-auto-tool.env.yaml.erb |
     And the following environment variables are set:
-      | name           | value       |
-      | JIRA_API_TOKEN | token-value |
+      | name           | value           |
+      | JIRA_API_TOKEN | token-value     |
+      | JIRA_USERNAME  | env@company.com |
     When I successfully run `jira-auto-tool --env-list`
     Then the output should match:
       """
@@ -167,15 +184,19 @@ Feature: Environment Configuration Management
       """
     And the output should match:
       """
-      JIRA_API_TOKEN\s+|token-value\s+
+      JIRA_API_TOKEN\s+\|\s\*{4}
+      """
+    And the output should match:
+      """
+      JIRA_USERNAME\s+\|\senv@company.com
       """
 
   Scenario: Tool displays a useful error message in case of error
     Given a file named "./jira-auto-tool.env.yaml.erb" with:
       """
       ---
-      JIRA_USERNAME: "home@company.com"
-      JIRA_API_TOKEN: "home-token"
+      JIRA_USERNAME: "error@company.com"
+      JIRA_API_TOKEN: "error-token"
       JIRA_SITE_URL: "https://home.atlassian.net"
       <%
       raise "This is meant to fail while loading!"

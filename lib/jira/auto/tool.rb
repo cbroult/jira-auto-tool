@@ -139,27 +139,29 @@ module Jira
         jira_base_url + url
       end
 
-      ENVIRONMENT_BASED_VALUE_SYMBOLS = %i[
-        art_sprint_regex
-        expected_start_date_field_name
-        implementation_team_field_name
-        jat_rate_interval_in_seconds
-        jat_rate_limit_implementation
-        jat_rate_limit_per_interval
-        jat_tickets_for_team_sprint_ticket_dispatcher_jql
-        jira_api_token
-        jira_board_name
-        jira_board_name_regex
-        jira_context_path
-        jira_http_debug
-        jira_project_key
-        jira_site_url
-        jira_sprint_field_name
-        jira_username
-      ].freeze
+      HOLDS_A_SECRET = true
+      ENVIRONMENT_BASED_VALUE_SYMBOLS =
+        ([[:jira_api_token, HOLDS_A_SECRET]] + %i[
+          art_sprint_regex
+          expected_start_date_field_name
+          implementation_team_field_name
+          jat_rate_interval_in_seconds
+          jat_rate_limit_implementation
+          jat_rate_limit_per_interval
+          jat_tickets_for_team_sprint_ticket_dispatcher_jql
+          jira_board_name
+          jira_board_name_regex
+          jira_context_path
+          jira_http_debug
+          jira_project_key
+          jira_site_url
+          jira_sprint_field_name
+          jira_username
+        ].collect { |value_name| [value_name, !HOLDS_A_SECRET] }).freeze
 
-      ENVIRONMENT_BASED_VALUE_SYMBOLS.each do |method_name|
-        define_overridable_environment_based_value(method_name)
+      ENVIRONMENT_BASED_VALUE_SYMBOLS.each do |method_name, holds_a_secret|
+        holds_a_secret ||= false
+        define_overridable_environment_based_value(method_name, holds_a_secret)
       end
 
       def board_controller
