@@ -46,9 +46,16 @@ module Jira
         def tool_environment
           Environment.constants.sort.to_h do |constant|
             constant_as_string = constant.to_s
+            actual_value = ENV.fetch(constant_as_string, nil)
+            value_to_display = environment_variable_holds_a_secret?(constant_as_string) ? "****" : actual_value
 
-            [constant_as_string, ENV.fetch(constant_as_string, nil)]
+            [constant_as_string, value_to_display]
           end
+        end
+
+        def environment_variable_holds_a_secret?(env_var_name)
+          method_name = env_var_name.to_s.downcase
+          tool.send("#{method_name}_holds_a_secret?")
         end
 
         def file_path
