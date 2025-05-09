@@ -21,9 +21,10 @@ module Jira
             parsed_new_name = Sprint::Name.new_with(sprint_prefix.name, sprint_suffix)
 
             iteration_count.times do |_iteration|
-              last_sprint = create_sprint_for(last_sprint, parsed_new_name.to_s)
-
-              sprint_prefix << last_sprint
+              unless parsed_new_name <= last_sprint.parsed_name
+                last_sprint = create_sprint_for(last_sprint, parsed_new_name.to_s)
+                sprint_prefix << last_sprint
+              end
 
               parsed_new_name = parsed_new_name.next_in_planning_interval
             end
