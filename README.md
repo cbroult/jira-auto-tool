@@ -9,10 +9,28 @@ See the [feature files](./features) for some behavior examples.
 
 ## Table of Contents
 
-<!-- Generated using jekyll-toc -->
-
-* TOC
-  {:toc}
+- [Principles](#principles)
+- [Installation](#installation)
+- [Setup](#setup)
+- [Usage](#usage)
+    - [Warning](#warning)
+    - [Add Sprints](#add-sprints)
+    - [Adjusting The End Date Of Sprints](#adjusting-the-end-date-of-sprints)
+    - [Align Time In Sprint Dates](#align-time-in-sprint-dates)
+    - [List Sprints](#list-sprints)
+    - [List Sprint Prefixes (Teams)](#list-sprint-prefixes-teams)
+    - [Rename Sprints](#rename-sprints)
+    - [Team Sprint Mapping](#team-sprint-mapping)
+    - [Team Ticket Sprint Dispatching](#team-ticket-sprint-dispatching)
+- [Development](#development)
+    - [Install Dependencies](#install-dependencies)
+    - [Continuous Testing While Making Changes](#continuous-testing-while-making-changes)
+    - [Experiment Using An Interactive Prompt](#experiment-using-an-interactive-prompt)
+    - [Install Locally](#install-locally)
+    - [Release](#release)
+- [Contributing](#contributing)
+- [License](#license)
+- [Code of Conduct](#code-of-conduct)
 
 ## Principles
 
@@ -72,9 +90,9 @@ Optional environment variables:
 See [sprint filtering](./features/sprint_filtering.feature).
 - `JIRA_CONTEXT_PATH` - Context path for Jira instance (if needed typically "/jira").
 - `JIRA_HTTP_DEBUG` - Enable HTTP debug logging (set to "true" or "false").
-- `JAT_RATE_LIMIT_PER_INTERVAL` - Rate limit for Jira API calls (e.g., "1") 
-See [Control Jira HTTP request rate.](./features/control_http_request_rate_limit.feature).
 - `JAT_RATE_INTERVAL_IN_SECONDS` - Interval for rate limiting in seconds (e.g., "1").
+- `JAT_RATE_LIMIT_PER_INTERVAL` - Rate limit for Jira API calls (e.g., "1") 
+See [Control Jira HTTP request rate](./features/control_http_request_rate_limit.feature).
 
 ## Usage
 
@@ -179,7 +197,18 @@ To install this gem onto your local machine, run `bundle exec rake install`.
 
 ### Release
 
-To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+1. Bump the gem version:
+   ```bash
+   bundle exec rake version:bump[{major|minor|patch}]   
+   ```
+2. Release the version to [rubygems.org](https://rubygems.org):
+   ```bash
+   bundle exec rake release
+   ```
+   which will:
+   * create a git tag for the version
+   * push git commits and the created tag
+   * push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
