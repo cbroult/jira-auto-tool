@@ -95,7 +95,6 @@ module Jira
             #{e.message}
           EOEMSG
 
-          log.error { message }
           raise message
         end
 
@@ -108,8 +107,6 @@ module Jira
             #{file_path}:#{error_line}: failed to load with the following error:
             #{e.message}
           EOEMSG
-
-          log.error { message }
 
           raise message
         end

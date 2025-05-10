@@ -29,7 +29,7 @@ end
 def amend_commit_to_include_gemfile_lock_changes
   puts "Amending commit to include Gemfile.lock update..."
   system("git add .")
-  system(%(git commit --amend --no-edit))
+  system("git commit --amend --no-edit")
 end
 
 namespace :version do
