@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   # spec.description = "TODO: Write a longer description or delete this line."
   spec.homepage = "https://github.com/cbroult/jira-auto-tool"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.3.5"
+  spec.required_ruby_version = ">= 3.4.7"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
