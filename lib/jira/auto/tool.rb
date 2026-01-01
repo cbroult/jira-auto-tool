@@ -160,7 +160,6 @@ module Jira
         ].collect { |value_name| [value_name, !HOLDS_A_SECRET] }).freeze
 
       ENVIRONMENT_BASED_VALUE_SYMBOLS.each do |method_name, holds_a_secret|
-        holds_a_secret ||= false
         define_overridable_environment_based_value(method_name, holds_a_secret)
       end
 

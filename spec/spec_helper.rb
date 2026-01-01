@@ -33,9 +33,9 @@ RSpec.configure do |config|
   end
 
   config.include(Module.new do
-    def jira_resource_double(*args)
+    def jira_resource_double(*)
       # rubocop:disable RSpec/VerifiedDoubles
-      double(*args)
+      double(*)
       # rubocop:enable RSpec/VerifiedDoubles
     end
   end)

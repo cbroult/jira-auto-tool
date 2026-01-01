@@ -205,7 +205,7 @@ Feature: Environment Configuration Management
     When I run `jira-auto-tool --env-list`
     Then it should fail with:
       """
-      ERROR  Jira::Auto::Tool::EnvironmentLoader : ./jira-auto-tool.env.yaml.erb:6: failed to load with the following error:
+      ERROR  Jira::Auto::Tool::EnvironmentLoader : ./jira-auto-tool.env.yaml.erb:6: failed to load with the following error: (RuntimeError)
       This is meant to fail while loading!
       """
 

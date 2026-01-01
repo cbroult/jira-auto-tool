@@ -33,11 +33,11 @@ module Jira
 
         alias original_request request
 
-        def request(*args)
+        def request(*)
           if rate_limit_per_interval == NO_RATE_LIMIT_PER_INTERVAL
-            original_request(*args)
+            original_request(*)
           else
-            rate_limit { original_request(*args) }
+            rate_limit { original_request(*) }
           end
         end
 

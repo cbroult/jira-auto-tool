@@ -230,8 +230,6 @@ module Jira
         end
 
         described_class::ENVIRONMENT_BASED_VALUE_SYMBOLS.each do |method_name, holds_a_secret|
-          holds_a_secret ||= false
-
           describe "environment based values - #{method_name} - holds_a_secret = #{holds_a_secret}}" do
             let(:object_with_overridable_value) { tool }
 
@@ -435,7 +433,7 @@ module Jira
               allow(tool)
                 .to receive_messages(project: jira_resource_double(JIRA::Resource::Project, key: "project_key"))
 
-              allow(query).to receive(:jql).with(expected_jql).and_return([instance_double(JIRA::Resource::Issue)])
+              allow(query).to receive(:jql).with(expected_jql, fields: ["*all"]).and_return([instance_double(JIRA::Resource::Issue)])
             end
 
             context "without arguments" do
