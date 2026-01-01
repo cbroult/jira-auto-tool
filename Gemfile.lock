@@ -319,5 +319,8 @@ DEPENDENCIES
   wdm (>= 0.1.0)
   win32ole
 
+RUBY VERSION
+   ruby 3.4.8p72
+
 BUNDLED WITH
    2.7.2
