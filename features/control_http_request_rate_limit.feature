@@ -4,7 +4,13 @@ Feature: Control the HTTP request rate limit
   I need the ability to control the HTTP request limit
 
   Scenario Outline: Limiting the request rate
-    Given the following environment variables are set:
+    Given a Jira Scrum board
+    And the board only has the following sprints:
+      | name                    | length | start_date              | state  |
+      | ART-16_CRM_24.4.1       | 2-week | 2024-12-01 11:00:00 UTC | closed |
+      | ART-16_E2E-Test_24.4.2  | 4-day  | 2024-12-05 11:00:00 UTC | future |
+      | ART-32_Platform_24.4.7  | 3-week | 2024-10-07 11:00:00 UTC | future |
+    And the following environment variables are set:
       | name                          | value                           |
       | JAT_RATE_INTERVAL_IN_SECONDS  | <rate_interval_in_seconds>      |
       | JAT_RATE_LIMIT_IMPLEMENTATION | <jat_rate_limit_implementation> |
@@ -14,7 +20,7 @@ Feature: Control the HTTP request rate limit
     Examples:
       | jat_rate_limit_implementation | rate_limit_per_interval | rate_interval_in_seconds | minimal_time | maximal_time |
       |                               | 0                       | 0                        | 0            | 5            |
-      | in_process                    | 1                       | 2                        | 1            | 20           |
+      | in_process                    | 1                       | 1                        | 1            | 20           |
       | redis                         | 1                       | 2                        | 1            | 20           |
       | redis                         | 1                       | 10                       | 18           | 120          |
 
