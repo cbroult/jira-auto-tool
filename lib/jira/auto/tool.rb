@@ -209,7 +209,7 @@ module Jira
       end
 
       def tickets(jql = "project = #{project.key}")
-        jira_client.Issue.jql(jql).collect { |jira_ticket| Ticket.new(self, jira_ticket) }
+        jira_client.Issue.jql(jql, fields: ["*all"]).collect { |jira_ticket| Ticket.new(self, jira_ticket) }
       rescue StandardError => e
         raise <<~EOEM
           Error fetching project tickets: Something went wrong:

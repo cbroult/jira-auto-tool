@@ -39,12 +39,12 @@ module Jira
           def each_issue_type_field
             tool.jira_client.Createmeta.all({ projectKeys: project.key, "expand" => "projects.issuetypes.fields" })
                 .each do |createmeta|
-              createmeta.attrs["issuetypes"].each do |issue_type|
-                issue_type_name = issue_type["name"]
-                issue_type["fields"].each_value do |field|
-                  yield(issue_type_name, field)
-                end
-              end
+                  createmeta.attrs["issuetypes"].each do |issue_type|
+                    issue_type_name = issue_type["name"]
+                    issue_type["fields"].each_value do |field|
+                      yield(issue_type_name, field)
+                    end
+                  end
             end
           end
 

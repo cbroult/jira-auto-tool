@@ -42,8 +42,23 @@ module Jira
           %i[key summary sprint implementation_team expected_start_date]
         end
 
+        # Compatibility helper to access Issue fields across Jira API versions
+        # - jira-ruby v2: JIRA::Resource::Issue responds to #fields
+        # - jira-ruby v3: fields are nested under #attrs['fields']
+        def ticket_fields
+          if jira_ticket.respond_to?(:fields)
+            jira_ticket.fields
+          else
+            raise "attrs not found in #{jira_ticket}!" unless jira_ticket.respond_to?(:attrs)
+
+            attrs = jira_ticket.attrs
+            attrs["fields"] || attrs[:fields] ||
+              raise("fields not found in #{attrs} from #{jira_ticket}!")
+          end
+        end
+
         def sprint
-          jira_ticket.fields.fetch(tool.jira_sprint_field.id)
+          ticket_fields.fetch(tool.jira_sprint_field.id)
         end
 
         def jira_client
@@ -96,8 +111,8 @@ module Jira
         def jira_field_value(field_id = caller_locations(1, 1).first.base_label)
           log.debug { "jira_field_value(#{field_id})" }
 
-          field = jira_ticket.fields.fetch(field_id) do |id|
-            raise "#{id}: value not found in #{jira_ticket.fields}"
+          field = ticket_fields.fetch(field_id) do |id|
+            raise "#{id}: value not found in #{ticket_fields}"
           end
 
           log.debug { "jira_field_value(#{field_id}), field: #{field}" }
