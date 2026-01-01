@@ -3,6 +3,7 @@ PATH
   specs:
     jira-auto-tool (1.2.5)
       activesupport
+      cgi
       http_logger
       irb
       jira-ruby
