@@ -7,6 +7,7 @@ gemspec
 
 group :development do
   gem "aruba"
+  gem "bundler-audit"
   gem "cucumber" # , git: "https://github.com/cucumber/cucumber-ruby.git"
   gem "gem-release"
   gem "mermaid"
@@ -25,3 +26,4 @@ group :development do
   gem "guard-rspec"
   gem "guard-rubocop"
 end
+

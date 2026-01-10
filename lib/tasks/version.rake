@@ -53,3 +53,12 @@ end
 
 desc "Alias for version:bump"
 task :bump, [:type] => ["version:bump"]
+
+desc "Upgrade gems, including bundler and gem"
+task :upgrade do
+  sh "gem update --system"
+  sh "gem update"
+  sh "bundle update --bundler"
+  sh "bundle update --all"
+  sh "bundle audit"
+end
