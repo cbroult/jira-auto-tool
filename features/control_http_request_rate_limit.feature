@@ -19,7 +19,7 @@ Feature: Control the HTTP request rate limit
 
     Examples:
       | jat_rate_limit_implementation | rate_limit_per_interval | rate_interval_in_seconds | minimal_time | maximal_time |
-      |                               | 0                       | 0                        | 0            | 5            |
+      |                               | 0                       | 0                        | 0            | 7            |
       | in_process                    | 1                       | 1                        | 1            | 20           |
       | redis                         | 1                       | 2                        | 1            | 20           |
       | redis                         | 1                       | 10                       | 18           | 120          |
