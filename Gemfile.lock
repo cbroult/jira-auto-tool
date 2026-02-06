@@ -211,6 +211,10 @@ GEM
     racc (1.8.1)
     rainbow (3.1.1)
     rake (13.3.1)
+    rake-gem-maintenance (0.1.0)
+      bundler-audit
+      gem-release (~> 2.2)
+      rake (>= 13.0)
     ratelimit (1.1.0)
       redis (>= 3.0.0)
       redis-namespace (>= 1.0.0)
@@ -302,7 +306,6 @@ PLATFORMS
 DEPENDENCIES
   aruba
   cucumber
-  gem-release
   guard
   guard-bundler
   guard-cucumber
@@ -311,6 +314,7 @@ DEPENDENCIES
   jira-auto-tool!
   mermaid
   rake
+  rake-gem-maintenance
   rspec
   rubocop
   rubocop-rake

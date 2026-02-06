@@ -8,9 +8,9 @@ gemspec
 group :development do
   gem "aruba"
   gem "cucumber" # , git: "https://github.com/cucumber/cucumber-ruby.git"
-  gem "gem-release"
   gem "mermaid"
   gem "rake"
+  gem "rake-gem-maintenance"
   gem "rspec"
   gem "rubocop"
   gem "rubocop-rake", require: false
