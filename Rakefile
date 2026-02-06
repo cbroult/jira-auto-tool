@@ -23,4 +23,3 @@ task default: :verify
 
 desc "Run all checks"
 task verify: %i[rubocop spec cucumber]
-
