@@ -19,4 +19,8 @@ Cucumber::Rake::Task.new do |t|
   t.profile = "rake"
 end
 
-task default: %i[rubocop spec cucumber]
+task default: :verify
+
+desc "Run all checks"
+task verify: %i[rubocop spec cucumber]
+
