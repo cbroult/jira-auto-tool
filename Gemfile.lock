@@ -34,6 +34,8 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
+    addressable (2.8.9)
+      public_suffix (>= 2.0.2, < 8.0)
     aruba (2.3.3)
       bundler (>= 1.17)
       contracts (>= 0.16.0, < 0.18.0)
@@ -160,6 +162,9 @@ GEM
       multipart-post
       oauth (~> 1.0)
     json (2.18.1)
+    json-schema (6.1.0)
+      addressable (~> 2.8)
+      bigdecimal (>= 3.1, < 5)
     jwt (2.10.2)
       base64
     language_server-protocol (3.17.0.5)
@@ -174,6 +179,8 @@ GEM
       little-plugger (~> 1.1)
       multi_json (~> 1.14)
     lumberjack (1.4.2)
+    mcp (0.7.1)
+      json-schema (>= 4.1)
     memoist3 (1.0.0)
     mermaid (0.0.6)
       diagram (>= 0.3.4)
@@ -198,7 +205,7 @@ GEM
       version_gem (~> 1.1, >= 1.1.9)
     ostruct (0.6.3)
     parallel (1.27.0)
-    parser (3.3.10.1)
+    parser (3.3.10.2)
       ast (~> 2.4.1)
       racc
     pp (0.6.3)
@@ -212,6 +219,7 @@ GEM
     psych (5.3.1)
       date
       stringio
+    public_suffix (7.0.2)
     racc (1.8.1)
     rainbow (3.1.1)
     rake (13.3.1)
@@ -252,10 +260,11 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.7)
-    rubocop (1.84.1)
+    rubocop (1.85.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
+      mcp (~> 0.6)
       parallel (~> 1.10)
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
