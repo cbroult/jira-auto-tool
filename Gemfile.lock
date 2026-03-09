@@ -144,7 +144,7 @@ GEM
       rubocop (< 2.0)
     hashie (5.1.0)
       logger
-    http_logger (1.0.1)
+    http_logger (1.0.2)
     i18n (1.14.8)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
