@@ -32,8 +32,8 @@ module Jira
           def request_payload
             attributes = sprint.attrs.symbolize_keys
 
-            ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE.each_with_object({}) do |key, result|
-              result[key] = attributes[key]
+            ATTRIBUTES_TO_INCLUDE_FOR_STATE_UPDATE.to_h do |key|
+              [key, attributes[key]]
             end
               .merge({ state: new_state })
           end

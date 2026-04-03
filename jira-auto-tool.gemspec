@@ -27,8 +27,8 @@ Gem::Specification.new do |spec|
     ls.readlines("\x0", chomp: true)
       .reject { |f| f.end_with?(".gem") }
       .reject do |f|
-        (f == gemspec) ||
-          f.start_with?(*%w[bin/console bin/setup test/ pkg/ .git .github appveyor Gemfile])
+      (f == gemspec) ||
+        f.start_with?(*%w[bin/console bin/setup test/ pkg/ .git .github appveyor Gemfile])
     end
   end
   spec.bindir = "bin"
