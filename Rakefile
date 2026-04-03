@@ -5,7 +5,7 @@ require "rspec/core/rake_task"
 require "cucumber"
 require "cucumber/rake/task"
 require "rake"
-require "rake/gem_maintenance/install_tasks"
+require "rake/gem/maintenance/install_tasks"
 
 RSpec::Core::RakeTask.new(:spec)
 
