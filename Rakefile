@@ -19,7 +19,12 @@ Cucumber::Rake::Task.new do |t|
   t.profile = "rake"
 end
 
+desc "Detect copy-paste duplication"
+task :jscpd do
+  sh "jscpd lib/ spec/"
+end
+
 task default: :verify
 
 desc "Run all checks"
-task verify: %i[rubocop spec cucumber]
+task verify: %i[rubocop spec cucumber jscpd]

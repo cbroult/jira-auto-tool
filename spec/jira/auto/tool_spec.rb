@@ -18,7 +18,7 @@ module Jira
         describe "#board_controller" do
           before do
             allow(tool)
-              .to receive_messages(jira_client: instance_double(RateLimitedJiraClient))
+              .to receive_messages(jira_client: instance_double(RateLimitedJira::Client))
           end
 
           it { expect(tool.board_controller).to be_a(BoardController) }
@@ -122,7 +122,7 @@ module Jira
 
         describe "#project" do
           let(:jira_client) do
-            instance_double(RateLimitedJiraClient, Project: project_query)
+            instance_double(RateLimitedJira::Client, Project: project_query)
           end
           let(:jira_project) { instance_double(JIRA::Resource::Project) }
           let(:jira_project_key) { "JIRA_PROJECT_KEY" }
@@ -275,7 +275,7 @@ module Jira
             }
           end
 
-          let(:expected_jira_client) { instance_double(RateLimitedJiraClient) }
+          let(:expected_jira_client) { instance_double(RateLimitedJira::Client) }
 
           before do
             allow(tool)
@@ -284,16 +284,16 @@ module Jira
                                    jira_context_path_when_defined_else: "/context_path_value",
                                    jira_http_debug?: false,
                                    jat_rate_limit_per_interval_when_defined_else: "10",
-                                   jat_rate_interval_in_seconds_when_defined_else: "60")
+                                   jat_rate_interval_in_seconds_when_defined_else: "60",
+                                   jat_rate_limit_implementation_when_defined_else: "")
           end
 
           it "has a jira client" do
-            allow(RateLimitedJiraClient)
-              .to receive(:implementation_class_for).with(tool).and_return(RateLimitedJiraClient::InProcessBased)
-
-            allow(RateLimitedJiraClient::InProcessBased)
-              .to receive(:new).with(client_options, rate_limit_per_interval: 10, rate_interval_in_seconds: 60)
-                               .and_return(expected_jira_client)
+            allow(RateLimitedJira::Client)
+              .to receive(:build).with(client_options, rate_limit_per_interval: 10,
+                                                       rate_interval_in_seconds: 60,
+                                                       implementation: "")
+                                 .and_return(expected_jira_client)
 
             expect(tool.jira_client).to equal(expected_jira_client)
           end
@@ -425,7 +425,7 @@ module Jira
 
           describe "#tickets" do
             let(:query) { jira_resource_double("query") }
-            let(:jira_client) { instance_double(RateLimitedJiraClient, Issue: query) }
+            let(:jira_client) { instance_double(RateLimitedJira::Client, Issue: query) }
 
             before do
               allow(tool).to receive_messages(jira_client: jira_client)

@@ -13,17 +13,6 @@ Given(/^the following environment variables are set:$/) do |table|
   end
 end
 
-BUFFER_TIME_IN_SECONDS = 10
-Then(/^successfully running `(.*)` takes between (.*) and (.*) seconds$/) do |command_line, minimal_time, maximal_time|
-  start_time = Time.now
-
-  run_command_and_stop(command_line, fail_on_error: true, timeout: maximal_time.to_i + BUFFER_TIME_IN_SECONDS)
-
-  end_time = Time.now
-
-  expect(end_time - start_time).to be_between(minimal_time.to_i, maximal_time.to_i)
-end
-
 Given(/^I wait for over a day$/) do
   in_over_a_day = (Time.now + 1.day + 2.minute).to_s
 

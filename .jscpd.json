@@ -1,0 +1,7 @@
+{
+  "minTokens": 50,
+  "minLines": 5,
+  "threshold": 6,
+  "reporters": ["console"],
+  "ignore": ["**/*.gemspec", "tmp/**", "pkg/**", "coverage/**"]
+}
