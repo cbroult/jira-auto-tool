@@ -47,10 +47,23 @@ module Jira
           end
         end
 
+        MAX_STATE_UPDATE_RETRIES = 3
+        STATE_UPDATE_RETRY_DELAY_SECONDS = 2
+
         def update_sprint_state(new_state)
-          RequestBuilder::SprintStateUpdater
-            .new(jira_client, sprint: sprint, new_state: new_state)
-            .run
+          retries = 0
+          begin
+            RequestBuilder::SprintStateUpdater
+              .new(jira_client, sprint: sprint, new_state: new_state)
+              .run
+          rescue JIRA::HTTPError => e
+            raise unless e.response.code == "404" && retries < MAX_STATE_UPDATE_RETRIES
+
+            retries += 1
+            log.warn { "Sprint #{sprint.name} not found on state update (attempt #{retries}), retrying..." }
+            sleep STATE_UPDATE_RETRY_DELAY_SECONDS
+            retry
+          end
         end
       end
     end

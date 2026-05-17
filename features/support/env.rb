@@ -10,7 +10,13 @@ module JiraSprintToolWorld
 
     log.debug { "Removing sprints #sprints = #{sprints.size}: #{sprints.map(&:name).join(", ")}" }
 
-    sprints.each(&:delete)
+    sprints.each do |sprint|
+      sprint.delete
+    rescue JIRA::HTTPError => e
+      raise unless e.response.code == "404"
+
+      log.warn { "Sprint #{sprint.name} not found on delete — already removed or non-deletable state" }
+    end
   end
 
   def remove_existing_board_tickets(jira_auto_tool)
