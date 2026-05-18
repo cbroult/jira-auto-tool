@@ -16,10 +16,12 @@ And(/^tickets on the board have a team field named "([^"]*)" with exactly those 
   expect(@team_field.values.collect(&:value)).to eq(expected_field_values)
 end
 
+TICKET_INDEX_WAIT_SECONDS = 30
+
 Given(/^the following tickets exist:$/) do |ticket_table|
   # Summary | Description | Implementation Team | Expected Start |
   # table is a table.hashes.keys # => [:summary, :team, :expected_start]
-  ticket_table.hashes.each do |ticket_info|
+  created_keys = ticket_table.hashes.map do |ticket_info|
     log.debug { ticket_info.inspect }
 
     jira_ticket = @jira_auto_tool.jira_client.Issue.build
@@ -35,6 +37,20 @@ Given(/^the following tickets exist:$/) do |ticket_table|
                       } })
 
     log.debug { "created jira ticket: #{jira_ticket.key}" }
+    jira_ticket.key
+  end
+
+  # Jira search index is eventually consistent — poll until all created tickets are searchable
+  jql = ENV.fetch("JAT_TICKETS_FOR_TEAM_SPRINT_TICKET_DISPATCHER_JQL",
+                  "project = #{@jira_auto_tool.board.project_key}")
+  deadline = Time.now + TICKET_INDEX_WAIT_SECONDS
+  loop do
+    found_keys = @jira_auto_tool.jira_client.Issue.jql(jql, fields: ["summary"]).map(&:key)
+    break if (created_keys - found_keys).empty?
+    break if Time.now >= deadline
+
+    log.debug { "Waiting for Jira search index: #{(created_keys - found_keys).join(", ")} not yet searchable" }
+    sleep 2
   end
 end
 
