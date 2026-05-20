@@ -1,13 +1,4 @@
 PATH
-  remote: ../rate-limited-jira-ruby
-  specs:
-    rate-limited-jira-ruby (0.1.0)
-      jira-ruby
-      ratelimit
-      redis
-      ruby-limiter
-
-PATH
   remote: .
   specs:
     jira-auto-tool (1.3.7)
@@ -228,6 +219,11 @@ GEM
       bundler-audit
       gem-release (~> 2.2)
       rake (>= 13.0)
+    rate-limited-jira-ruby (0.1.0)
+      jira-ruby
+      ratelimit
+      redis
+      ruby-limiter
     ratelimit (1.1.0)
       redis (>= 3.0.0)
       redis-namespace (>= 1.0.0)
@@ -328,7 +324,6 @@ DEPENDENCIES
   mermaid
   rake
   rake-gem-maintenance
-  rate-limited-jira-ruby!
   rspec
   rubocop
   rubocop-rake

@@ -5,8 +5,6 @@ source "https://rubygems.org"
 # Specify your gem's dependencies in jira-auto-tool.gemspec
 gemspec
 
-gem "rate-limited-jira-ruby", path: "../rate-limited-jira-ruby"
-
 group :development do
   gem "aruba"
   gem "cucumber" # , git: "https://github.com/cucumber/cucumber-ruby.git"
